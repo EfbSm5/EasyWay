@@ -28,7 +28,7 @@ import com.efbsm5.easyway.ultis.AppContext.context
 import kotlin.math.abs
 
 
-class MapController(private val callback: (String?,LatLng?,Poi?,Marker?) -> Unit) : LocationSource, AMap.OnMapClickListener,
+class MapController : LocationSource, AMap.OnMapClickListener,
     AMap.OnPOIClickListener, AMap.OnMarkerClickListener, AMapLocationListener {
     private var mLocationOption =
         AMapLocationClientOption().setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy)
@@ -95,7 +95,6 @@ class MapController(private val callback: (String?,LatLng?,Poi?,Marker?) -> Unit
         map.uiSettings.isMyLocationButtonEnabled = true
         map.myLocationStyle = MyLocationStyle().interval(2000)
             .myLocationType(MyLocationStyle.LOCATION_TYPE_LOCATION_ROTATE_NO_CENTER)
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom())
         map.setOnMapClickListener(this@MapController)
         map.setOnPOIClickListener(this@MapController)
         map.setOnMarkerClickListener(this@MapController)
@@ -117,35 +116,35 @@ class MapController(private val callback: (String?,LatLng?,Poi?,Marker?) -> Unit
     }
 
     override fun onMapClick(p0: LatLng?) {
-        callBack.returnEndLocation(convertToLatLonPoint(p0!!), "地图")
+//        callBack.returnEndLocation(convertToLatLonPoint(p0!!), "地图")
     }
 
     override fun onPOIClick(p0: Poi?) {
-        callBack.returnEndLocation(convertToLatLonPoint(p0!!.coordinate), p0.name)
+//        callBack.returnEndLocation(convertToLatLonPoint(p0!!.coordinate), p0.name)
     }
 
     @SuppressLint("ResourceType", "InflateParams")
     override fun onMarkerClick(marker: Marker?): Boolean {
-        callBack.returnEndLocation((convertToLatLonPoint(marker!!.position)), marker.title)
-        updateAndChangeMarkerIcon(marker, _context)
+//        callBack.returnEndLocation((convertToLatLonPoint(marker!!.position)), marker.title)
+//        updateAndChangeMarkerIcon(marker, _context)
         return true
     }
 
 
     override fun onLocationChanged(aMapLocation: AMapLocation?) {
-        if (aMapLocation!!.errorCode == 0) {
-            mListener!!.onLocationChanged(aMapLocation)
-            val latitude = aMapLocation.latitude
-            val longitude = aMapLocation.longitude
-            val point = LatLng(latitude, longitude)
-            callBack.returnNowLocation(MapUtil.convertToLatLonPoint(point))
-            val points = getPoints()
-            for (marker in points) {
-                if (abs(marker.position.latitude - point.latitude) < 0.0005 || abs(marker.position.longitude - point.longitude) < 0.0005) {
-                    updateAndChangeMarkerIcon(marker, _context)
-                }
-            }
-        }
+//        if (aMapLocation!!.errorCode == 0) {
+//            mListener!!.onLocationChanged(aMapLocation)
+//            val latitude = aMapLocation.latitude
+//            val longitude = aMapLocation.longitude
+//            val point = LatLng(latitude, longitude)
+//            callBack.returnNowLocation(MapUtil.convertToLatLonPoint(point))
+//            val points = getPoints()
+//            for (marker in points) {
+//                if (abs(marker.position.latitude - point.latitude) < 0.0005 || abs(marker.position.longitude - point.longitude) < 0.0005) {
+//                    updateAndChangeMarkerIcon(marker, _context)
+//                }
+//            }
+//        }
     }
 }
 
