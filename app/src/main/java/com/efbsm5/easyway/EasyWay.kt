@@ -29,7 +29,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-
     private fun handlePermission() {
         MapsInitializer.updatePrivacyShow(this, true, true)
         MapsInitializer.updatePrivacyAgree(this, true)

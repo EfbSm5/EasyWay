@@ -10,24 +10,29 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.efbsm5.easyway.R
 
-
-@Preview
 @Composable
-fun previewIcon() {
-    IconGrid {}
+fun SearchBar() {
+    TextField(value = "",
+        onValueChange = {},
+        label = { Text("搜索") },
+        modifier = Modifier.fillMaxWidth(),
+        leadingIcon = { Icon(Icons.Default.Search, null) })
 }
 
 @Composable
@@ -50,17 +55,15 @@ fun IconGrid(onclick: (String) -> Unit) {
             content = {
                 items(items.size) { index ->
                     val item = items[index]
-                    IconCard(iconRes = item.first, text = item.second) { onclick(it) }
+                    IconAndName(iconRes = item.first, text = item.second) { onclick(it) }
                 }
             })
     }
 }
 
 @Composable
-fun IconCard(iconRes: Int, text: String, onclick: (String) -> Unit) {
-    Column(
-        //horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
+private fun IconAndName(iconRes: Int, text: String, onclick: (String) -> Unit) {
+    Column(verticalArrangement = Arrangement.Center,
         modifier = Modifier
             .padding(8.dp)
             .fillMaxWidth()
@@ -78,3 +81,4 @@ fun IconCard(iconRes: Int, text: String, onclick: (String) -> Unit) {
         )
     }
 }
+
