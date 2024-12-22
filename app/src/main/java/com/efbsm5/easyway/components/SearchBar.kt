@@ -27,9 +27,9 @@ import androidx.compose.ui.unit.sp
 import com.efbsm5.easyway.R
 
 @Composable
-fun SearchBar() {
-    TextField(value = "",
-        onValueChange = {},
+fun SearchBar(text: String, onTextChange: (String) -> Unit) {
+    TextField(value = text,
+        onValueChange = { onTextChange(it) },
         label = { Text("搜索") },
         modifier = Modifier.fillMaxWidth(),
         leadingIcon = { Icon(Icons.Default.Search, null) })

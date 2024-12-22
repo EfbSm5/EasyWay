@@ -1,5 +1,6 @@
 package com.efbsm5.easyway.ultis
 
+import android.widget.Toast
 import com.amap.api.maps.model.LatLng
 import com.amap.api.services.core.LatLonPoint
 
@@ -11,4 +12,6 @@ object MapUtil {
     fun convertToLatLng(latLonPoint: LatLonPoint): LatLng {
         return LatLng(latLonPoint.latitude, latLonPoint.longitude)
     }
+
+
 }
