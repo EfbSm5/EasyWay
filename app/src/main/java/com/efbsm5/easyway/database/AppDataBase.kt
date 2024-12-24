@@ -5,12 +5,12 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.example.mymusicapplication.UserProfile
+import com.efbsm5.easyway.data.EasyPoints
 
-@Database(version = 1, entities = [::class], exportSchema = false)
+@Database(version = 1, entities = [EasyPoints::class], exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class AppDataBase : RoomDatabase() {
-    abstract fun userDao(): ProfileDuo
+    abstract fun userDao(): PointsDuo
 
     companion object {
         private var instance: AppDataBase? = null
@@ -25,4 +25,5 @@ abstract class AppDataBase : RoomDatabase() {
             ).build().apply { instance = this }
         }
 
-    }-------------------------------------  }
+    }
+}

@@ -1,29 +1,28 @@
 package com.efbsm5.easyway.data
 
-import androidx.databinding.adapters.Converters
+import android.net.Uri
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.amap.api.maps.model.LatLng
+import com.efbsm5.easyway.database.Converters
 
 @Entity(tableName = "points")
-data class EasyPoints {
-    @PrimaryKey(autoGenerate = true)
-    val id: Int = 1
+data class EasyPoints(
+    @PrimaryKey(autoGenerate = true) val id: Int = 1,
 
-    @ColumnInfo(name = "name")
-    val name: String = "默认昵称"
+    @ColumnInfo(name = "type") val type: String = "不详",
 
-    @ColumnInfo(name = "sex")
-    val sex: String = "不详"
+    @ColumnInfo(name = "info") val name: String = "不详",
 
+    @TypeConverters(Converters::class) @ColumnInfo(name = "location") val position: LatLng? = null,
 
-    @ColumnInfo(name = "useEmotion")
-    val useEmotion: Float = 0.5f
+    @TypeConverters(Converters::class) @ColumnInfo(name = "photo") val photos: Uri? = null,
 
-    @TypeConverters(Converters::class)
-    @ColumnInfo(name = "photoFile")
-    val position: LatLng? = null
-}
+    @ColumnInfo(name = "like") val likes: Int = 0,
+
+    @ColumnInfo(name = "dislike") val dislikes: Int = 0,
+
+    )
 

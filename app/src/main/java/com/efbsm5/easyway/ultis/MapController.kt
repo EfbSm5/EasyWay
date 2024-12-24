@@ -89,6 +89,7 @@ class MapController(
 
     private fun MapView.componentCallbacks(): ComponentCallbacks = object : ComponentCallbacks {
         override fun onConfigurationChanged(config: Configuration) {}
+        @Deprecated("Deprecated in Java", ReplaceWith("this@componentCallbacks.onLowMemory()"))
         override fun onLowMemory() {
             this@componentCallbacks.onLowMemory()
         }
