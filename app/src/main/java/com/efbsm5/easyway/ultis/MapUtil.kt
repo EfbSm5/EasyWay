@@ -12,6 +12,4 @@ object MapUtil {
     fun convertToLatLng(latLonPoint: LatLonPoint): LatLng {
         return LatLng(latLonPoint.latitude, latLonPoint.longitude)
     }
-
-
 }

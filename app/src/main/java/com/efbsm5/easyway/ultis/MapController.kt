@@ -4,11 +4,11 @@ import android.annotation.SuppressLint
 import android.content.ComponentCallbacks
 import android.content.res.Configuration
 import android.os.Bundle
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.util.trace
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.amap.api.location.AMapLocation
@@ -16,6 +16,9 @@ import com.amap.api.location.AMapLocationClient
 import com.amap.api.location.AMapLocationClientOption
 import com.amap.api.location.AMapLocationListener
 import com.amap.api.maps.AMap
+import com.amap.api.maps.AMap.MAP_TYPE_NIGHT
+import com.amap.api.maps.AMap.MAP_TYPE_NORMAL
+import com.amap.api.maps.CameraUpdateFactory
 import com.amap.api.maps.LocationSource
 import com.amap.api.maps.LocationSource.OnLocationChangedListener
 import com.amap.api.maps.MapView
@@ -23,6 +26,7 @@ import com.amap.api.maps.model.LatLng
 import com.amap.api.maps.model.Marker
 import com.amap.api.maps.model.MyLocationStyle
 import com.amap.api.maps.model.Poi
+import com.efbsm5.easyway.ui.theme.isDarkTheme
 import com.efbsm5.easyway.ultis.AppContext.context
 
 
@@ -39,6 +43,7 @@ class MapController(
     val _onMapClick: (LatLng?) -> Unit = onMapClick
     val _onPoiClick: (Poi?) -> Unit = onPoiClick
     val _onMarkerClick: (Marker?) -> Unit = onMarkerClick
+    var _location: LatLng? = null
 
     @Composable
     fun MapLifecycle(mapView: MapView) {
@@ -55,6 +60,12 @@ class MapController(
                 lifecycle.removeObserver(mapLifecycleObserver)
                 context.unregisterComponentCallbacks(callbacks)
             }
+        }
+    }
+
+    fun onLocate(mapView: MapView) {
+        _location?.let {
+            mapView.map.animateCamera(CameraUpdateFactory.newLatLng(it))
         }
     }
 
@@ -85,11 +96,11 @@ class MapController(
 
     private fun initMap(mapView: MapView) {
         val map = mapView.map
+        map.mapType = if (isDarkTheme(context)) MAP_TYPE_NIGHT else MAP_TYPE_NORMAL
         map.setLocationSource(this@MapController)
-        map.mapType = AMap.MAP_TYPE_NORMAL
         map.isMyLocationEnabled = true
-        map.myLocationStyle = MyLocationStyle().interval(2000)
-            .myLocationType(MyLocationStyle.LOCATION_TYPE_LOCATION_ROTATE_NO_CENTER)
+        map.myLocationStyle =
+            MyLocationStyle().interval(2000).myLocationType(MyLocationStyle.LOCATION_TYPE_FOLLOW)
         map.setOnMapClickListener(this@MapController)
         map.setOnPOIClickListener(this@MapController)
         map.setOnMarkerClickListener(this@MapController)
@@ -130,7 +141,7 @@ class MapController(
             mListener!!.onLocationChanged(aMapLocation)
             val latitude = aMapLocation.latitude
             val longitude = aMapLocation.longitude
-            val point = LatLng(latitude, longitude)
+            _location = LatLng(latitude, longitude)
         }
     }
 }

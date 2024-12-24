@@ -1,6 +1,8 @@
 package com.efbsm5.easyway.ui.theme
 
 import android.app.Activity
+import android.content.Context
+import android.content.res.Configuration
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -55,4 +57,8 @@ fun EasyWayTheme(
         typography = Typography,
         content = content
     )
+}
+
+fun isDarkTheme(context: Context): Boolean {
+    return (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
 }

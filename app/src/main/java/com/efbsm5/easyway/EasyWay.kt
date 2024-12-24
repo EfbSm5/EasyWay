@@ -23,7 +23,7 @@ class MainActivity : ComponentActivity() {
         handlePermission()
         enableEdgeToEdge()
         setContent {
-            EasyWayTheme() {
+            EasyWayTheme {
                 EasyWay()
             }
         }

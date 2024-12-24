@@ -7,13 +7,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
@@ -23,7 +19,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.BottomSheetScaffold
-import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -62,8 +57,7 @@ fun MapPage(onNavigate: () -> Unit) {
     val context = LocalContext.current
     val mapView = MapView(
         context,
-        AMapOptions().mapType(if (isSystemInDarkTheme()) MAP_TYPE_NIGHT else MAP_TYPE_NORMAL)
-            .compassEnabled(true)
+        AMapOptions().compassEnabled(true)
     )
     val mapController = MapController({ showMsg(it!!.name) },
         { showMsg(it!!.latitude.toString()) },
@@ -75,13 +69,12 @@ fun MapPage(onNavigate: () -> Unit) {
             text = "",
             onTextChange = {},
             onAdd = {},
-            onLocate = {})
+            onLocate = { mapController.onLocate(mapView = mapView) })
     })
-
 }
 
 fun showMsg(text: String) {
-    Toast.makeText(AppContext.context, text, Toast.LENGTH_LONG).show()
+    Toast.makeText(AppContext.context, text, Toast.LENGTH_SHORT).show()
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -130,7 +123,7 @@ private fun MapContent(
     text: String,
     onTextChange: (String) -> Unit,
     onAdd: () -> Unit,
-    onLocate: () -> Unit
+    onLocate:  () -> Unit
 ) {
     val scaffoldState = rememberBottomSheetScaffoldState()
     BottomSheetScaffold(scaffoldState = scaffoldState, sheetContent = {
