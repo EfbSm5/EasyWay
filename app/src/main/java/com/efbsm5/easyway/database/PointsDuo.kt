@@ -15,11 +15,8 @@ interface PointsDuo {
     @Query("SELECT COUNT(*) FROM points")
     fun getCount(): Int
 
-    @Query("select * from points order by id desc limit 1;")
-    fun loadUser(): EasyPoints
-
     @Query("select * from points order by id desc ")
-    fun loadAllUsers(): List<EasyPoints>
+    fun loadAllPoints(): List<EasyPoints>
 
     @Query("UPDATE points SET `like` = `like` + 1 WHERE id = :id")
     fun incrementLikes(id: Int)

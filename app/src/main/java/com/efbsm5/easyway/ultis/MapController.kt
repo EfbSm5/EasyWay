@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.ComponentCallbacks
 import android.content.res.Configuration
 import android.os.Bundle
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.platform.LocalContext
@@ -26,6 +25,8 @@ import com.amap.api.maps.model.LatLng
 import com.amap.api.maps.model.Marker
 import com.amap.api.maps.model.MyLocationStyle
 import com.amap.api.maps.model.Poi
+import com.efbsm5.easyway.data.EasyPoints
+import com.efbsm5.easyway.network.GetDataFromDataBase
 import com.efbsm5.easyway.ui.theme.isDarkTheme
 import com.efbsm5.easyway.ultis.AppContext.context
 
@@ -44,6 +45,7 @@ class MapController(
     val _onPoiClick: (Poi?) -> Unit = onPoiClick
     val _onMarkerClick: (Marker?) -> Unit = onMarkerClick
     var _location: LatLng? = null
+    lateinit var points: List<EasyPoints>
 
     @Composable
     fun MapLifecycle(mapView: MapView) {
@@ -89,6 +91,7 @@ class MapController(
 
     private fun MapView.componentCallbacks(): ComponentCallbacks = object : ComponentCallbacks {
         override fun onConfigurationChanged(config: Configuration) {}
+
         @Deprecated("Deprecated in Java", ReplaceWith("this@componentCallbacks.onLowMemory()"))
         override fun onLowMemory() {
             this@componentCallbacks.onLowMemory()
@@ -108,6 +111,11 @@ class MapController(
         map.showMapText(true)
     }
 
+//    @Composable
+//    fun _initMap(mapView: MapView) {
+//        GetDataFromDataBase(context)?.let { points = it }
+//        mapView.
+//    }
 
     override fun activate(p0: OnLocationChangedListener?) {
         if (mListener == null) {

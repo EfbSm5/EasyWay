@@ -1,7 +1,5 @@
 package com.efbsm5.easyway.page
 
-import android.widget.Toast
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,16 +13,21 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Place
 import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -40,80 +43,33 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import com.amap.api.maps.AMap.MAP_TYPE_NIGHT
-import com.amap.api.maps.AMap.MAP_TYPE_NORMAL
 import com.amap.api.maps.AMapOptions
 import com.amap.api.maps.MapView
-import com.amap.api.navi.view.nightmode.NightModeView
 import com.efbsm5.easyway.components.IconGrid
 import com.efbsm5.easyway.components.Menu
 import com.efbsm5.easyway.components.SearchBar
-import com.efbsm5.easyway.ultis.AppContext
+import com.efbsm5.easyway.ultis.AppContext.context
 import com.efbsm5.easyway.ultis.MapController
+import com.efbsm5.easyway.ultis.MapUtil.showMsg
 
 
 @Composable
-fun MapPage(onNavigate: () -> Unit) {
-    val context = LocalContext.current
+fun MapPage() {
     val mapView = MapView(
-        context,
-        AMapOptions().compassEnabled(true)
+        context, AMapOptions().compassEnabled(true)
     )
-    val mapController = MapController({ showMsg(it!!.name) },
-        { showMsg(it!!.latitude.toString()) },
-        { showMsg(it!!.id) })
+    val mapController = MapController(onPoiClick = { showMsg(it!!.name) },
+        onMapClick = { showMsg(it!!.latitude.toString()) },
+        onMarkerClick = { showMsg(it!!.id) })
     mapController.MapLifecycle(mapView)
-    MapPageSurface(onFactoryReset = {}, onChangeMap = {}, onNavigate = { onNavigate() }, content = {
-        MapContent(mapView = mapView,
-            onclick = {},
-            text = "",
-            onTextChange = {},
-            onAdd = {},
-            onLocate = { mapController.onLocate(mapView = mapView) })
-    })
+    MapContent(mapView = mapView,
+        onclick = {},
+        text = "",
+        onTextChange = {},
+        onAdd = {},
+        onLocate = { mapController.onLocate(mapView = mapView) })
 }
 
-fun showMsg(text: String) {
-    Toast.makeText(AppContext.context, text, Toast.LENGTH_SHORT).show()
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun MapPageSurface(
-    onFactoryReset: () -> Unit,
-    onChangeMap: () -> Unit,
-    onNavigate: () -> Unit,
-    content: @Composable (() -> Unit),
-) {
-    var expanded by remember { mutableStateOf(false) }
-    Scaffold(
-        topBar = {
-            TopAppBar(title = { Text(text = "EasyWay") }, navigationIcon = {
-                IconButton(onClick = { expanded = true }) {
-                    Icon(Icons.Default.Menu, contentDescription = "Menu")
-                }
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false },
-                    modifier = Modifier
-                        .width(IntrinsicSize.Min)
-                        .wrapContentSize(Alignment.TopStart)
-                ) {
-                    Menu(onChangeMap = { onChangeMap() },
-                        onFactoryReset = { onFactoryReset() },
-                        onNavigate = { onNavigate() })
-                }
-            })
-
-        },
-        containerColor = MaterialTheme.colorScheme.surfaceContainer,
-        contentColor = MaterialTheme.colorScheme.surface
-    ) { paddingValues ->
-        Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(paddingValues)) {
-            content()
-        }
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -123,7 +79,7 @@ private fun MapContent(
     text: String,
     onTextChange: (String) -> Unit,
     onAdd: () -> Unit,
-    onLocate:  () -> Unit
+    onLocate: () -> Unit
 ) {
     val scaffoldState = rememberBottomSheetScaffoldState()
     BottomSheetScaffold(scaffoldState = scaffoldState, sheetContent = {
