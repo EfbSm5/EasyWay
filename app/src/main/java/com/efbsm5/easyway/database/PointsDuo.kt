@@ -8,7 +8,6 @@ import com.efbsm5.easyway.data.EasyPoints
 
 @Dao
 interface PointsDuo {
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(point: EasyPoints)
 

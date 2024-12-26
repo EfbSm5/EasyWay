@@ -5,9 +5,11 @@ import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.material3.Text
@@ -15,22 +17,26 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+
+//@Preview
+//@Composable
+//fun pre() {
+//    NewPointCard()
+//}
 
 @Composable
 fun NewPointCard() {
 
-}
-
-@Composable
-fun FormLayout() {
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
+            .padding(16.dp)
+            .background(color = MaterialTheme.colorScheme.surface),
+        verticalArrangement = Arrangement.Bottom,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
@@ -143,5 +149,93 @@ fun OnChoosePicture(callback: (Uri?) -> Unit) {
             type = "picture/*"
         }
         launcher.launch(intent)
+    }
+}
+
+
+@Composable
+fun SearchPage() {
+    var offsetY by remember { mutableStateOf(200f) }
+    val animatedOffsetY by animateDpAsState(targetValue = offsetY.dp)
+    val iconRowOffsetY by animateDpAsState(
+        targetValue = if (offsetY < 150f) 0.dp else 200.dp // 上拉时从 200.dp 滑动到 0.dp
+    )
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(Color.White)
+            .pointerInput(Unit) {
+                detectVerticalDragGestures { _, dragAmount ->
+                    offsetY = (offsetY + dragAmount).coerceIn(0f, 200f)
+                }
+            }
+    ) {
+        // 地图内容
+        MapContent()
+        Column(
+            Modifier
+                .offset(y = animatedOffsetY) // 根据偏移量更新位置
+                .fillMaxWidth()
+                .background(Color.White)
+        ) {
+            SearchBar()
+            IconRow(
+                Modifier
+                    .offset(y = iconRowOffsetY) // 控制 IconRow 的垂直位置
+            )
+        }
+    }
+}
+
+@Composable
+fun MapContent() {
+    // 地图模拟内容
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(Color(0xFFE0F7FA)) // 蓝色背景代表地图
+    ) {
+        Text(
+            text = "地图内容",
+            Modifier.align(Alignment.Center),
+            color = Color.Black
+        )
+    }
+}
+
+@Composable
+fun SearchBar() {
+    // 搜索栏组件
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .height(60.dp)
+            .background(Color.Gray),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(text = "搜索栏", color = Color.White)
+    }
+}
+
+@Composable
+fun IconRow(modifier: Modifier = Modifier) {
+    // 图标区域组件
+    Row(
+        modifier
+            .fillMaxWidth()
+            .background(Color.LightGray)
+            .padding(8.dp),
+        horizontalArrangement = Arrangement.SpaceAround
+    ) {
+        repeat(4) {
+            Box(
+                Modifier
+                    .size(50.dp)
+                    .background(Color.DarkGray),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = "图标", color = Color.White)
+            }
+        }
     }
 }

@@ -10,30 +10,37 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.efbsm5.easyway.R
 
 @Composable
 fun SearchBar(text: String, onTextChange: (String) -> Unit) {
-    TextField(value = text,
+    TextField(
+        value = text,
         onValueChange = { onTextChange(it) },
         label = { Text("搜索") },
-        modifier = Modifier.fillMaxWidth(),
-        leadingIcon = { Icon(Icons.Default.Search, null) })
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(5.dp),
+        leadingIcon = { Icon(Icons.Default.Search, null) },
+    )
 }
+
 
 @Composable
 fun IconGrid(onclick: (String) -> Unit) {
@@ -47,18 +54,17 @@ fun IconGrid(onclick: (String) -> Unit) {
         Pair(R.drawable.aed, "AED"),
         Pair(R.drawable.podao, "坡道")
     )
-    Surface(color = MaterialTheme.colorScheme.surface) {
-        LazyVerticalGrid(columns = GridCells.Fixed(4),
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            content = {
-                items(items.size) { index ->
-                    val item = items[index]
-                    IconAndName(iconRes = item.first, text = item.second) { onclick(it) }
-                }
-            })
-    }
+    LazyVerticalGrid(columns = GridCells.Fixed(4),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+            .clip(RoundedCornerShape(9)),
+        content = {
+            items(items.size) { index ->
+                val item = items[index]
+                IconAndName(iconRes = item.first, text = item.second) { onclick(it) }
+            }
+        })
 }
 
 @Composable
@@ -74,10 +80,13 @@ private fun IconAndName(iconRes: Int, text: String, onclick: (String) -> Unit) {
             modifier = Modifier
                 .size(64.dp)
                 .padding(bottom = 8.dp),
-            contentScale = ContentScale.Fit
+            contentScale = ContentScale.Fit,
         )
         Text(
-            text = text, fontSize = 14.sp, color = Color.Black
+            text = text,
+            fontSize = 14.sp,
+            color = Color.Black,
+            modifier = Modifier.align(Alignment.CenterHorizontally)
         )
     }
 }

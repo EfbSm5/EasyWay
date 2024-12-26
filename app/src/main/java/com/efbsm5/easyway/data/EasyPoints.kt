@@ -23,6 +23,5 @@ data class EasyPoints(
     @ColumnInfo(name = "like") val likes: Int = 0,
 
     @ColumnInfo(name = "dislike") val dislikes: Int = 0,
-
-    )
+)
 
