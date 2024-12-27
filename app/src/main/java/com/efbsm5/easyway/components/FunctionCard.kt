@@ -4,8 +4,11 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -26,6 +29,20 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.efbsm5.easyway.R
+
+@Composable
+fun FunctionCard(text: String, onclick: (String) -> Unit, onTextChange: (String) -> Unit) {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .heightIn(max = 350.dp)
+            .padding(16.dp)
+    ) {
+        SearchBar(text = text) { onTextChange(it) }
+        Spacer(Modifier.height(10.dp))
+        IconGrid { onclick(it) }
+    }
+}
 
 @Composable
 fun SearchBar(text: String, onTextChange: (String) -> Unit) {

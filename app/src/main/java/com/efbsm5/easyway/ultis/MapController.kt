@@ -2,10 +2,12 @@ package com.efbsm5.easyway.ultis
 
 import android.annotation.SuppressLint
 import android.content.ComponentCallbacks
+import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
@@ -23,10 +25,11 @@ import com.amap.api.maps.LocationSource.OnLocationChangedListener
 import com.amap.api.maps.MapView
 import com.amap.api.maps.model.LatLng
 import com.amap.api.maps.model.Marker
+import com.amap.api.maps.model.MarkerOptions
 import com.amap.api.maps.model.MyLocationStyle
 import com.amap.api.maps.model.Poi
 import com.efbsm5.easyway.data.EasyPoints
-import com.efbsm5.easyway.network.GetDataFromDataBase
+import com.efbsm5.easyway.database.getDataFromDataBase
 import com.efbsm5.easyway.ui.theme.isDarkTheme
 import com.efbsm5.easyway.ultis.AppContext.context
 
@@ -45,7 +48,8 @@ class MapController(
     val _onPoiClick: (Poi?) -> Unit = onPoiClick
     val _onMarkerClick: (Marker?) -> Unit = onMarkerClick
     var _location: LatLng? = null
-    lateinit var points: List<EasyPoints>
+    private var points: ArrayList<Marker> = ArrayList()
+
 
     @Composable
     fun MapLifecycle(mapView: MapView) {
@@ -111,11 +115,10 @@ class MapController(
         map.showMapText(true)
     }
 
-//    @Composable
-//    fun _initMap(mapView: MapView) {
-//        GetDataFromDataBase(context)?.let { points = it }
-//        mapView.
-//    }
+    @Composable
+    private fun InitPoints(mapView: MapView, context: Context) {
+
+    }
 
     override fun activate(p0: OnLocationChangedListener?) {
         if (mListener == null) {

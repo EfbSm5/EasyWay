@@ -1,12 +1,6 @@
 package com.efbsm5.easyway.page
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberBottomSheetScaffoldState
@@ -21,9 +15,10 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.amap.api.maps.AMapOptions
 import com.amap.api.maps.MapView
 import com.efbsm5.easyway.components.AddAndLocateButton
-import com.efbsm5.easyway.components.IconGrid
+import com.efbsm5.easyway.components.CommentCard
+import com.efbsm5.easyway.components.FunctionCard
+import com.efbsm5.easyway.components.NewPlaceCard
 import com.efbsm5.easyway.components.NewPointCard
-import com.efbsm5.easyway.components.SearchBar
 import com.efbsm5.easyway.ultis.AppContext.context
 import com.efbsm5.easyway.ultis.MapController
 import com.efbsm5.easyway.ultis.MapUtil.showMsg
@@ -40,14 +35,22 @@ fun MapPage() {
     mapController.MapLifecycle(mapView)
     var searchBarText by remember { mutableStateOf("") }
     var isAdding by remember { mutableStateOf(false) }
+    var content: Screen by remember { mutableStateOf(Screen.IconCard) }
+    var iconText by remember { mutableStateOf("") }
     MapContent(
         mapView = mapView,
-        onclick = {},
-        text = searchBarText,
-        onTextChange = { searchBarText = it },
         onAdd = { isAdding = true },
         onLocate = { mapController.onLocate(mapView = mapView) },
-        isAdding = isAdding
+        content = {
+            when (content) {
+                Screen.Comment -> CommentCard()
+                Screen.IconCard -> FunctionCard(text = searchBarText,
+                    onclick = {},
+                    onTextChange = { searchBarText = it })
+                Screen.NewPoint -> NewPointCard()
+                Screen.Places -> NewPlaceCard()
+            }
+        },
     )
 }
 
@@ -55,37 +58,24 @@ fun MapPage() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MapContent(
-    mapView: MapView,
-    text: String,
-    isAdding: Boolean,
-    onclick: (String) -> Unit,
-    onTextChange: (String) -> Unit,
-    onAdd: () -> Unit,
-    onLocate: () -> Unit
+    mapView: MapView, onAdd: () -> Unit, onLocate: () -> Unit, content: @Composable () -> Unit
 ) {
     val scaffoldState = rememberBottomSheetScaffoldState()
     BottomSheetScaffold(
         scaffoldState = scaffoldState, sheetContent = {
-            Column(
-                Modifier
-                    .fillMaxWidth()
-                    .heightIn(max = 350.dp)
-                    .padding(16.dp)
-            ) {
-                SearchBar(text = text) { onTextChange(it) }
-                Spacer(Modifier.height(10.dp))
-                IconGrid { onclick(it) }
-            }
+            content()
         }, sheetPeekHeight = 120.dp
     ) {
         AndroidView(modifier = Modifier.fillMaxSize(), factory = { mapView })
         AddAndLocateButton({ onAdd() }, { onLocate() })
-        if (isAdding) {
-            NewPointCard()
-        }
     }
 }
 
-
+sealed interface Screen {
+    data object IconCard : Screen
+    data object NewPoint : Screen
+    data object Places : Screen
+    data object Comment : Screen
+}
 
 

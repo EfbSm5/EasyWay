@@ -1,6 +1,8 @@
 package com.efbsm5.easyway.page
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,8 +12,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Divider
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,6 +24,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.efbsm5.easyway.ultis.MapUtil
 
 @Composable
 fun HomePage() {
@@ -33,14 +39,21 @@ fun HomePage() {
         Spacer(modifier = Modifier.height(32.dp))
         ProfileHeader()
         Spacer(modifier = Modifier.height(32.dp))
-        FeatureList()
-        Spacer(modifier = Modifier.weight(1f))
+        MenuItem("我的标注") { MapUtil.showMsg("开发中") }
+        MenuItem("版本切换") { MapUtil.showMsg("开发中") }
+        MenuItem("帮助中心") { MapUtil.showMsg("开发中") }
+        MenuItem("免责声明") { MapUtil.showMsg("开发中") }
+        MenuItem("关于") { MapUtil.showMsg("开发中") }
     }
 }
 
 @Composable
 fun ProfileHeader() {
-    Row() {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Start,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         Box(
             Modifier
                 .size(80.dp)
@@ -50,41 +63,31 @@ fun ProfileHeader() {
         ) {
             Text(text = "头像", color = Color.White)
         }
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.width(40.dp))
         Text(
             text = "XXXX用户", color = Color.Black
         )
     }
 }
 
-
 @Composable
-fun FeatureList() {
-    val features = listOf("我的标注", "版本切换", "帮助中心", "免责声明", "关于")
-    Column(
-        Modifier.fillMaxWidth()
+fun MenuItem(title: String, onClick: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+            .clickable(onClick = onClick),
+        shape = MaterialTheme.shapes.medium,
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
-        features.forEach { feature ->
-            FeatureItem(feature)
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Text(text = title, fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface)
         }
     }
 }
 
-@Composable
-fun FeatureItem(text: String) {
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .padding(vertical = 12.dp)
-    ) {
-        Divider(
-            Modifier
-                .align(Alignment.TopStart)
-                .padding(bottom = 2.dp)
-        )
-        Text(
-            text = text, color = Color.Black
-        )
-    }
-}
+
+
 

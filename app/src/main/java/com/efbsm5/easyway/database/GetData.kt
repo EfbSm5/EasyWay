@@ -1,11 +1,10 @@
-package com.efbsm5.easyway.network
+package com.efbsm5.easyway.database
 
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import com.efbsm5.easyway.data.EasyPoints
-import com.efbsm5.easyway.database.AppDataBase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -42,7 +41,7 @@ fun AddDisLike(context: Context, points: EasyPoints) {
 }
 
 @Composable
-fun GetDataFromDataBase(context: Context): List<EasyPoints>? {
+fun getDataFromDataBase(context: Context): List<EasyPoints>? {
     val coroutineScope = rememberCoroutineScope()
     var a: List<EasyPoints>? = null
     LaunchedEffect(Unit) {

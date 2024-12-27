@@ -16,4 +16,5 @@ object MapUtil {
     fun showMsg(text: String) {
         Toast.makeText(AppContext.context, text, Toast.LENGTH_SHORT).show()
     }
+
 }
