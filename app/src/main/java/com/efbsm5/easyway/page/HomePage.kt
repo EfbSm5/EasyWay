@@ -1,5 +1,6 @@
 package com.efbsm5.easyway.page
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -23,12 +24,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.efbsm5.easyway.ultis.MapUtil
 
 @Composable
 fun HomePage() {
+    val context = LocalContext.current
+    HomePageScreen(context)
+}
+
+@Composable
+fun HomePageScreen(context: Context) {
     Column(
         Modifier
             .fillMaxSize()
@@ -39,11 +47,11 @@ fun HomePage() {
         Spacer(modifier = Modifier.height(32.dp))
         ProfileHeader()
         Spacer(modifier = Modifier.height(32.dp))
-        MenuItem("我的标注") { MapUtil.showMsg("开发中") }
-        MenuItem("版本切换") { MapUtil.showMsg("开发中") }
-        MenuItem("帮助中心") { MapUtil.showMsg("开发中") }
-        MenuItem("免责声明") { MapUtil.showMsg("开发中") }
-        MenuItem("关于") { MapUtil.showMsg("开发中") }
+        MenuItem("我的标注") { MapUtil.showMsg("开发中", context) }
+        MenuItem("版本切换") { MapUtil.showMsg("开发中", context) }
+        MenuItem("帮助中心") { MapUtil.showMsg("开发中", context) }
+        MenuItem("免责声明") { MapUtil.showMsg("开发中", context) }
+        MenuItem("关于") { MapUtil.showMsg("开发中", context) }
     }
 }
 
@@ -65,7 +73,7 @@ fun ProfileHeader() {
         }
         Spacer(modifier = Modifier.width(40.dp))
         Text(
-            text = "XXXX用户", color = Color.Black
+            text = "XXL用户", color = Color.Black
         )
     }
 }

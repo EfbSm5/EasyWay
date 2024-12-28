@@ -24,7 +24,6 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun NewPointCard() {
-
     Column(
         modifier = Modifier
             .padding(16.dp)

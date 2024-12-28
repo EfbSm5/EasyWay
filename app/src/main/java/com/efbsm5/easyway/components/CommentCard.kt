@@ -1,50 +1,54 @@
 package com.efbsm5.easyway.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.efbsm5.easyway.database.getPointContent
-import com.efbsm5.easyway.database.getPoints
+import com.efbsm5.easyway.data.EasyPoints
+import java.io.ByteArrayInputStream
 
-@Preview
 @Composable
-fun CommentCard(id: Int) {
-    val context = LocalContext.current
-    val points = getPointContent(
-        context = context, id = id
-    )
-
-    FacilityDetailScreen()
+fun CommentAndHistoryCard(points: EasyPoints) {
+    var state: Screen by remember { mutableStateOf(Screen.Comment) }
+    FacilityDetailScreen(points = points, screen = state, onChangeScreen = { state = it })
 }
 
 @Composable
-fun FacilityDetailScreen() {
+fun FacilityDetailScreen(points: EasyPoints, screen: Screen, onChangeScreen: (Screen) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        FacilityInfoSection()
+        FacilityInfoSection(points)
         Spacer(modifier = Modifier.height(16.dp))
-        CommentSection()
+        Section { onChangeScreen(it) }
+        when (screen) {
+            Screen.Comment -> CommentCard(points)
+            Screen.History -> HistoryCard()
+        }
         Spacer(modifier = Modifier.height(16.dp))
         BottomActionBar()
     }
 }
 
 @Composable
-fun FacilityInfoSection() {
+fun FacilityInfoSection(points: EasyPoints) {
     Row(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -54,46 +58,61 @@ fun FacilityInfoSection() {
                 .background(Color.Gray, RoundedCornerShape(8.dp)),
             contentAlignment = Alignment.Center
         ) {
-            Text(text = "照片，取首图", color = Color.White)
+
+
         }
-
         Spacer(modifier = Modifier.width(16.dp))
-
         Column(
             modifier = Modifier.weight(1f), verticalArrangement = Arrangement.SpaceEvenly
         ) {
-            Text(text = "设施类别", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-            Text(text = "标注来源", fontSize = 14.sp, color = Color.Gray)
-            Text(text = "更新日期", fontSize = 14.sp, color = Color.Gray)
-
+            Text(text = "设施类别:${points.type}", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            Text(text = "标注来源:", fontSize = 14.sp, color = Color.Gray)
+            Text(text = "更新日期:${points.refreshTime}", fontSize = 14.sp, color = Color.Gray)
             Spacer(modifier = Modifier.height(8.dp))
-
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(text = "👍 次数", fontSize = 14.sp, color = Color.Gray)
+                Text(text = "👍 次数:${points.likes}", fontSize = 14.sp, color = Color.Gray)
                 Spacer(modifier = Modifier.width(16.dp))
-                Text(text = "👎 次数", fontSize = 14.sp, color = Color.Gray)
+                Text(text = "👎 次数:${points.dislikes}", fontSize = 14.sp, color = Color.Gray)
             }
         }
     }
-
     Spacer(modifier = Modifier.height(16.dp))
-
     Text(
-        text = "设施说明", fontWeight = FontWeight.Bold, fontSize = 16.sp
+        text = "设施说明:", fontWeight = FontWeight.Bold, fontSize = 16.sp
     )
     Text(
-        text = "例如：坡道损坏；无障碍洗手间在三楼", fontSize = 14.sp, color = Color.Gray
+        text = points.introduce, fontSize = 14.sp, color = Color.Gray
     )
 }
 
 @Composable
-fun CommentSection() {
-    Text(
-        text = "评论 次数 / 历史版本", fontWeight = FontWeight.Bold, fontSize = 16.sp
-    )
+fun Section(onClick: (Screen) -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(text = "评论次数",
+            fontWeight = FontWeight.Bold,
+            fontSize = 16.sp,
+            modifier = Modifier.clickable {
+                onClick(Screen.Comment)
+            })
+        Spacer(Modifier.width(20.dp))
+        Text(text = "历史版本",
+            fontWeight = FontWeight.Bold,
+            fontSize = 16.sp,
+            modifier = Modifier.clickable {
+                onClick(Screen.History)
+            })
+    }
 
-    Spacer(modifier = Modifier.height(8.dp))
+}
 
+@Composable
+fun CommentCard(points: EasyPoints) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Box(
             modifier = Modifier
@@ -145,6 +164,11 @@ fun CommentSection() {
 }
 
 @Composable
+fun HistoryCard() {
+
+}
+
+@Composable
 fun BottomActionBar() {
     Row(
         modifier = Modifier
@@ -170,4 +194,9 @@ fun BottomActionBar() {
             Text(text = "发布评论")
         }
     }
+}
+
+sealed interface Screen {
+    data object Comment : Screen
+    data object History : Screen
 }

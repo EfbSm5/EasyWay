@@ -33,12 +33,9 @@ import androidx.core.view.WindowInsetsCompat
 
 @Composable
 fun PersonalPage() {
-    // 设置初始高度
     var panelHeight by remember { mutableStateOf(300.dp) }
-    val animatedHeight by animateDpAsState(targetValue = panelHeight)
-
+    val animatedHeight by animateDpAsState(targetValue = panelHeight, label = "")
     Box(modifier = Modifier.fillMaxSize()) {
-        // 模拟的地图部分
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -46,8 +43,6 @@ fun PersonalPage() {
                 .background(MaterialTheme.colorScheme.primary)
                 .zIndex(0f) // 确保地图在底层
         )
-
-        // 可拖动的面板部分
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -77,7 +72,6 @@ fun PersonalPage() {
         }
     }
 }
-
 @Composable
 fun SearchBar() {
     Box(
@@ -89,7 +83,6 @@ fun SearchBar() {
         // 搜索栏内容
     }
 }
-
 @Composable
 fun FeatureButton(text: String) {
     Box(

@@ -13,13 +13,11 @@ import com.efbsm5.easyway.ui.theme.EasyWayTheme
 import com.amap.api.maps.MapsInitializer
 import com.amap.apis.utils.core.api.AMapUtilCoreApi
 import com.efbsm5.easyway.page.EasyWay
-import com.efbsm5.easyway.ultis.AppContext
 
 class MainActivity : ComponentActivity() {
     private val TAG = "MainActivity"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        AppContext.context = applicationContext
         handlePermission()
         enableEdgeToEdge()
         setContent {

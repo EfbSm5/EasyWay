@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
+import com.amap.api.maps.model.Marker
 import com.efbsm5.easyway.data.EasyPoints
 import com.efbsm5.easyway.data.EasyPointsSimplify
 import kotlinx.coroutines.Dispatchers
@@ -105,5 +106,18 @@ fun IncrementCommentDislikes(context: Context, id: Int) {
             }
         }
     }
+}
+
+@Composable
+fun fromMarkerToPoints(context: Context, marker: Marker): EasyPoints {
+    val coroutineScope = rememberCoroutineScope()
+    var points = EasyPoints()
+    LaunchedEffect(Unit) {
+        coroutineScope.launch(Dispatchers.IO) {
+            val database = AppDataBase.getDatabase(context).userDao()
+            points = database.markerToPoints(marker)
+        }
+    }
+    return points
 }
 

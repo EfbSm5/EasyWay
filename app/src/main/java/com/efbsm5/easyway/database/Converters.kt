@@ -1,37 +1,32 @@
 package com.efbsm5.easyway.database
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import androidx.room.TypeConverter
-import com.amap.api.maps.model.LatLng
-import java.io.ByteArrayOutputStream
+import com.amap.api.maps.model.Marker
+import com.efbsm5.easyway.data.Comment
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 class Converters {
+
     @TypeConverter
-    fun fromLatLng(latLng: LatLng?): String? {
-        return latLng?.let { "${it.latitude},${it.longitude}" }
+    fun fromComment(comment: Comment): String {
+        return Gson().toJson(comment)
     }
 
     @TypeConverter
-    fun toLatLng(value: String?): LatLng? {
-        return value?.split(",")?.let {
-            LatLng(it[0].toDouble(), it[1].toDouble())
-        }
+    fun toComment(commentString: String): Comment {
+        val type = object : TypeToken<Comment>() {}.type
+        return Gson().fromJson(commentString, type)
+    }
+    @TypeConverter
+    fun fromMarker(marker: Marker): String {
+        return Gson().toJson(marker)
     }
 
     @TypeConverter
-    fun fromBitmap(bitmap: Bitmap?): ByteArray? {
-        return bitmap?.let {
-            val outputStream = ByteArrayOutputStream()
-            it.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
-            outputStream.toByteArray()
-        }
+    fun toMarker(markerString: String): Marker {
+        val type = object : TypeToken<Marker>() {}.type
+        return Gson().fromJson(markerString, type)
     }
 
-    @TypeConverter
-    fun toBitmap(byteArray: ByteArray?): Bitmap? {
-        return byteArray?.let {
-            BitmapFactory.decodeByteArray(it, 0, it.size)
-        }
-    }
 }

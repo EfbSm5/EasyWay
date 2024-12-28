@@ -11,10 +11,8 @@ import com.efbsm5.easyway.data.EasyPoints
 @TypeConverters(Converters::class)
 abstract class AppDataBase : RoomDatabase() {
     abstract fun userDao(): PointsDuo
-
     companion object {
         private var instance: AppDataBase? = null
-
         @Synchronized
         fun getDatabase(context: Context): AppDataBase {
             instance?.let {

@@ -8,7 +8,6 @@ import android.os.Bundle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.amap.api.location.AMapLocation
@@ -27,11 +26,13 @@ import com.amap.api.maps.model.Marker
 import com.amap.api.maps.model.MyLocationStyle
 import com.amap.api.maps.model.Poi
 import com.efbsm5.easyway.ui.theme.isDarkTheme
-import com.efbsm5.easyway.ultis.AppContext.context
 
 
 class MapController(
-    onPoiClick: (Poi?) -> Unit, onMapClick: (LatLng?) -> Unit, onMarkerClick: (Marker?) -> Unit
+    onPoiClick: (Poi?) -> Unit,
+    onMapClick: (LatLng?) -> Unit,
+    onMarkerClick: (Marker?) -> Unit,
+    context: Context
 ) : LocationSource, AMap.OnMapClickListener, AMap.OnPOIClickListener, AMap.OnMarkerClickListener,
     AMapLocationListener {
     private var mLocationOption =
@@ -40,11 +41,12 @@ class MapController(
             .setHttpTimeOut(6000)
     private var mLocationClient: AMapLocationClient = AMapLocationClient(context)
     private var mListener: OnLocationChangedListener? = null
-    val _onMapClick: (LatLng?) -> Unit = onMapClick
-    val _onPoiClick: (Poi?) -> Unit = onPoiClick
-    val _onMarkerClick: (Marker?) -> Unit = onMarkerClick
-    var _location: LatLng? = null
-    private var points: ArrayList<Marker> = ArrayList()
+    val monMapClick: (LatLng?) -> Unit = onMapClick
+    val monPoiClick: (Poi?) -> Unit = onPoiClick
+    val monMarkerClick: (Marker?) -> Unit = onMarkerClick
+    private var mLocation: LatLng? = null
+    private var mContext = context
+    //private var points: ArrayList<Marker> = ArrayList()
 
 
     @Composable
@@ -52,7 +54,7 @@ class MapController(
         mLocationClient.setLocationOption(mLocationOption)
         mLocationClient.setLocationListener(this@MapController)
         val context = LocalContext.current
-        val lifecycle = LocalLifecycleOwner.current.lifecycle
+        val lifecycle = androidx.lifecycle.compose.LocalLifecycleOwner.current.lifecycle
         DisposableEffect(context, lifecycle, this) {
             val mapLifecycleObserver = lifecycleObserver(mapView)
             val callbacks = mapView.componentCallbacks()
@@ -66,7 +68,7 @@ class MapController(
     }
 
     fun onLocate(mapView: MapView) {
-        _location?.let {
+        mLocation?.let {
             mapView.map.animateCamera(CameraUpdateFactory.newLatLng(it))
         }
     }
@@ -100,7 +102,7 @@ class MapController(
 
     private fun initMap(mapView: MapView) {
         val map = mapView.map
-        map.mapType = if (isDarkTheme(context)) MAP_TYPE_NIGHT else MAP_TYPE_NORMAL
+        map.mapType = if (isDarkTheme(mContext)) MAP_TYPE_NIGHT else MAP_TYPE_NORMAL
         map.setLocationSource(this@MapController)
         map.isMyLocationEnabled = true
         map.myLocationStyle =
@@ -111,10 +113,6 @@ class MapController(
         map.showMapText(true)
     }
 
-    @Composable
-    private fun InitPoints(mapView: MapView, context: Context) {
-
-    }
 
     override fun activate(p0: OnLocationChangedListener?) {
         if (mListener == null) {
@@ -130,16 +128,17 @@ class MapController(
     }
 
     override fun onMapClick(p0: LatLng?) {
-        _onMapClick(p0)
+        monMapClick(p0)
     }
 
     override fun onPOIClick(p0: Poi?) {
-        _onPoiClick(p0)
+        monPoiClick(p0)
     }
 
     @SuppressLint("ResourceType", "InflateParams")
     override fun onMarkerClick(marker: Marker?): Boolean {
-        _onMarkerClick(marker)
+
+        monMarkerClick(marker)
         return true
     }
 
@@ -149,7 +148,7 @@ class MapController(
             mListener!!.onLocationChanged(aMapLocation)
             val latitude = aMapLocation.latitude
             val longitude = aMapLocation.longitude
-            _location = LatLng(latitude, longitude)
+            mLocation = LatLng(latitude, longitude)
         }
     }
 }
