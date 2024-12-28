@@ -7,7 +7,6 @@ import android.content.res.Configuration
 import android.os.Bundle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
@@ -25,11 +24,8 @@ import com.amap.api.maps.LocationSource.OnLocationChangedListener
 import com.amap.api.maps.MapView
 import com.amap.api.maps.model.LatLng
 import com.amap.api.maps.model.Marker
-import com.amap.api.maps.model.MarkerOptions
 import com.amap.api.maps.model.MyLocationStyle
 import com.amap.api.maps.model.Poi
-import com.efbsm5.easyway.data.EasyPoints
-import com.efbsm5.easyway.database.getDataFromDataBase
 import com.efbsm5.easyway.ui.theme.isDarkTheme
 import com.efbsm5.easyway.ultis.AppContext.context
 

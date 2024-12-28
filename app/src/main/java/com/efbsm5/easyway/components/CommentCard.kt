@@ -9,14 +9,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.efbsm5.easyway.database.getPointContent
+import com.efbsm5.easyway.database.getPoints
 
 @Preview
 @Composable
-fun CommentCard() {
+fun CommentCard(id: Int) {
+    val context = LocalContext.current
+    val points = getPointContent(
+        context = context, id = id
+    )
+
     FacilityDetailScreen()
 }
 
@@ -27,17 +35,10 @@ fun FacilityDetailScreen() {
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        // 设施信息部分
         FacilityInfoSection()
-
         Spacer(modifier = Modifier.height(16.dp))
-
-        // 评论部分
         CommentSection()
-
         Spacer(modifier = Modifier.height(16.dp))
-
-        // 底部操作按钮
         BottomActionBar()
     }
 }

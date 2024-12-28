@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import com.efbsm5.easyway.data.EasyPoints
+import com.efbsm5.easyway.data.EasyPointsSimplify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -41,9 +42,9 @@ fun AddDisLike(context: Context, points: EasyPoints) {
 }
 
 @Composable
-fun getDataFromDataBase(context: Context): List<EasyPoints>? {
+fun getPoints(context: Context): List<EasyPointsSimplify>? {
     val coroutineScope = rememberCoroutineScope()
-    var a: List<EasyPoints>? = null
+    var a: List<EasyPointsSimplify>? = null
     LaunchedEffect(Unit) {
         coroutineScope.launch(Dispatchers.IO) {
             a = AppDataBase.getDatabase(context).userDao().loadAllPoints()
@@ -51,3 +52,58 @@ fun getDataFromDataBase(context: Context): List<EasyPoints>? {
     }
     return a
 }
+
+@Composable
+fun getPointContent(context: Context, id: Int): EasyPoints? {
+    val coroutineScope = rememberCoroutineScope()
+    var a: EasyPoints? = null
+    LaunchedEffect(Unit) {
+        coroutineScope.launch(Dispatchers.IO) {
+            a = AppDataBase.getDatabase(context).userDao().getPointById(id)
+        }
+    }
+    return a
+}
+
+@Composable
+fun getHistory(context: Context, historyId: Int): List<EasyPoints>? {
+    val coroutineScope = rememberCoroutineScope()
+    var a: List<EasyPoints>? = null
+    LaunchedEffect(Unit) {
+        coroutineScope.launch(Dispatchers.IO) {
+            a = AppDataBase.getDatabase(context).userDao().getHistory(historyId)
+        }
+    }
+    return a
+}
+
+@Composable
+fun IncrementCommentLikes(context: Context, id: Int) {
+    val coroutineScope = rememberCoroutineScope()
+    LaunchedEffect(Unit) {
+        coroutineScope.launch(Dispatchers.IO) {
+            val database = AppDataBase.getDatabase(context).userDao()
+            val comment = database.getCommentById(id)
+            if (comment != null) {
+                val updatedComment = comment.copy(likes = comment.likes + 1)
+                database.updateComment(id, updatedComment)
+            }
+        }
+    }
+}
+
+@Composable
+fun IncrementCommentDislikes(context: Context, id: Int) {
+    val coroutineScope = rememberCoroutineScope()
+    LaunchedEffect(Unit) {
+        coroutineScope.launch(Dispatchers.IO) {
+            val database = AppDataBase.getDatabase(context).userDao()
+            val comment = database.getCommentById(id)
+            if (comment != null) {
+                val updatedComment = comment.copy(dislikes = comment.dislikes + 1)
+                database.updateComment(id, updatedComment)
+            }
+        }
+    }
+}
+

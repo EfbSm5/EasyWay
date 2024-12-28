@@ -1,8 +1,10 @@
 package com.efbsm5.easyway.database
 
-import android.net.Uri
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import androidx.room.TypeConverter
 import com.amap.api.maps.model.LatLng
+import java.io.ByteArrayOutputStream
 
 class Converters {
     @TypeConverter
@@ -18,12 +20,18 @@ class Converters {
     }
 
     @TypeConverter
-    fun fromUri(uri: Uri?): String? {
-        return uri?.toString()
+    fun fromBitmap(bitmap: Bitmap?): ByteArray? {
+        return bitmap?.let {
+            val outputStream = ByteArrayOutputStream()
+            it.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+            outputStream.toByteArray()
+        }
     }
 
     @TypeConverter
-    fun toUri(value: String?): Uri? {
-        return value?.let { Uri.parse(it) }
+    fun toBitmap(byteArray: ByteArray?): Bitmap? {
+        return byteArray?.let {
+            BitmapFactory.decodeByteArray(it, 0, it.size)
+        }
     }
 }
