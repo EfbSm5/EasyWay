@@ -1,6 +1,7 @@
 package com.efbsm5.easyway.page
 
 import android.content.Context
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.BottomSheetScaffold
@@ -20,6 +21,7 @@ import com.amap.api.maps.AMapOptions
 import com.amap.api.maps.MapView
 import com.amap.api.maps.model.BitmapDescriptor
 import com.amap.api.maps.model.BitmapDescriptorFactory
+import com.amap.api.maps.model.LatLng
 import com.amap.api.maps.model.Marker
 import com.amap.api.maps.model.MarkerOptions
 import com.efbsm5.easyway.components.AddAndLocateButton
@@ -27,6 +29,8 @@ import com.efbsm5.easyway.components.CommentAndHistoryCard
 import com.efbsm5.easyway.components.FunctionCard
 import com.efbsm5.easyway.components.NewPlaceCard
 import com.efbsm5.easyway.components.NewPointCard
+import com.efbsm5.easyway.data.TestData
+import com.efbsm5.easyway.database.InsertDataToDataBase
 import com.efbsm5.easyway.database.fromMarkerToPoints
 import com.efbsm5.easyway.database.getPoints
 import com.efbsm5.easyway.ultis.MapController
@@ -58,9 +62,13 @@ fun MapPage() {
         context = context
     )
     mapController.MapLifecycle(mapView)
+    val firstData = TestData()
+    val point = firstData.initFirstData(context, mapView)
+    InsertDataToDataBase(context, point)
     InitPoints(
         mapView = mapView, context = context
     )
+
     MapContent(
         scaffoldState = scaffoldState,
         mapView = mapView,
@@ -68,7 +76,12 @@ fun MapPage() {
         onLocate = { mapController.onLocate(mapView = mapView) },
         content = {
             when (content) {
-                Screen.Comment -> CommentAndHistoryCard(fromMarkerToPoints(context = context, selectedMarker!!))
+                Screen.Comment -> CommentAndHistoryCard(
+                    fromMarkerToPoints(
+                        context = context, selectedMarker!!
+                    )
+                )
+
                 Screen.IconCard -> FunctionCard(text = searchBarText, onclick = {
                     content = Screen.Places
                     iconText = it
@@ -115,12 +128,16 @@ private fun getIcon(): BitmapDescriptor {
 @Composable
 private fun InitPoints(mapView: MapView, context: Context) {
     val points = getPoints(context)
+    if (points == null) {
+        showMsg("no data ", context)
+    }
     Thread {
         points?.forEach {
             mapView.map.addMarker(
-                MarkerOptions().position(it.marker!!.position).title(it.name).icon(
-                    getIcon()
-                )
+                MarkerOptions().position(LatLng(it.marker!!.latitude, it.marker.longitude))
+                    .title(it.name).icon(
+                        getIcon()
+                    )
             )
         }
     }.start()

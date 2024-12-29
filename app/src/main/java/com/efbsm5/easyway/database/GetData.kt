@@ -7,6 +7,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import com.amap.api.maps.model.Marker
 import com.efbsm5.easyway.data.EasyPoints
 import com.efbsm5.easyway.data.EasyPointsSimplify
+import com.efbsm5.easyway.ultis.MapUtil
+import fromMarker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -79,30 +81,34 @@ fun getHistory(context: Context, historyId: Int): List<EasyPoints>? {
 }
 
 @Composable
-fun IncrementCommentLikes(context: Context, id: Int) {
+fun IncrementCommentLikes(context: Context, id: Int, index: Int) {
     val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(Unit) {
         coroutineScope.launch(Dispatchers.IO) {
             val database = AppDataBase.getDatabase(context).userDao()
             val comment = database.getCommentById(id)
             if (comment != null) {
-                val updatedComment = comment.copy(likes = comment.likes + 1)
-                database.updateComment(id, updatedComment)
+                val temp = MapUtil.toComment(comment)
+                temp[index].like += 1
+                val json = MapUtil.fromComment(temp)
+                database.updateComment(id, json)
             }
         }
     }
 }
 
 @Composable
-fun IncrementCommentDislikes(context: Context, id: Int) {
+fun IncrementCommentDislikes(context: Context, id: Int, index: Int) {
     val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(Unit) {
         coroutineScope.launch(Dispatchers.IO) {
             val database = AppDataBase.getDatabase(context).userDao()
             val comment = database.getCommentById(id)
             if (comment != null) {
-                val updatedComment = comment.copy(dislikes = comment.dislikes + 1)
-                database.updateComment(id, updatedComment)
+                var temp = MapUtil.toComment(comment)
+                temp[index].dislike += 1
+                val json = MapUtil.fromComment(temp)
+                database.updateComment(id, json)
             }
         }
     }
@@ -115,7 +121,7 @@ fun fromMarkerToPoints(context: Context, marker: Marker): EasyPoints {
     LaunchedEffect(Unit) {
         coroutineScope.launch(Dispatchers.IO) {
             val database = AppDataBase.getDatabase(context).userDao()
-            points = database.markerToPoints(marker)
+            points = database.markerToPoints(fromMarker(marker))
         }
     }
     return points

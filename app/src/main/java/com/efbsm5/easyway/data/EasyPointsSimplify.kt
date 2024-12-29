@@ -10,5 +10,5 @@ data class EasyPointsSimplify(
     @PrimaryKey(autoGenerate = true) val id: Int = 1,
     @ColumnInfo(name = "pointId") val pointId: Int = 1,
     @ColumnInfo(name = "name") val name: String = "不详",
-    @TypeConverters(Converters::class) @ColumnInfo(name = "marker") val marker: Marker? = null
+    @TypeConverters(Converters::class) @ColumnInfo(name = "marker") val marker: MarkerData? = null
 )

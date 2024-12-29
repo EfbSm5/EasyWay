@@ -1,32 +1,42 @@
 package com.efbsm5.easyway.database
 
 import androidx.room.TypeConverter
-import com.amap.api.maps.model.Marker
 import com.efbsm5.easyway.data.Comment
+import com.efbsm5.easyway.data.MarkerData
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import java.net.URL
 
 class Converters {
-
     @TypeConverter
-    fun fromComment(comment: Comment): String {
-        return Gson().toJson(comment)
+    fun fromCommentList(comments: ArrayList<Comment>): String? {
+        return Gson().toJson(comments)
     }
 
     @TypeConverter
-    fun toComment(commentString: String): Comment {
-        val type = object : TypeToken<Comment>() {}.type
-        return Gson().fromJson(commentString, type)
-    }
-    @TypeConverter
-    fun fromMarker(marker: Marker): String {
-        return Gson().toJson(marker)
+    fun toCommentList(commentsString: String?): ArrayList<Comment>? {
+        return commentsString?.let {
+            val listType = object : TypeToken<ArrayList<Comment>>() {}.type
+            Gson().fromJson(it, listType)
+        }
     }
 
     @TypeConverter
-    fun toMarker(markerString: String): Marker {
-        val type = object : TypeToken<Marker>() {}.type
-        return Gson().fromJson(markerString, type)
+    fun fromUrl(url: URL): String {
+        return url.toString()
     }
 
+    @TypeConverter
+    fun toUrl(urlString: String): URL {
+        return URL(urlString)
+    }
+    @TypeConverter
+    fun fromMarkerData(markerData: MarkerData): String {
+        return Gson().toJson(markerData)
+    }
+
+    @TypeConverter
+    fun toMarkerData(markerDataString: String): MarkerData? {
+        return Gson().fromJson(markerDataString, MarkerData::class.java)
+    }
 }

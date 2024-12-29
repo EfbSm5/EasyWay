@@ -15,12 +15,25 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.loadImageBitmap
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.amap.api.maps.MapView
 import com.efbsm5.easyway.data.EasyPoints
-import java.io.ByteArrayInputStream
+import com.efbsm5.easyway.data.TestData
+
+@Preview
+@Composable
+fun pres() {
+    val context = LocalContext.current
+    val testData = TestData().initFirstData(context, mapView = MapView(context))
+    CommentAndHistoryCard(
+        points = testData
+    )
+}
+
 
 @Composable
 fun CommentAndHistoryCard(points: EasyPoints) {

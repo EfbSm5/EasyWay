@@ -8,6 +8,7 @@ import com.amap.api.maps.model.Marker
 import com.efbsm5.easyway.data.Comment
 import com.efbsm5.easyway.data.EasyPoints
 import com.efbsm5.easyway.data.EasyPointsSimplify
+import com.efbsm5.easyway.data.MarkerData
 
 @Dao
 interface PointsDuo {
@@ -33,11 +34,11 @@ interface PointsDuo {
     fun getHistory(pointId: Int): List<EasyPoints>
 
     @Query("UPDATE points SET comment = :comment WHERE id = :id")
-    fun updateComment(id: Int, comment: Comment)
+    fun updateComment(id: Int, comment: String)
 
     @Query("SELECT comment FROM points WHERE id = :id")
-    fun getCommentById(id: Int): Comment?
+    fun getCommentById(id: Int): String?
 
     @Query("SELECT * FROM points WHERE marker=:marker")
-    fun markerToPoints(marker: Marker): EasyPoints
+    fun markerToPoints(marker: MarkerData): EasyPoints
 }
