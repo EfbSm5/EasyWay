@@ -25,6 +25,18 @@ fun InsertDataToDataBase(context: Context, points: EasyPoints) {
 }
 
 @Composable
+fun getCount(context: Context): Int {
+    val coroutineScope = rememberCoroutineScope()
+    var count:Int = 1
+    LaunchedEffect(Unit) {
+        coroutineScope.launch(Dispatchers.IO) {
+            count = AppDataBase.getDatabase(context).userDao().getCount()
+        }
+    }
+    return count
+}
+
+@Composable
 fun AddLike(context: Context, points: EasyPoints) {
     val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(Unit) {

@@ -3,7 +3,6 @@ package com.efbsm5.easyway.data
 import androidx.room.ColumnInfo
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
-import com.amap.api.maps.model.Marker
 import com.efbsm5.easyway.database.Converters
 
 data class EasyPointsSimplify(

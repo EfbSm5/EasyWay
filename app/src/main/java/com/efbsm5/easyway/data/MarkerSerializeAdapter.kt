@@ -3,7 +3,6 @@ import com.amap.api.maps.model.LatLng
 import com.amap.api.maps.model.Marker
 import com.amap.api.maps.model.MarkerOptions
 import com.efbsm5.easyway.data.MarkerData
-import com.google.gson.Gson
 
 fun fromMarker(marker: Marker): MarkerData {
     val markerData = MarkerData(
