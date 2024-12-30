@@ -1,15 +1,14 @@
 package com.efbsm5.easyway.components
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.material3.Text
@@ -17,13 +16,54 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.efbsm5.easyway.data.EasyPoint
+import com.efbsm5.easyway.database.AppDataBase
+import com.efbsm5.easyway.ultis.MapController
+import java.net.URL
+
+
+@Preview
+@Composable
+fun pre() {
+    NewPointCard({})
+}
 
 @Composable
-fun NewPointCard() {
+fun NewPointCard(onUploadPoint: (EasyPoint) -> Unit) {
+    val tempPoint by remember { mutableStateOf(EasyPoint()) }
+    var expanded by remember { mutableStateOf(false) }
+    var selectedOption by remember { mutableStateOf("") }
+    NewPointCardSurface(
+        point = tempPoint,
+        onInfoValueChange = { tempPoint.introduce = it },
+        onLocationValueChange = { tempPoint.location = it },
+        onUploadImage = { tempPoint.photos = URL(it.toString()) },
+        menuExpanded = expanded,
+        selectedOption = selectedOption,
+        onSelectType = { selectedOption = it },
+        onExpanded = { expanded = it },
+        confirm = { onUploadPoint(tempPoint) },
+        cancel = {},
+    )
+}
+
+@Composable
+fun NewPointCardSurface(
+    point: EasyPoint,
+    menuExpanded: Boolean,
+    selectedOption: String,
+    onInfoValueChange: (String) -> Unit,
+    onLocationValueChange: (String) -> Unit,
+    onUploadImage: (Uri?) -> Unit,
+    onSelectType: (String) -> Unit,
+    onExpanded: (Boolean) -> Unit,
+    confirm: () -> Unit,
+    cancel: () -> Unit
+) {
     Column(
         modifier = Modifier
             .padding(16.dp)
@@ -38,28 +78,37 @@ fun NewPointCard() {
         )
         Spacer(modifier = Modifier.height(16.dp))
         Column(modifier = Modifier.fillMaxWidth()) {
-            DropdownField(label = "设施类别")
+            DropdownField(label = "设施类别",
+                expanded = menuExpanded,
+                selectedOption = selectedOption,
+                onSelectType = { onSelectType(it) },
+                onExpanded = { onExpanded(it) })
             Spacer(modifier = Modifier.height(16.dp))
-            TextFieldWithText(label = "设施说明", text = "") {}
+            TextFieldWithText(
+                label = "设施名", text = point.comments?.let { it }
+            ) { onLocationValueChange(it) }
             Spacer(modifier = Modifier.height(16.dp))
-            TextFieldWithText(label = "所在位置", text = "") {}
+            TextFieldWithText(label = "设施说明", text = point.introduce) { onInfoValueChange(it) }
             Spacer(modifier = Modifier.height(16.dp))
-            UploadImageSection {}
+            TextFieldWithText(
+                label = "所在位置", text = point.location
+            ) { onLocationValueChange(it) }
+            Spacer(modifier = Modifier.height(16.dp))
+            UploadImageSection { onUploadImage(it) }
         }
-
         Spacer(modifier = Modifier.height(16.dp))
-
         Row(
             modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             Button(
-                onClick = { /* 确认上传逻辑 */ },
-                colors = ButtonDefaults.buttonColors(contentColor = Color.Green)
+                onClick = {
+                    confirm()
+                }, colors = ButtonDefaults.buttonColors(contentColor = Color.Green)
             ) {
                 Text(text = "确认上传")
             }
             Button(
-                onClick = { /* 取消逻辑 */ },
+                onClick = { cancel() },
                 colors = ButtonDefaults.buttonColors(contentColor = Color.Gray)
             ) {
                 Text(text = "取消")
@@ -69,20 +118,23 @@ fun NewPointCard() {
 }
 
 @Composable
-fun DropdownField(label: String) {
-    var expanded by remember { mutableStateOf(false) }
-    var selectedOption by remember { mutableStateOf("") }
-
+fun DropdownField(
+    label: String,
+    expanded: Boolean,
+    selectedOption: String,
+    onSelectType: (String) -> Unit,
+    onExpanded: (Boolean) -> Unit
+) {
     Column {
         Text(text = label, style = TextStyle(fontSize = 16.sp))
         Box(modifier = Modifier
             .fillMaxWidth()
             .border(1.dp, Color.Gray)
             .padding(8.dp)
-            .clickable { expanded = true }) {
+            .clickable { onExpanded(true) }) {
             Text(text = if (selectedOption.isEmpty()) "请选择" else selectedOption)
         }
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+        DropdownMenu(expanded = expanded, onDismissRequest = { onExpanded(false) }) {
             listOf(
                 "无障碍电梯",
                 "无障碍厕所",
@@ -94,8 +146,8 @@ fun DropdownField(label: String) {
                 "坡道"
             ).forEach { option ->
                 DropdownMenuItem(onClick = {
-                    selectedOption = option
-                    expanded = false
+                    onSelectType(option)
+                    onExpanded(false)
                 }, text = { Text(option) })
             }
         }
@@ -104,7 +156,7 @@ fun DropdownField(label: String) {
 
 @Composable
 fun TextFieldWithText(label: String, text: String, onValueChange: (String) -> Unit) {
-    Row(modifier = Modifier.fillMaxWidth()) {
+    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Text(text = label, style = TextStyle(fontSize = 16.sp))
         TextField(value = text, onValueChange = { onValueChange(it) })
     }
@@ -112,122 +164,30 @@ fun TextFieldWithText(label: String, text: String, onValueChange: (String) -> Un
 
 @Composable
 fun UploadImageSection(onChoosePicture: (Uri?) -> Unit) {
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            onChoosePicture(result.data?.data)
+        }
+    }
     Column {
         Text(text = "上传图片", style = TextStyle(fontSize = 16.sp))
         Box(
             modifier = Modifier
                 .size(100.dp)
                 .background(MaterialTheme.colorScheme.onBackground)
-                .border(1.dp, MaterialTheme.colorScheme.primary),
-            contentAlignment = Alignment.Center
+                .border(1.dp, MaterialTheme.colorScheme.primary)
+                .clickable {
+                    val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                        addCategory(Intent.CATEGORY_OPENABLE)
+                        type = "image/*"
+                    }
+                    launcher.launch(intent)
+                }, contentAlignment = Alignment.Center
         ) {
             Text(text = "严禁上传无关图片", color = Color.Red, fontSize = 12.sp)
         }
     }
 }
 
-@Composable
-fun OnChoosePicture(callback: (Uri?) -> Unit) {
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            callback(result.data?.data)
-        }
-    }
-    LaunchedEffect(Unit) {
-        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-            addCategory(Intent.CATEGORY_OPENABLE)
-            type = "picture/*"
-        }
-        launcher.launch(intent)
-    }
-}
-
-
-@Composable
-fun SearchPage() {
-    var offsetY by remember { mutableStateOf(200f) }
-    val animatedOffsetY by animateDpAsState(targetValue = offsetY.dp)
-    val iconRowOffsetY by animateDpAsState(
-        targetValue = if (offsetY < 150f) 0.dp else 200.dp // 上拉时从 200.dp 滑动到 0.dp
-    )
-    Box(
-        Modifier
-            .fillMaxSize()
-            .background(Color.White)
-            .pointerInput(Unit) {
-                detectVerticalDragGestures { _, dragAmount ->
-                    offsetY = (offsetY + dragAmount).coerceIn(0f, 200f)
-                }
-            }
-    ) {
-        // 地图内容
-        MapContent()
-        Column(
-            Modifier
-                .offset(y = animatedOffsetY) // 根据偏移量更新位置
-                .fillMaxWidth()
-                .background(Color.White)
-        ) {
-            SearchBar()
-            IconRow(
-                Modifier
-                    .offset(y = iconRowOffsetY) // 控制 IconRow 的垂直位置
-            )
-        }
-    }
-}
-
-@Composable
-fun MapContent() {
-    // 地图模拟内容
-    Box(
-        Modifier
-            .fillMaxSize()
-            .background(Color(0xFFE0F7FA)) // 蓝色背景代表地图
-    ) {
-        Text(
-            text = "地图内容",
-            Modifier.align(Alignment.Center),
-            color = Color.Black
-        )
-    }
-}
-
-@Composable
-fun SearchBar() {
-    // 搜索栏组件
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .height(60.dp)
-            .background(Color.Gray),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(text = "搜索栏", color = Color.White)
-    }
-}
-
-@Composable
-fun IconRow(modifier: Modifier = Modifier) {
-    // 图标区域组件
-    Row(
-        modifier
-            .fillMaxWidth()
-            .background(Color.LightGray)
-            .padding(8.dp),
-        horizontalArrangement = Arrangement.SpaceAround
-    ) {
-        repeat(4) {
-            Box(
-                Modifier
-                    .size(50.dp)
-                    .background(Color.DarkGray),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(text = "图标", color = Color.White)
-            }
-        }
-    }
-}

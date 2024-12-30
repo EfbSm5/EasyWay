@@ -5,15 +5,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import com.amap.api.maps.model.Marker
-import com.efbsm5.easyway.data.EasyPoints
-import com.efbsm5.easyway.data.EasyPointsSimplify
+import com.efbsm5.easyway.data.EasyPoint
+import com.efbsm5.easyway.data.EasyPointSimplify
 import com.efbsm5.easyway.ultis.MapUtil
 import fromMarker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Composable
-fun InsertDataToDataBase(context: Context, points: EasyPoints) {
+fun InsertDataToDataBase(context: Context, points: EasyPoint) {
     val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(Unit) {
         coroutineScope.launch(Dispatchers.IO) {
@@ -37,7 +37,7 @@ fun getCount(context: Context): Int {
 }
 
 @Composable
-fun AddLike(context: Context, points: EasyPoints) {
+fun AddLike(context: Context, points: EasyPoint) {
     val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(Unit) {
         coroutineScope.launch(Dispatchers.IO) {
@@ -47,7 +47,7 @@ fun AddLike(context: Context, points: EasyPoints) {
 }
 
 @Composable
-fun AddDisLike(context: Context, points: EasyPoints) {
+fun AddDisLike(context: Context, points: EasyPoint) {
     val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(Unit) {
         coroutineScope.launch(Dispatchers.IO) {
@@ -57,9 +57,9 @@ fun AddDisLike(context: Context, points: EasyPoints) {
 }
 
 @Composable
-fun getPoints(context: Context): List<EasyPointsSimplify>? {
+fun getPoints(context: Context): List<EasyPointSimplify>? {
     val coroutineScope = rememberCoroutineScope()
-    var a: List<EasyPointsSimplify>? = null
+    var a: List<EasyPointSimplify>? = null
     LaunchedEffect(Unit) {
         coroutineScope.launch(Dispatchers.IO) {
             a = AppDataBase.getDatabase(context).userDao().loadAllPoints()
@@ -69,9 +69,9 @@ fun getPoints(context: Context): List<EasyPointsSimplify>? {
 }
 
 @Composable
-fun getPointContent(context: Context, id: Int): EasyPoints? {
+fun getPointContent(context: Context, id: Int): EasyPoint? {
     val coroutineScope = rememberCoroutineScope()
-    var a: EasyPoints? = null
+    var a: EasyPoint? = null
     LaunchedEffect(Unit) {
         coroutineScope.launch(Dispatchers.IO) {
             a = AppDataBase.getDatabase(context).userDao().getPointById(id)
@@ -81,9 +81,9 @@ fun getPointContent(context: Context, id: Int): EasyPoints? {
 }
 
 @Composable
-fun getHistory(context: Context, historyId: Int): List<EasyPoints>? {
+fun getHistory(context: Context, historyId: Int): List<EasyPoint>? {
     val coroutineScope = rememberCoroutineScope()
-    var a: List<EasyPoints>? = null
+    var a: List<EasyPoint>? = null
     LaunchedEffect(Unit) {
         coroutineScope.launch(Dispatchers.IO) {
             a = AppDataBase.getDatabase(context).userDao().getHistory(historyId)
@@ -127,9 +127,9 @@ fun IncrementCommentDislikes(context: Context, id: Int, index: Int) {
 }
 
 @Composable
-fun fromMarkerToPoints(context: Context, marker: Marker): EasyPoints {
+fun fromMarkerToPoints(context: Context, marker: Marker): EasyPoint {
     val coroutineScope = rememberCoroutineScope()
-    var points = EasyPoints()
+    var points = EasyPoint()
     LaunchedEffect(Unit) {
         coroutineScope.launch(Dispatchers.IO) {
             val database = AppDataBase.getDatabase(context).userDao()

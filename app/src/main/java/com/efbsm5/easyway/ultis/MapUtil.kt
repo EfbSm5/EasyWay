@@ -8,6 +8,8 @@ import com.amap.api.services.core.LatLonPoint
 import com.efbsm5.easyway.data.Comment
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 object MapUtil {
     fun convertToLatLonPoint(latLng: LatLng): LatLonPoint {
@@ -30,8 +32,15 @@ object MapUtil {
         val type = object : TypeToken<Comment>() {}.type
         return Gson().fromJson(commentString, type)
     }
+
     fun getImageUrl(context: Context, imageName: String): String {
         val resId = context.resources.getIdentifier(imageName, "drawable", context.packageName)
         return "android.resource://${context.packageName}/$resId"
+    }
+
+    fun getCurrentFormattedTime(): String {
+        val currentTime = LocalDateTime.now()
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        return currentTime.format(formatter)
     }
 }

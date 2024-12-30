@@ -23,24 +23,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.efbsm5.easyway.data.Comment
-import com.efbsm5.easyway.data.EasyPoints
-import com.efbsm5.easyway.data.getFirstData
+import com.efbsm5.easyway.data.EasyPoint
 import com.efbsm5.easyway.ultis.MapUtil.toComment
 
 
 @Composable
-fun CommentAndHistoryCard(points: EasyPoints) {
+fun CommentAndHistoryCard(points: EasyPoint) {
     var state: Screen by remember { mutableStateOf(Screen.Comment) }
     FacilityDetailScreen(points = points, screen = state, onChangeScreen = { state = it })
 }
 
 @Composable
-fun FacilityDetailScreen(points: EasyPoints, screen: Screen, onChangeScreen: (Screen) -> Unit) {
+fun FacilityDetailScreen(points: EasyPoint, screen: Screen, onChangeScreen: (Screen) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -60,7 +58,7 @@ fun FacilityDetailScreen(points: EasyPoints, screen: Screen, onChangeScreen: (Sc
 }
 
 @Composable
-fun PointInfo(points: EasyPoints) {
+fun PointInfo(points: EasyPoint) {
     Row(
         modifier = Modifier.fillMaxWidth()
     ) {

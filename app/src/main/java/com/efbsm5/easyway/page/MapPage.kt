@@ -12,7 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -30,10 +29,11 @@ import com.efbsm5.easyway.components.CommentAndHistoryCard
 import com.efbsm5.easyway.components.FunctionCard
 import com.efbsm5.easyway.components.NewPlaceCard
 import com.efbsm5.easyway.components.NewPointCard
+import com.efbsm5.easyway.data.EasyPoint
+import com.efbsm5.easyway.data.MarkerData
 import com.efbsm5.easyway.data.getFirstData
 import com.efbsm5.easyway.database.InsertDataToDataBase
 import com.efbsm5.easyway.database.fromMarkerToPoints
-import com.efbsm5.easyway.database.getCount
 import com.efbsm5.easyway.database.getPoints
 import com.efbsm5.easyway.ultis.MapController
 import com.efbsm5.easyway.ultis.MapUtil.showMsg
@@ -51,8 +51,7 @@ fun MapPage() {
     var iconText by remember { mutableStateOf("") }
     val scaffoldState = rememberBottomSheetScaffoldState()
     var selectedMarker: Marker? by remember { mutableStateOf(null) }
-    val point = getFirstData()
-    InsertDataToDataBase(context, point)
+    var newPoint = EasyPoint()
     InitPoints(
         mapView = mapView, context = context
     )
@@ -69,8 +68,6 @@ fun MapPage() {
         context = context
     )
     mapController.MapLifecycle(mapView)
-
-
     MapContent(
         scaffoldState = scaffoldState,
         mapView = mapView,
@@ -89,7 +86,14 @@ fun MapPage() {
                     iconText = it
                 }, onTextChange = { searchBarText = it })
 
-                Screen.NewPoint -> NewPointCard()
+                Screen.NewPoint -> NewPointCard(onUploadPoint = {
+                    val latLng = mapController.getLastKnownLocation()!!
+                    newPoint = it
+                    newPoint.marker = MarkerData(
+                        longitude = latLng.longitude, latitude = latLng.latitude, title =
+                    )
+                })
+
                 Screen.Places -> NewPlaceCard()
             }
         },
@@ -132,17 +136,19 @@ private fun getIcon(): BitmapDescriptor {
 
 @Composable
 private fun InitPoints(mapView: MapView, context: Context) {
+    val point = getFirstData()
+    InsertDataToDataBase(context, point)
     val points = getPoints(context)
     if (points == null) {
-        showMsg("no data ", context)
-        showMsg(
-            getCount(context).toString(), context = context
-        )
+//        showMsg("no data ", context)
+//        showMsg(
+//            getCount(context).toString(), context = context
+//        )
     }
     points?.forEach {
         mapView.map.addMarker(
             MarkerOptions().position(LatLng(it.marker!!.latitude, it.marker.longitude))
-                .title(it.name).icon(
+                .title(it.marker.title).icon(
                     getIcon()
                 )
         )

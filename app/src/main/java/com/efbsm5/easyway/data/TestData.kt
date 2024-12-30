@@ -4,7 +4,7 @@ import com.efbsm5.easyway.ultis.MapUtil.fromComment
 import java.net.URL
 
 
-fun getFirstData(): EasyPoints {
+fun getFirstData(): EasyPoint {
     val comments = ArrayList<Comment>()
     comments.add(
         Comment(
@@ -29,12 +29,11 @@ fun getFirstData(): EasyPoints {
     val marker = MarkerData(
         latitude = 30.507950, longitude = 114.413514, title = "测试用点", snippet = null
     )
-    val firstData = EasyPoints(
+    val firstData = EasyPoint(
         id = 1,
         pointId = 1,
         type = "不详",
         introduce = "这个是介绍",
-        name = "测试用点",
         photos = URL(
             "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/%E5%8D%8E%E7%A7%91%E6%A0%A1%E9%97%A8.JPG/220px-%E5%8D%8E%E7%A7%91%E6%A0%A1%E9%97%A8.JPG"
         ),

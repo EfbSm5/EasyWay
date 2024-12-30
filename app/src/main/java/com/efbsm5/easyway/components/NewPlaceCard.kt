@@ -15,7 +15,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.efbsm5.easyway.R
@@ -23,25 +22,19 @@ import com.efbsm5.easyway.R
 
 @Composable
 fun NewPlaceCard() {
-    AccessiblePlacesScreen()
-}
-
-@Composable
-fun AccessiblePlacesScreen() {
     var selectedTab by remember { mutableStateOf(0) }
     Column(modifier = Modifier.fillMaxSize()) {
         Tabs(titles = listOf("无障碍地点", "全部地点"),
             selectedTabIndex = selectedTab,
             onTabSelected = { selectedTab = it })
 
-        // 列表内容
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 8.dp, vertical = 8.dp)
         ) {
             items(5) { index ->
-                AccessiblePlaceItem(imageRes = R.drawable.aed, // 替换为实际的图片资源
+                AccessiblePlaceItem(imageRes = R.drawable.aed,
                     title = "地点标题 $index",
                     distance = "直线${(0.3 + index * 0.4).format(2)}km",
                     onNavigateClick = { /* 路线按钮点击事件 */ })

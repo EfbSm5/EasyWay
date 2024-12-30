@@ -5,9 +5,9 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.efbsm5.easyway.data.EasyPoints
+import com.efbsm5.easyway.data.EasyPoint
 
-@Database(version = 1, entities = [EasyPoints::class], exportSchema = false)
+@Database(version = 1, entities = [EasyPoint::class], exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class AppDataBase : RoomDatabase() {
     abstract fun userDao(): PointsDuo

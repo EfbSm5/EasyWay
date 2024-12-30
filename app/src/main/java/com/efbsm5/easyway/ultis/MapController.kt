@@ -3,6 +3,7 @@ package com.efbsm5.easyway.ultis
 import android.annotation.SuppressLint
 import android.content.ComponentCallbacks
 import android.content.Context
+import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.os.Bundle
 import androidx.compose.runtime.Composable
@@ -44,11 +45,19 @@ class MapController(
     val monMapClick: (LatLng?) -> Unit = onMapClick
     val monPoiClick: (Poi?) -> Unit = onPoiClick
     val monMarkerClick: (Marker?) -> Unit = onMarkerClick
-    private var mLocation: LatLng? = null
     private var mContext = context
-    //private var points: ArrayList<Marker> = ArrayList()
+    private val sharedPreferences: SharedPreferences = context.getSharedPreferences("MapPreferences", Context.MODE_PRIVATE)
+    private var mLocation: LatLng? = getLastKnownLocation()
 
+    fun getLastKnownLocation(): LatLng? {
+        val lat = sharedPreferences.getFloat("last_lat", Float.NaN)
+        val lng = sharedPreferences.getFloat("last_lng", Float.NaN)
+        return if (!lat.isNaN() && !lng.isNaN()) LatLng(lat.toDouble(), lng.toDouble()) else null
+    }
 
+    private fun saveLastKnownLocation(location: LatLng) {
+        sharedPreferences.edit().putFloat("last_lat", location.latitude.toFloat()).putFloat("last_lng", location.longitude.toFloat()).apply()
+    }
     @Composable
     fun MapLifecycle(mapView: MapView) {
         mLocationClient.setLocationOption(mLocationOption)
@@ -137,7 +146,6 @@ class MapController(
 
     @SuppressLint("ResourceType", "InflateParams")
     override fun onMarkerClick(marker: Marker?): Boolean {
-
         monMarkerClick(marker)
         return true
     }
@@ -149,6 +157,7 @@ class MapController(
             val latitude = aMapLocation.latitude
             val longitude = aMapLocation.longitude
             mLocation = LatLng(latitude, longitude)
+            saveLastKnownLocation(mLocation!!)
         }
     }
 }

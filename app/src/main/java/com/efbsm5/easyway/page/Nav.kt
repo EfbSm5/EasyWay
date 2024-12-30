@@ -53,8 +53,8 @@ fun EasyWay() {
                 composable("MapPage") {
                     MapPage()
                 }
-                composable("society") {
-                    PersonalPage()
+                composable("Community") {
+                    CommunityPage()
                 }
                 composable("home") {
                     HomePage()
@@ -68,7 +68,7 @@ fun EasyWay() {
 fun HighlightButtonExample(navController: NavController) {
     var selectedIndex by remember { mutableIntStateOf(0) }
     val direction = listOf(
-        "MapPage", "society", "home"
+        "MapPage", "Community", "home"
     )
     val buttons = listOf("首页", "社区", "我的")
     val icons = listOf(
