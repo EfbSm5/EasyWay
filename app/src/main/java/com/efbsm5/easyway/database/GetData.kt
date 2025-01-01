@@ -7,7 +7,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import com.amap.api.maps.model.Marker
 import com.efbsm5.easyway.data.EasyPoint
 import com.efbsm5.easyway.data.EasyPointSimplify
-import com.efbsm5.easyway.ultis.MapUtil
+import com.efbsm5.easyway.map.MapUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 

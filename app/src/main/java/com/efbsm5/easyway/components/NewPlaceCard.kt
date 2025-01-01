@@ -1,11 +1,13 @@
 package com.efbsm5.easyway.components
 
+import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -13,31 +15,58 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.efbsm5.easyway.R
+import coil.compose.rememberAsyncImagePainter
+import com.amap.api.maps.model.LatLng
+import com.amap.api.services.core.PoiItemV2
+import com.efbsm5.easyway.map.MapUtil
+import com.efbsm5.easyway.map.MapUtil.formatDistance
+import com.efbsm5.easyway.map.MapUtil.onNavigate
 
 
 @Composable
-fun NewPlaceCard() {
+fun NewPlaceCard(latLng: LatLng, pois: ArrayList<PoiItemV2>) {
     var selectedTab by remember { mutableStateOf(0) }
+    val context = LocalContext.current
+    NewPlaceCardScreen(
+        selectedTab = selectedTab,
+        onChangeSelected = { selectedTab = it },
+        location = latLng,
+        context = context,
+        pois = pois,
+    )
+}
+
+@Composable
+fun NewPlaceCardScreen(
+    pois: ArrayList<PoiItemV2>,
+    location: LatLng,
+    selectedTab: Int,
+    context: Context,
+    onChangeSelected: (Int) -> Unit,
+) {
     Column(modifier = Modifier.fillMaxSize()) {
         Tabs(titles = listOf("无障碍地点", "全部地点"),
             selectedTabIndex = selectedTab,
-            onTabSelected = { selectedTab = it })
-
+            onTabSelected = { onChangeSelected(it) })
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 8.dp, vertical = 8.dp)
         ) {
-            items(5) { index ->
-                AccessiblePlaceItem(imageRes = R.drawable.aed,
-                    title = "地点标题 $index",
-                    distance = "直线${(0.3 + index * 0.4).format(2)}km",
-                    onNavigateClick = { /* 路线按钮点击事件 */ })
+            items(pois) { poi ->
+                AccessiblePlaceItem(
+                    imageRes = poi.photos[1].url,
+                    title = poi.title,
+                    distance = MapUtil.calculateDistance(
+                        location, MapUtil.convertToLatLng(poi.latLonPoint)
+                    ),
+                    latLng = MapUtil.convertToLatLng(poi.latLonPoint),
+                    context = context
+                )
                 Spacer(modifier = Modifier.height(8.dp))
             }
         }
@@ -67,13 +96,17 @@ fun Tabs(
 
 @Composable
 fun AccessiblePlaceItem(
-    imageRes: Int, title: String, distance: String, onNavigateClick: () -> Unit
+    imageRes: String, title: String, distance: Float, latLng: LatLng, context: Context
 ) {
     Card(shape = RoundedCornerShape(8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { /* 点击列表项的事件 */ }) {
+            .clickable {
+                onNavigate(
+                    context = context, latLng = latLng
+                )
+            }) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -82,15 +115,13 @@ fun AccessiblePlaceItem(
         ) {
             // 左侧图片
             Image(
-                painter = painterResource(id = imageRes),
+                rememberAsyncImagePainter(imageRes),
                 contentDescription = "地点图片",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(80.dp)
                     .padding(end = 16.dp)
             )
-
-            // 中间文本内容
             Column(
                 modifier = Modifier.weight(1f)
             ) {
@@ -99,13 +130,11 @@ fun AccessiblePlaceItem(
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = distance, color = Color.Gray, fontSize = 14.sp
+                    text = distance.formatDistance(), color = Color.Gray, fontSize = 14.sp
                 )
             }
-
-            // 右侧按钮
             Button(
-                onClick = onNavigateClick,
+                onClick = { onNavigate(context = context, latLng = latLng) },
                 shape = RoundedCornerShape(50),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
                 modifier = Modifier.size(40.dp)
@@ -116,5 +145,3 @@ fun AccessiblePlaceItem(
     }
 }
 
-// 扩展函数用于格式化小数
-fun Double.format(digits: Int) = "%.${digits}f".format(this)

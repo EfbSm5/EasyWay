@@ -27,7 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.efbsm5.easyway.ultis.MapUtil
+import com.efbsm5.easyway.map.MapUtil
 
 @Composable
 fun HomePage() {

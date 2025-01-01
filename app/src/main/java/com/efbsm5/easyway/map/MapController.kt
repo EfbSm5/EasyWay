@@ -1,4 +1,4 @@
-package com.efbsm5.easyway.ultis
+package com.efbsm5.easyway.map
 
 import android.annotation.SuppressLint
 import android.content.ComponentCallbacks

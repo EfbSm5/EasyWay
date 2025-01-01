@@ -1,7 +1,6 @@
 package com.efbsm5.easyway.page
 
 import android.content.Context
-import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.BottomSheetScaffold
@@ -23,19 +22,21 @@ import com.amap.api.maps.model.BitmapDescriptor
 import com.amap.api.maps.model.BitmapDescriptorFactory
 import com.amap.api.maps.model.Marker
 import com.amap.api.maps.model.MarkerOptions
+import com.amap.api.services.core.PoiItemV2
 import com.efbsm5.easyway.components.AddAndLocateButton
 import com.efbsm5.easyway.components.CommentAndHistoryCard
 import com.efbsm5.easyway.components.FunctionCard
 import com.efbsm5.easyway.components.NewPlaceCard
 import com.efbsm5.easyway.components.NewPointCard
 import com.efbsm5.easyway.data.EasyPoint
-import com.efbsm5.easyway.data.getFirstData
+import com.efbsm5.easyway.getFirstData
 import com.efbsm5.easyway.database.InsertDataToDataBase
 import com.efbsm5.easyway.database.fromMarkerToPoints
 import com.efbsm5.easyway.database.getCount
 import com.efbsm5.easyway.database.getPoints
-import com.efbsm5.easyway.ultis.MapController
-import com.efbsm5.easyway.ultis.MapUtil.showMsg
+import com.efbsm5.easyway.map.MapController
+import com.efbsm5.easyway.map.MapSearchController
+import com.efbsm5.easyway.map.MapUtil.showMsg
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -47,10 +48,10 @@ fun MapPage() {
     )
     var content: Screen by remember { mutableStateOf(Screen.IconCard) }
     var searchBarText by remember { mutableStateOf("") }
-    var iconText by remember { mutableStateOf("") }
     val scaffoldState = rememberBottomSheetScaffoldState()
     var selectedMarker: Marker? by remember { mutableStateOf(null) }
     var newPoint: EasyPoint
+    var pois by remember { mutableStateOf(ArrayList<PoiItemV2>()) }
     InitPoints(
         mapView = mapView, context = context
     )
@@ -67,6 +68,7 @@ fun MapPage() {
         context = context
     )
     mapController.MapLifecycle(mapView)
+    val mapSearch = MapSearchController(context) { pois = it }
     MapContent(
         scaffoldState = scaffoldState,
         mapView = mapView,
@@ -82,7 +84,7 @@ fun MapPage() {
 
                 Screen.IconCard -> FunctionCard(text = searchBarText, onclick = {
                     content = Screen.Places
-                    iconText = it
+                    mapSearch.searchForPoi(it)
                 }, onTextChange = { searchBarText = it })
 
                 Screen.NewPoint -> NewPointCard(onUploadPoint = {
@@ -90,7 +92,9 @@ fun MapPage() {
                     newPoint.latLng = mapController.getLastKnownLocation()!!
                 })
 
-                Screen.Places -> NewPlaceCard()
+                Screen.Places -> NewPlaceCard(
+                    mapController.getLastKnownLocation()!!, pois = pois
+                )
             }
         },
     )
@@ -112,9 +116,9 @@ private fun MapContent(
         }, sheetPeekHeight = 120.dp
     ) {
         AndroidView(modifier = Modifier.fillMaxSize(), factory = { mapView })
-        AddAndLocateButton({
+        AddAndLocateButton(onAdd = {
             onAdd()
-        }, { onLocate() })
+        }, onLocate = { onLocate() })
     }
 }
 
@@ -131,8 +135,9 @@ private fun getIcon(): BitmapDescriptor {
 
 @Composable
 private fun InitPoints(mapView: MapView, context: Context) {
-    val point = getFirstData()
-    InsertDataToDataBase(context, point)
+    if (getCount(context) == 0) {
+        InsertDataToDataBase(context, getFirstData())
+    }
     val points = getPoints(context)
     if (points == null) {
         showMsg("no data ", context)
@@ -142,10 +147,9 @@ private fun InitPoints(mapView: MapView, context: Context) {
     }
     points?.forEach {
         mapView.map.addMarker(
-            MarkerOptions().position(it.latLng)
-                .title(it.name).icon(
-                    getIcon()
-                )
+            MarkerOptions().position(it.latLng).title(it.name).icon(
+                getIcon()
+            )
         )
     }
 }

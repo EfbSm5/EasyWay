@@ -1,6 +1,8 @@
-package com.efbsm5.easyway.data
+package com.efbsm5.easyway
 
-import com.efbsm5.easyway.ultis.MapUtil.fromComment
+import com.efbsm5.easyway.data.Comment
+import com.efbsm5.easyway.data.EasyPoint
+import com.efbsm5.easyway.map.MapUtil.fromComment
 import java.net.URL
 
 
