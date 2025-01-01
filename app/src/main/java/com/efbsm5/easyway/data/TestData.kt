@@ -26,9 +26,6 @@ fun getFirstData(): EasyPoint {
             date = "2024-12-30"
         )
     )
-    val marker = MarkerData(
-        latitude = 30.507950, longitude = 114.413514, title = "测试用点", snippet = null
-    )
     val firstData = EasyPoint(
         id = 1,
         pointId = 1,
@@ -40,7 +37,6 @@ fun getFirstData(): EasyPoint {
         refreshTime = "2024-12-29",
         likes = 999,
         dislikes = 999,
-        marker = marker,
         comments = fromComment(comments)
     )
     return firstData

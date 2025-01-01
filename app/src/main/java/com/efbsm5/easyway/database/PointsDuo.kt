@@ -4,9 +4,9 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.amap.api.maps.model.LatLng
 import com.efbsm5.easyway.data.EasyPoint
 import com.efbsm5.easyway.data.EasyPointSimplify
-import com.efbsm5.easyway.data.MarkerData
 
 @Dao
 interface PointsDuo {
@@ -16,7 +16,7 @@ interface PointsDuo {
     @Query("SELECT COUNT(*) FROM points")
     fun getCount(): Int
 
-    @Query("select id,pointId,marker from points order by id desc ")
+    @Query("select id,name,latLng from points order by id desc ")
     fun loadAllPoints(): List<EasyPointSimplify>
 
     @Query("SELECT * FROM points WHERE id = :id")
@@ -37,6 +37,6 @@ interface PointsDuo {
     @Query("SELECT comment FROM points WHERE id = :id")
     fun getCommentById(id: Int): String?
 
-    @Query("SELECT * FROM points WHERE marker=:marker")
-    fun markerToPoints(marker: MarkerData): EasyPoint
+    @Query("SELECT * FROM points WHERE latLng=:latLng")
+    fun markerToPoints(latLng: LatLng): EasyPoint
 }

@@ -21,7 +21,6 @@ import com.amap.api.maps.AMapOptions
 import com.amap.api.maps.MapView
 import com.amap.api.maps.model.BitmapDescriptor
 import com.amap.api.maps.model.BitmapDescriptorFactory
-import com.amap.api.maps.model.LatLng
 import com.amap.api.maps.model.Marker
 import com.amap.api.maps.model.MarkerOptions
 import com.efbsm5.easyway.components.AddAndLocateButton
@@ -30,10 +29,10 @@ import com.efbsm5.easyway.components.FunctionCard
 import com.efbsm5.easyway.components.NewPlaceCard
 import com.efbsm5.easyway.components.NewPointCard
 import com.efbsm5.easyway.data.EasyPoint
-import com.efbsm5.easyway.data.MarkerData
 import com.efbsm5.easyway.data.getFirstData
 import com.efbsm5.easyway.database.InsertDataToDataBase
 import com.efbsm5.easyway.database.fromMarkerToPoints
+import com.efbsm5.easyway.database.getCount
 import com.efbsm5.easyway.database.getPoints
 import com.efbsm5.easyway.ultis.MapController
 import com.efbsm5.easyway.ultis.MapUtil.showMsg
@@ -51,7 +50,7 @@ fun MapPage() {
     var iconText by remember { mutableStateOf("") }
     val scaffoldState = rememberBottomSheetScaffoldState()
     var selectedMarker: Marker? by remember { mutableStateOf(null) }
-    var newPoint = EasyPoint()
+    var newPoint: EasyPoint
     InitPoints(
         mapView = mapView, context = context
     )
@@ -87,11 +86,8 @@ fun MapPage() {
                 }, onTextChange = { searchBarText = it })
 
                 Screen.NewPoint -> NewPointCard(onUploadPoint = {
-                    val latLng = mapController.getLastKnownLocation()!!
                     newPoint = it
-                    newPoint.marker = MarkerData(
-                        longitude = latLng.longitude, latitude = latLng.latitude, title =
-                    )
+                    newPoint.latLng = mapController.getLastKnownLocation()!!
                 })
 
                 Screen.Places -> NewPlaceCard()
@@ -110,7 +106,6 @@ private fun MapContent(
     onLocate: () -> Unit,
     content: @Composable () -> Unit
 ) {
-    val context = LocalContext.current
     BottomSheetScaffold(
         scaffoldState = scaffoldState, sheetContent = {
             content()
@@ -140,15 +135,15 @@ private fun InitPoints(mapView: MapView, context: Context) {
     InsertDataToDataBase(context, point)
     val points = getPoints(context)
     if (points == null) {
-//        showMsg("no data ", context)
-//        showMsg(
-//            getCount(context).toString(), context = context
-//        )
+        showMsg("no data ", context)
+        showMsg(
+            getCount(context).toString(), context = context
+        )
     }
     points?.forEach {
         mapView.map.addMarker(
-            MarkerOptions().position(LatLng(it.marker!!.latitude, it.marker.longitude))
-                .title(it.marker.title).icon(
+            MarkerOptions().position(it.latLng)
+                .title(it.name).icon(
                     getIcon()
                 )
         )

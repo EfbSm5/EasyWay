@@ -1,7 +1,7 @@
 package com.efbsm5.easyway.database
 
 import androidx.room.TypeConverter
-import com.efbsm5.easyway.data.MarkerData
+import com.amap.api.maps.model.LatLng
 import com.google.gson.Gson
 import java.net.URL
 
@@ -16,13 +16,14 @@ class Converters {
     fun toUrl(urlString: String): URL {
         return URL(urlString)
     }
+
     @TypeConverter
-    fun fromMarkerData(markerData: MarkerData): String {
-        return Gson().toJson(markerData)
+    fun fromLatLng(latLng: LatLng): String {
+        return Gson().toJson(latLng)
     }
 
     @TypeConverter
-    fun toMarkerData(markerDataString: String): MarkerData? {
-        return Gson().fromJson(markerDataString, MarkerData::class.java)
+    fun toLatLng(latLngString: String): LatLng {
+        return Gson().fromJson(latLngString, LatLng::class.java)
     }
 }

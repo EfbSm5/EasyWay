@@ -1,11 +1,11 @@
 package com.efbsm5.easyway.components
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -16,38 +16,47 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.rememberAsyncImagePainter
 import com.efbsm5.easyway.data.EasyPoint
-import com.efbsm5.easyway.database.AppDataBase
-import com.efbsm5.easyway.ultis.MapController
-import java.net.URL
-
-
-@Preview
-@Composable
-fun pre() {
-    NewPointCard({})
-}
+import java.io.File
+import java.io.FileOutputStream
 
 @Composable
 fun NewPointCard(onUploadPoint: (EasyPoint) -> Unit) {
-    val tempPoint by remember { mutableStateOf(EasyPoint()) }
+    val context = LocalContext.current
+    val tempPoint = remember { mutableStateOf(EasyPoint()) }
     var expanded by remember { mutableStateOf(false) }
     var selectedOption by remember { mutableStateOf("") }
     NewPointCardSurface(
-        point = tempPoint,
-        onInfoValueChange = { tempPoint.introduce = it },
-        onLocationValueChange = { tempPoint.location = it },
-        onUploadImage = { tempPoint.photos = URL(it.toString()) },
+        point = tempPoint.value,
+        onInfoValueChange = { tempPoint.value = tempPoint.value.copy(introduce = it) },
+        onLocationValueChange = { tempPoint.value = tempPoint.value.copy(location = it) },
+        onUploadImage = { uri ->
+            uri?.let { uri1 ->
+                val inputStream = context.contentResolver.openInputStream(uri1)
+                inputStream?.let {
+                    val file = File(context.cacheDir, "temp_image")
+                    val outputStream = FileOutputStream(file)
+                    it.copyTo(outputStream)
+                    outputStream.close()
+                    it.close()
+                    tempPoint.value = tempPoint.value.copy(photos = file.toURI().toURL())
+                }
+            }
+        },
         menuExpanded = expanded,
         selectedOption = selectedOption,
         onSelectType = { selectedOption = it },
         onExpanded = { expanded = it },
-        confirm = { onUploadPoint(tempPoint) },
+        confirm = {
+            onUploadPoint(tempPoint.value)
+        },
         cancel = {},
+        onNameValueChange = { tempPoint.value = tempPoint.value.copy(name = it) },
     )
 }
 
@@ -58,6 +67,7 @@ fun NewPointCardSurface(
     selectedOption: String,
     onInfoValueChange: (String) -> Unit,
     onLocationValueChange: (String) -> Unit,
+    onNameValueChange: (String) -> Unit,
     onUploadImage: (Uri?) -> Unit,
     onSelectType: (String) -> Unit,
     onExpanded: (Boolean) -> Unit,
@@ -85,8 +95,8 @@ fun NewPointCardSurface(
                 onExpanded = { onExpanded(it) })
             Spacer(modifier = Modifier.height(16.dp))
             TextFieldWithText(
-                label = "设施名", text = point.comments?.let { it }
-            ) { onLocationValueChange(it) }
+                label = "设施名", text = point.name
+            ) { onNameValueChange(it) }
             Spacer(modifier = Modifier.height(16.dp))
             TextFieldWithText(label = "设施说明", text = point.introduce) { onInfoValueChange(it) }
             Spacer(modifier = Modifier.height(16.dp))
@@ -132,7 +142,7 @@ fun DropdownField(
             .border(1.dp, Color.Gray)
             .padding(8.dp)
             .clickable { onExpanded(true) }) {
-            Text(text = if (selectedOption.isEmpty()) "请选择" else selectedOption)
+            Text(text = selectedOption.ifEmpty { "请选择" })
         }
         DropdownMenu(expanded = expanded, onDismissRequest = { onExpanded(false) }) {
             listOf(
@@ -157,18 +167,30 @@ fun DropdownField(
 @Composable
 fun TextFieldWithText(label: String, text: String, onValueChange: (String) -> Unit) {
     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Text(text = label, style = TextStyle(fontSize = 16.sp))
-        TextField(value = text, onValueChange = { onValueChange(it) })
+        Text(
+            text = label,
+            style = TextStyle(fontSize = 16.sp),
+            modifier = Modifier
+                .width(70.dp) // 固定宽度
+                .wrapContentWidth(Alignment.CenterHorizontally) // 居中
+        )
+        TextField(
+            value = text,
+            onValueChange = { onValueChange(it) },
+            modifier = Modifier.weight(1f) // 占据剩余空间
+        )
     }
 }
 
 @Composable
 fun UploadImageSection(onChoosePicture: (Uri?) -> Unit) {
+    var selectedImageUri: Uri? by remember { mutableStateOf(null) }
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             onChoosePicture(result.data?.data)
+            selectedImageUri = result.data?.data
         }
     }
     Column {
@@ -186,7 +208,15 @@ fun UploadImageSection(onChoosePicture: (Uri?) -> Unit) {
                     launcher.launch(intent)
                 }, contentAlignment = Alignment.Center
         ) {
-            Text(text = "严禁上传无关图片", color = Color.Red, fontSize = 12.sp)
+            if (selectedImageUri != null) {
+                Image(
+                    painter = rememberAsyncImagePainter(model = selectedImageUri),
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize()
+                )
+            } else {
+                Text(text = "严禁上传无关图片", color = Color.Red, fontSize = 12.sp)
+            }
         }
     }
 }

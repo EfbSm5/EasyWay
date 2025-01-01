@@ -8,7 +8,6 @@ import com.amap.api.maps.model.Marker
 import com.efbsm5.easyway.data.EasyPoint
 import com.efbsm5.easyway.data.EasyPointSimplify
 import com.efbsm5.easyway.ultis.MapUtil
-import fromMarker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -27,7 +26,7 @@ fun InsertDataToDataBase(context: Context, points: EasyPoint) {
 @Composable
 fun getCount(context: Context): Int {
     val coroutineScope = rememberCoroutineScope()
-    var count:Int = 1
+    var count: Int = 1
     LaunchedEffect(Unit) {
         coroutineScope.launch(Dispatchers.IO) {
             count = AppDataBase.getDatabase(context).userDao().getCount()
@@ -117,7 +116,7 @@ fun IncrementCommentDislikes(context: Context, id: Int, index: Int) {
             val database = AppDataBase.getDatabase(context).userDao()
             val comment = database.getCommentById(id)
             if (comment != null) {
-                var temp = MapUtil.toComment(comment)
+                val temp = MapUtil.toComment(comment)
                 temp[index].dislike += 1
                 val json = MapUtil.fromComment(temp)
                 database.updateComment(id, json)
@@ -133,7 +132,8 @@ fun fromMarkerToPoints(context: Context, marker: Marker): EasyPoint {
     LaunchedEffect(Unit) {
         coroutineScope.launch(Dispatchers.IO) {
             val database = AppDataBase.getDatabase(context).userDao()
-            points = database.markerToPoints(fromMarker(marker))
+            val latLng = marker.position
+            points = database.markerToPoints(latLng)
         }
     }
     return points
