@@ -32,11 +32,6 @@ import com.efbsm5.easyway.data.EasyPoint
 import com.efbsm5.easyway.getFirstData
 import com.efbsm5.easyway.map.MapUtil.toComment
 
-@Preview
-@Composable
-fun preq() {
-    CommentAndHistoryCard()
-}
 
 @Composable
 fun CommentAndHistoryCard(points: EasyPoint = getFirstData()) {

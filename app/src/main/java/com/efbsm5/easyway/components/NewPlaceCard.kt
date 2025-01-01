@@ -113,7 +113,6 @@ fun AccessiblePlaceItem(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // 左侧图片
             Image(
                 rememberAsyncImagePainter(imageRes),
                 contentDescription = "地点图片",
