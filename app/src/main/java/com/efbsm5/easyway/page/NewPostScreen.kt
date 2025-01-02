@@ -38,15 +38,16 @@ import com.efbsm5.easyway.data.DynamicPost
 fun DynamicPostPage() {
     val dynamicPost = remember { mutableStateOf(DynamicPost()) }
     var selectedButton by remember { mutableStateOf("") }
-    val photos = ArrayList<Uri>()
-    DynamicPostScreen(
-        dynamicPost = dynamicPost.value,
+    DynamicPostScreen(dynamicPost = dynamicPost.value,
         selectedButton = selectedButton,
         onSelected = { selectedButton = it },
         onTitleChanged = { dynamicPost.value = dynamicPost.value.copy(title = it) },
         onContentChanged = { dynamicPost.value = dynamicPost.value.copy(content = it) },
-        photos = photos
-    )
+        photos = dynamicPost.value.photos,
+        onSelectedPhoto = {
+            dynamicPost.value =
+                dynamicPost.value.copy(photos = ArrayList(dynamicPost.value.photos).apply { add(it) })
+        })
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -58,6 +59,7 @@ fun DynamicPostScreen(
     onSelected: (String) -> Unit,
     onTitleChanged: (String) -> Unit,
     onContentChanged: (String) -> Unit,
+    onSelectedPhoto: (Uri?) -> Unit
 ) {
     Scaffold(topBar = {
         TopAppBar(
@@ -85,7 +87,7 @@ fun DynamicPostScreen(
 //            Spacer(modifier = Modifier.height(16.dp))
             AddLocationAndImagesSection(
                 selectedPhotos = photos,
-                onSelectedPhoto = { it?.let { uri -> photos.add(uri) } })
+                onSelectedPhoto = { it?.let { onSelectedPhoto(it) } })
             Spacer(modifier = Modifier.weight(1f))
             PublishButton(publish = {})
         }

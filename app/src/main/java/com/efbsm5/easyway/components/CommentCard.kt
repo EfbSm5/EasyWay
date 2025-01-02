@@ -148,8 +148,9 @@ fun CommentCard(comments: ArrayList<Comment>, onComment: () -> Unit) {
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "用户:${it.user.name}",
-                            style = MaterialTheme.typography.bodyMedium
+                            text = "用户:${
+                                it.user.name
+                            }", style = MaterialTheme.typography.bodyMedium
                         )
                         Spacer(modifier = Modifier.width(8.dp))
 

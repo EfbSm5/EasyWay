@@ -190,16 +190,20 @@ fun CommentItem(dynamicPost: DynamicPost, onClick: () -> Unit) {
                 text = if (dynamicPost.content.length > 15) dynamicPost.content.take(15) + "..." else dynamicPost.content,
                 modifier = Modifier.padding(vertical = 8.dp)
             )
-            Image(
-                rememberAsyncImagePainter(dynamicPost.photos.isNotEmpty()
-                    .let { dynamicPost.photos[0] }),
-                contentDescription = "评论图片",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(100.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
-            )
+            if (dynamicPost.photos.isNotEmpty()) {
+                Image(
+                    rememberAsyncImagePainter(
+                        dynamicPost.photos
+                    ),
+                    contentDescription = "评论图片",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(100.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                )
+            }
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
