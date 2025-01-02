@@ -5,6 +5,7 @@ import com.amap.api.maps.model.LatLng
 import com.efbsm5.easyway.data.Comment
 import com.efbsm5.easyway.data.DynamicPost
 import com.efbsm5.easyway.data.EasyPoint
+import com.efbsm5.easyway.data.User
 import com.efbsm5.easyway.map.MapUtil.fromComment
 import java.net.URL
 
@@ -69,7 +70,11 @@ fun getPostData(): DynamicPost {
         comment = comments,
         location = LatLng(0.0, 0.0),
         position = "测试地点",
-        photos = ArrayList<Uri>()
+        photos = ArrayList<Uri>(),
+        user = User(
+            name = "developer",
+            avatar = Uri.parse("https://bkimg.cdn.bcebos.com/pic/2f738bd4b31c8701a18be16bb327892f0708293851bf?x-bce-process=image/resize,m_lfit,w_525,h_700,limit_0/quality,Q_90\n")
+        )
     )
 }
 
@@ -105,7 +110,11 @@ fun getPostDatas(): ArrayList<DynamicPost> {
             comment = comments,
             location = LatLng(0.0, 0.0),
             position = "测试地点",
-            photos = ArrayList<Uri>()
+            photos = ArrayList<Uri>(),
+            user = User(
+                name = "developer",
+                avatar = Uri.parse("https://bkimg.cdn.bcebos.com/pic/2f738bd4b31c8701a18be16bb327892f0708293851bf?x-bce-process=image/resize,m_lfit,w_525,h_700,limit_0/quality,Q_90\n")
+            )
         )
     )
     array.add(
@@ -117,7 +126,11 @@ fun getPostDatas(): ArrayList<DynamicPost> {
             comment = comments,
             location = LatLng(0.0, 0.0),
             position = "测试地点111",
-            photos = ArrayList<Uri>()
+            photos = ArrayList<Uri>(),
+            user = User(
+                name = "developer2",
+                avatar = Uri.parse("https://bkimg.cdn.bcebos.com/pic/2f738bd4b31c8701a18be16bb327892f0708293851bf?x-bce-process=image/resize,m_lfit,w_525,h_700,limit_0/quality,Q_90\n")
+            )
         )
     )
     return array

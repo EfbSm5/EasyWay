@@ -2,8 +2,10 @@ package com.efbsm5.easyway.page
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -13,6 +15,7 @@ import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -23,39 +26,63 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberAsyncImagePainter
 import com.efbsm5.easyway.R
-
-@Preview
-@Composable
-fun pre() {
-    ShowPage { }
-}
+import com.efbsm5.easyway.data.DynamicPost
+import com.efbsm5.easyway.getPostDatas
 
 @Composable
 fun CommunityPage() {
     var state: State by remember { mutableStateOf(State.Community) }
+    var selectedPost: DynamicPost? by remember { mutableStateOf(null) }
     when (state) {
-        State.Community -> ShowPage(onChangeState = { state = it })
-        State.Detail -> TODO()
+        State.Community -> ShowPage(onChangeState = { state = it },
+            onSelectedPost = { selectedPost = it })
+
+        State.Detail -> DetailPage(selectedPost!!)
         State.NewPost -> DynamicPostPage()
     }
 }
 
 
 @Composable
-fun ShowPage(onChangeState: (State) -> Unit) {
+fun ShowPage(onChangeState: (State) -> Unit, onSelectedPost: (DynamicPost) -> Unit) {
     var text by remember { mutableStateOf("") }
-    ShowPageScreen(onChangeState = { onChangeState(it) })
+    val tabs = listOf("全部", "活动", "互助", "分享")
+    var selectedTabIndex by remember { mutableIntStateOf(0) }
+    val posts = getPostDatas()
+    ShowPageScreen(onChangeState = { onChangeState(it) },
+        text = text,
+        onChangeText = { text = it },
+        selectedTabIndex = selectedTabIndex,
+        tabs = tabs,
+        onSelect = { selectedTabIndex = it },
+        titleText = "心无距离，共享每一刻",
+        posts = posts,
+        onClick = {
+            onSelectedPost(it)
+            onChangeState(State.Detail)
+        })
 }
 
 @Composable
-fun ShowPageScreen(text: String, onChangeText: (String) -> Unit, onChangeState: (State) -> Unit) {
+fun ShowPageScreen(
+    selectedTabIndex: Int,
+    text: String,
+    tabs: List<String>,
+    titleText: String,
+    posts: ArrayList<DynamicPost>,
+    onChangeText: (String) -> Unit,
+    onChangeState: (State) -> Unit,
+    onSelect: (Int) -> Unit,
+    onClick: (DynamicPost) -> Unit
+) {
     Column(modifier = Modifier.fillMaxSize()) {
-        TopBar()
+        TopBar(text = titleText)
         BannerSection()
-        SearchBar()
-        TabSection()
-        CommentList()
+        SearchBar(text = text, onChangeText = { onChangeText(it) })
+        TabSection(selectedTabIndex = selectedTabIndex, tabs = tabs, onSelect = { onSelect(it) })
+        CommentList(posts = posts, onClick = { onClick(it) })
     }
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomEnd) {
         FloatingActionButton(
@@ -68,9 +95,9 @@ fun ShowPageScreen(text: String, onChangeText: (String) -> Unit, onChangeState: 
 }
 
 @Composable
-fun TopBar() {
+fun TopBar(text: String) {
     Text(
-        text = "心无距离，共享每一刻",
+        text = text,
         style = MaterialTheme.typography.titleLarge,
         modifier = Modifier
             .fillMaxWidth()
@@ -107,16 +134,13 @@ fun SearchBar(text: String, onChangeText: (String) -> Unit) {
             )
         },
         placeholder = { Text("搜索") })
-
 }
 
 @Composable
-fun TabSection() {
-    val tabs = listOf("全部", "活动", "互助", "分享")
-    var selectedTabIndex by remember { mutableStateOf(0) }
+fun TabSection(selectedTabIndex: Int, tabs: List<String>, onSelect: (Int) -> Unit) {
     TabRow(selectedTabIndex = selectedTabIndex) {
         tabs.forEachIndexed { index, title ->
-            Tab(selected = index == selectedTabIndex, onClick = { selectedTabIndex = index }) {
+            Tab(selected = index == selectedTabIndex, onClick = { onSelect(index) }) {
                 Text(
                     text = title, modifier = Modifier.padding(16.dp)
                 )
@@ -126,23 +150,22 @@ fun TabSection() {
 }
 
 @Composable
-fun CommentList() {
+fun CommentList(posts: ArrayList<DynamicPost>, onClick: (DynamicPost) -> Unit) {
     LazyColumn {
-        items(5) { // 示例：显示5条评论
-            CommentItem()
+        items(posts) {
+            CommentItem(it) { onClick(it) }
         }
     }
 }
 
 @Composable
-fun CommentItem() {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-    ) {
+fun CommentItem(dynamicPost: DynamicPost, onClick: () -> Unit) {
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .padding(16.dp)
+        .clickable { onClick() }) {
         Image(
-            painter = painterResource(id = R.drawable.img), // 替换为头像资源
+            rememberAsyncImagePainter(dynamicPost.user.avatar),
             contentDescription = "头像",
             modifier = Modifier
                 .size(40.dp)
@@ -153,7 +176,7 @@ fun CommentItem() {
         Column {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = "清障志愿者 No.249", style = MaterialTheme.typography.bodyLarge
+                    text = dynamicPost.user.name, style = MaterialTheme.typography.bodyLarge
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
@@ -161,13 +184,15 @@ fun CommentItem() {
                 )
             }
             Text(
-                text = "2024-12-23", color = MaterialTheme.colorScheme.onSurfaceVariant
+                text = dynamicPost.date, color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = "你好", modifier = Modifier.padding(vertical = 8.dp)
+                text = if (dynamicPost.content.length > 15) dynamicPost.content.take(15) + "..." else dynamicPost.content,
+                modifier = Modifier.padding(vertical = 8.dp)
             )
             Image(
-                painter = painterResource(id = R.drawable.img), // 替换为评论图片资源
+                rememberAsyncImagePainter(dynamicPost.photos.isNotEmpty()
+                    .let { dynamicPost.photos[0] }),
                 contentDescription = "评论图片",
                 modifier = Modifier
                     .fillMaxWidth()
@@ -186,9 +211,12 @@ fun CommentItem() {
                     contentDescription = "点赞",
                     modifier = Modifier.size(16.dp)
                 )
-                Text(text = "0", modifier = Modifier.padding(horizontal = 4.dp))
+                Text(
+                    text = dynamicPost.like.toString(),
+                    modifier = Modifier.padding(horizontal = 4.dp)
+                )
                 Spacer(modifier = Modifier.width(16.dp))
-                Text(text = "评论 0")
+                Text(text = "评论 ${dynamicPost.comment.size}")
             }
         }
     }

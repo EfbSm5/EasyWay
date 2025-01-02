@@ -19,10 +19,17 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.efbsm5.easyway.R
+import com.efbsm5.easyway.data.DynamicPost
+
+@Composable
+fun DetailPage(post: DynamicPost) {
+    DetailPageScreen()
+}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DetailPage() {
+fun DetailPageScreen() {
     Column(modifier = Modifier.fillMaxSize()) {
         TopAppBar(title = { Text("详情页") }, navigationIcon = {
             IconButton(onClick = { /* 返回逻辑 */ }) {
