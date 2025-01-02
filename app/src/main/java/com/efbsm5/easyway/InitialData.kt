@@ -15,21 +15,27 @@ fun getPointData(): EasyPoint {
     comments.add(
         Comment(
             index = 2,
-            nickname = "developer2",
             content = "test1",
             like = 3,
             dislike = 4,
-            date = "2024-12-30"
+            date = "2024-12-30",
+            user = User(
+                name = "developer1",
+                avatar = Uri.parse("https://bkimg.cdn.bcebos.com/pic/2f738bd4b31c8701a18be16bb327892f0708293851bf?x-bce-process=image/resize,m_lfit,w_525,h_700,limit_0/quality,Q_90\n")
+            )
         )
     )
     comments.add(
         Comment(
             index = 1,
-            nickname = "developer",
             content = "test",
             like = 2,
             dislike = 3,
-            date = "2024-12-30"
+            date = "2024-12-30",
+            user = User(
+                name = "developer",
+                avatar = Uri.parse("https://bkimg.cdn.bcebos.com/pic/2f738bd4b31c8701a18be16bb327892f0708293851bf?x-bce-process=image/resize,m_lfit,w_525,h_700,limit_0/quality,Q_90\n")
+            )
         )
     )
     val firstData = EasyPoint(
@@ -45,21 +51,27 @@ fun getPostData(): DynamicPost {
     comments.add(
         Comment(
             index = 2,
-            nickname = "developer2",
             content = "test1",
             like = 3,
             dislike = 4,
-            date = "2024-12-30"
+            date = "2024-12-30",
+            user = User(
+                name = "developer",
+                avatar = Uri.parse("https://bkimg.cdn.bcebos.com/pic/2f738bd4b31c8701a18be16bb327892f0708293851bf?x-bce-process=image/resize,m_lfit,w_525,h_700,limit_0/quality,Q_90\n")
+            )
         )
     )
     comments.add(
         Comment(
             index = 1,
-            nickname = "developer",
             content = "test",
             like = 2,
             dislike = 3,
-            date = "2024-12-30"
+            date = "2024-12-30",
+            user = User(
+                name = "developer1",
+                avatar = Uri.parse("https://bkimg.cdn.bcebos.com/pic/2f738bd4b31c8701a18be16bb327892f0708293851bf?x-bce-process=image/resize,m_lfit,w_525,h_700,limit_0/quality,Q_90\n")
+            )
         )
     )
     return DynamicPost(
@@ -83,21 +95,27 @@ fun getPostDatas(): ArrayList<DynamicPost> {
     comments.add(
         Comment(
             index = 2,
-            nickname = "developer2",
             content = "test1",
             like = 3,
             dislike = 4,
-            date = "2024-12-30"
+            date = "2024-12-30",
+            user = User(
+                name = "developer",
+                avatar = Uri.parse("https://bkimg.cdn.bcebos.com/pic/2f738bd4b31c8701a18be16bb327892f0708293851bf?x-bce-process=image/resize,m_lfit,w_525,h_700,limit_0/quality,Q_90\n")
+            )
         )
     )
     comments.add(
         Comment(
             index = 1,
-            nickname = "developer",
             content = "test",
             like = 2,
             dislike = 3,
-            date = "2024-12-30"
+            date = "2024-12-30",
+            user = User(
+                name = "developer1111",
+                avatar = Uri.parse("https://bkimg.cdn.bcebos.com/pic/2f738bd4b31c8701a18be16bb327892f0708293851bf?x-bce-process=image/resize,m_lfit,w_525,h_700,limit_0/quality,Q_90\n")
+            )
         )
     )
     val array = ArrayList<DynamicPost>()

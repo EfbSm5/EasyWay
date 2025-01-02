@@ -13,5 +13,9 @@ data class DynamicPost(
     var location: LatLng? = null,
     var position: String = "",
     var photos: ArrayList<Uri> = ArrayList(),
-    val user: User
+    val user: User = User(
+        name = "developer",
+        avatar = Uri.parse("https://bkimg.cdn.bcebos.com/pic/2f738bd4b31c8701a18be16bb327892f0708293851bf?x-bce-process=image/resize,m_lfit,w_525,h_700,limit_0/quality,Q_90\n")
+    )
 )
+

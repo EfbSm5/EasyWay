@@ -1,12 +1,14 @@
 package com.efbsm5.easyway.page
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material3.*
@@ -15,28 +17,29 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.efbsm5.easyway.R
+import coil.compose.rememberAsyncImagePainter
 import com.efbsm5.easyway.data.DynamicPost
 
 @Composable
 fun DetailPage(post: DynamicPost) {
-    DetailPageScreen()
+    DetailPageScreen(post)
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DetailPageScreen() {
-    Column(modifier = Modifier.fillMaxSize()) {
-        TopAppBar(title = { Text("详情页") }, navigationIcon = {
-            IconButton(onClick = { /* 返回逻辑 */ }) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-            }
-        })
-
+fun DetailPageScreen(post: DynamicPost) {
+    TopAppBar(title = { Text("详情页") }, navigationIcon = {
+        IconButton(onClick = { /* 返回逻辑 */ }) {
+            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+        }
+    })
+    Column(
+        modifier = Modifier
+            .padding()
+            .fillMaxSize()
+    ) {
         Column(
             modifier = Modifier
                 .padding(16.dp)
@@ -47,7 +50,7 @@ fun DetailPageScreen() {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.user_avatar), // 替换为用户头像资源
+                    rememberAsyncImagePainter(post.user.avatar),
                     contentDescription = "User Avatar",
                     modifier = Modifier
                         .size(40.dp)
@@ -55,14 +58,14 @@ fun DetailPageScreen() {
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Column {
-                    Text("清障志愿者 No.249", fontWeight = FontWeight.Bold)
-                    Text("2024-12-23", style = MaterialTheme.typography.body2, color = Color.Gray)
+                    Text(post.user.name, fontWeight = FontWeight.Bold)
+                    Text(post.date, color = Color.Gray)
                 }
             }
-            Text("你好", style = MaterialTheme.typography.body1)
+            Text("你好")
             Spacer(modifier = Modifier.height(8.dp))
             Image(
-                painter = painterResource(id = R.drawable.post_image), // 替换为帖子图片资源
+                rememberAsyncImagePainter(post.photos[0]),
                 contentDescription = "Post Image",
                 modifier = Modifier
                     .fillMaxWidth()
@@ -73,24 +76,20 @@ fun DetailPageScreen() {
             Row {
                 Icon(Icons.Default.ThumbUp, contentDescription = "Like")
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("0")
+                Text(post.like.toString())
                 Spacer(modifier = Modifier.width(16.dp))
-                Icon(Icons.Default.ThumbDown, contentDescription = "Dislike")
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("0")
             }
         }
-
-        // 评论区
-        Divider(color = Color.Gray, thickness = 1.dp)
+        HorizontalDivider(thickness = 1.dp, color = Color.Gray)
         LazyColumn(modifier = Modifier.padding(16.dp)) {
-            items(listOf("你也好", "你真好")) { comment ->
+            items(post.comment) { comment ->
                 Row(
                     modifier = Modifier.padding(bottom = 16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.user_avatar), // 替换为用户头像资源
+                        rememberAsyncImagePainter(comment.user.avatar),
                         contentDescription = "User Avatar",
                         modifier = Modifier
                             .size(40.dp)
@@ -99,24 +98,21 @@ fun DetailPageScreen() {
                     Spacer(modifier = Modifier.width(8.dp))
                     Column {
                         Row {
-                            Text("用户XXX", fontWeight = FontWeight.Bold)
+                            Text(comment.user.name, fontWeight = FontWeight.Bold)
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                "2024.12.23",
-                                style = MaterialTheme.typography.body2,
-                                color = Color.Gray
+                                comment.date, color = Color.Gray
                             )
                         }
-                        Text(comment, style = MaterialTheme.typography.body1)
                     }
                     Spacer(modifier = Modifier.weight(1f))
-                    Icon(Icons.Default.ThumbUp, contentDescription = "Like")
+                    Icon(Icons.Default.ThumbUp,
+                        contentDescription = "Like",
+                        modifier = Modifier.clickable { })
                 }
             }
         }
-
-        // 底部输入栏
-        Divider(color = Color.Gray, thickness = 1.dp)
+        HorizontalDivider(thickness = 1.dp, color = Color.Gray)
         Row(
             modifier = Modifier
                 .padding(16.dp)

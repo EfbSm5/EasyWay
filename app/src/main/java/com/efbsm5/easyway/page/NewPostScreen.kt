@@ -15,7 +15,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -28,7 +28,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
@@ -39,7 +38,7 @@ import com.efbsm5.easyway.data.DynamicPost
 fun DynamicPostPage() {
     val dynamicPost = remember { mutableStateOf(DynamicPost()) }
     var selectedButton by remember { mutableStateOf("") }
-    val photos by remember { mutableStateOf(ArrayList<Uri>()) }
+    val photos = ArrayList<Uri>()
     DynamicPostScreen(
         dynamicPost = dynamicPost.value,
         selectedButton = selectedButton,
@@ -64,7 +63,7 @@ fun DynamicPostScreen(
         TopAppBar(
             navigationIcon = {
                 IconButton(onClick = { /*TODO*/ }) {
-                    Icon(Icons.Default.ArrowBack, contentDescription = "back")
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "back")
                 }
             },
             title = { Text("动态发布", fontSize = 20.sp, fontWeight = FontWeight.Bold) },
@@ -86,8 +85,7 @@ fun DynamicPostScreen(
 //            Spacer(modifier = Modifier.height(16.dp))
             AddLocationAndImagesSection(
                 selectedPhotos = photos,
-                onSelectedPhoto = { it?.let { uri -> photos.add(uri) } }
-            )
+                onSelectedPhoto = { it?.let { uri -> photos.add(uri) } })
             Spacer(modifier = Modifier.weight(1f))
             PublishButton(publish = {})
         }
@@ -123,7 +121,7 @@ fun PublishButton(label: String, selectedButton: String, onSelected: () -> Unit)
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
 fun AddTitleAndContentSection(
     dynamicPost: DynamicPost, onTitleChanged: (String) -> Unit, onContentChanged: (String) -> Unit
@@ -134,10 +132,6 @@ fun AddTitleAndContentSection(
             onValueChange = { onTitleChanged(it) },
             modifier = Modifier.fillMaxWidth(),
             placeholder = { Text("添加标题") },
-            colors = TextFieldDefaults.textFieldColors(
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent
-            )
         )
         Spacer(modifier = Modifier.height(8.dp))
         TextField(
@@ -147,36 +141,10 @@ fun AddTitleAndContentSection(
                 .fillMaxWidth()
                 .height(120.dp),
             placeholder = { Text("添加正文") },
-            colors = TextFieldDefaults.textFieldColors(
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent
-            )
         )
     }
 }
 
-//@Composable
-//fun TagSelectionSection() {
-//    Row(verticalAlignment = Alignment.CenterVertically) {
-//        Button(
-//            onClick = { /*TODO*/ },
-//            shape = RoundedCornerShape(16.dp),
-//            modifier = Modifier.padding(end = 8.dp)
-//        ) {
-//            Text("标签", color = Color.Black)
-//        }
-//        Button(
-//            onClick = { /*TODO*/ },
-//            shape = RoundedCornerShape(16.dp),
-//            modifier = Modifier.padding(end = 8.dp)
-//        ) {
-//            Text("参与度", color = Color.Black)
-//        }
-//        Spacer(modifier = Modifier.weight(1f))
-//        Switch(checked = false, onCheckedChange = { /*TODO*/ })
-//    }
-//}
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddLocationAndImagesSection(selectedPhotos: ArrayList<Uri>, onSelectedPhoto: (Uri?) -> Unit) {
     val launcher = rememberLauncherForActivityResult(
@@ -191,8 +159,7 @@ fun AddLocationAndImagesSection(selectedPhotos: ArrayList<Uri>, onSelectedPhoto:
         Row(verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = { /*TODO*/ }) {
                 Icon(
-                    Icons.Default.LocationOn,
-                    contentDescription = "添加地点"
+                    Icons.Default.LocationOn, contentDescription = "添加地点"
                 )
             }
             Text("添加地点", fontSize = 16.sp)
