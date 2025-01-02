@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material3.*
@@ -20,20 +21,49 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.efbsm5.easyway.R
 
-
+@Preview
+@Composable
+fun pre() {
+    ShowPage { }
+}
 
 @Composable
 fun CommunityPage() {
+    var state: State by remember { mutableStateOf(State.Community) }
+    when (state) {
+        State.Community -> ShowPage(onChangeState = { state = it })
+        State.Detail -> TODO()
+        State.NewPost -> DynamicPostPage()
+    }
+}
 
+
+@Composable
+fun ShowPage(onChangeState: (State) -> Unit) {
+    var text by remember { mutableStateOf("") }
+    ShowPageScreen(onChangeState = { onChangeState(it) })
+}
+
+@Composable
+fun ShowPageScreen(text: String, onChangeText: (String) -> Unit, onChangeState: (State) -> Unit) {
     Column(modifier = Modifier.fillMaxSize()) {
         TopBar()
         BannerSection()
         SearchBar()
         TabSection()
         CommentList()
+    }
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomEnd) {
+        FloatingActionButton(
+            onClick = { onChangeState(State.NewPost) },
+            modifier = Modifier.padding(bottom = 16.dp, end = 16.dp)
+        ) {
+            Icon(imageVector = Icons.Default.Add, contentDescription = "添加")
+        }
     }
 }
 
@@ -62,23 +92,22 @@ fun BannerSection() {
 }
 
 @Composable
-fun SearchBar() {
-    Row(
+fun SearchBar(text: String, onChangeText: (String) -> Unit) {
+    TextField(value = text,
+        onValueChange = { onChangeText(it) },
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
             .background(MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(8.dp)),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(
-            imageVector = Icons.Default.Search,
-            contentDescription = "搜索",
-            modifier = Modifier.padding(8.dp)
-        )
-        Text(
-            text = "搜索", color = MaterialTheme.colorScheme.onSurface
-        )
-    }
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = "搜索",
+                modifier = Modifier.padding(8.dp)
+            )
+        },
+        placeholder = { Text("搜索") })
+
 }
 
 @Composable
@@ -135,8 +164,7 @@ fun CommentItem() {
                 text = "2024-12-23", color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = "你好",
-                modifier = Modifier.padding(vertical = 8.dp)
+                text = "你好", modifier = Modifier.padding(vertical = 8.dp)
             )
             Image(
                 painter = painterResource(id = R.drawable.img), // 替换为评论图片资源
@@ -164,4 +192,10 @@ fun CommentItem() {
             }
         }
     }
+}
+
+sealed interface State {
+    data object Community : State
+    data object NewPost : State
+    data object Detail : State
 }

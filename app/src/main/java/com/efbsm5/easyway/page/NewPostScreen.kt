@@ -34,11 +34,6 @@ import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.efbsm5.easyway.data.DynamicPost
 
-@Preview
-@Composable
-fun pre() {
-    DynamicPostPage()
-}
 
 @Composable
 fun DynamicPostPage() {
