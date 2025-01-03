@@ -30,7 +30,7 @@ import com.efbsm5.easyway.components.NewPlaceCard
 import com.efbsm5.easyway.components.NewPointCard
 import com.efbsm5.easyway.data.EasyPoint
 import com.efbsm5.easyway.getPointData
-import com.efbsm5.easyway.database.InsertDataToDataBase
+import com.efbsm5.easyway.database.InsertEasyPointToDataBase
 import com.efbsm5.easyway.database.fromMarkerToPoints
 import com.efbsm5.easyway.database.getCount
 import com.efbsm5.easyway.database.getPoints
@@ -136,7 +136,7 @@ private fun getIcon(): BitmapDescriptor {
 @Composable
 private fun InitPoints(mapView: MapView, context: Context) {
     if (getCount(context) == 0) {
-        InsertDataToDataBase(context, getPointData())
+        InsertEasyPointToDataBase(context, getPointData())
     }
     val points = getPoints(context)
     if (points == null) {

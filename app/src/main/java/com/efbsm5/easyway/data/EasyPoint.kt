@@ -1,7 +1,6 @@
 package com.efbsm5.easyway.data
 
 import androidx.room.*
-import com.efbsm5.easyway.database.Converters
 import com.google.gson.annotations.SerializedName
 import androidx.room.ForeignKey
 import java.net.URL
@@ -14,7 +13,6 @@ import java.net.URL
         onDelete = ForeignKey.CASCADE
     )]
 )
-@TypeConverters(Converters::class)
 data class EasyPoint(
     @PrimaryKey(autoGenerate = true) @SerializedName("point_id") var pointId: Int = 0,
     @ColumnInfo(name = "name") @SerializedName("name") var name: String = "",
