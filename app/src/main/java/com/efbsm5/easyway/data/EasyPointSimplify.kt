@@ -1,16 +1,10 @@
 package com.efbsm5.easyway.data
 
-import androidx.room.ColumnInfo
-import androidx.room.PrimaryKey
-import androidx.room.TypeConverters
-import com.amap.api.maps.model.LatLng
-import com.efbsm5.easyway.database.Converters
+import com.google.gson.annotations.SerializedName
 
 data class EasyPointSimplify(
-    @PrimaryKey(autoGenerate = true) val id: Int = 1,
-    @ColumnInfo(name = "name") val name: String = "",
-    @TypeConverters(Converters::class) @ColumnInfo(name = "latLng") val latLng: LatLng = LatLng(
-        0.0,
-        0.0
-    )
+    @SerializedName("point_id") val id: Int = 1,
+    @SerializedName("name") val name: String = "",
+    @SerializedName("lat") val lat: Double = 0.0,
+    @SerializedName("lng") val lng: Double= 0.0,
 )

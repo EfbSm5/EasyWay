@@ -1,21 +1,17 @@
 package com.efbsm5.easyway.data
 
-import android.net.Uri
-import com.amap.api.maps.model.LatLng
+import com.google.gson.annotations.SerializedName
 
 data class DynamicPost(
-    var title: String = "",
-    var date: String = "",
-    var host: String = "",
-    var like: Int = 0,
-    var content: String = "",
-    var comment: ArrayList<Comment> = ArrayList(),
-    var location: LatLng? = null,
-    var position: String = "",
-    var photos: ArrayList<Uri> = ArrayList(),
-    val user: User = User(
-        name = "developer",
-        avatar = Uri.parse("https://bkimg.cdn.bcebos.com/pic/2f738bd4b31c8701a18be16bb327892f0708293851bf?x-bce-process=image/resize,m_lfit,w_525,h_700,limit_0/quality,Q_90\n")
-    )
+    @SerializedName("id") val id: Int,
+    @SerializedName("title") var title: String,
+    @SerializedName("date") var date: String,
+    @SerializedName("like") var like: Int,
+    @SerializedName("content") var content: String,
+    @SerializedName("lat") var lng: Double,
+    @SerializedName("lng") var lat: Double,
+    @SerializedName("position") var position: String,
+    @SerializedName("user_id") val userId: Int,
+    @SerializedName("comment_id") val commentId: Int
 )
 
