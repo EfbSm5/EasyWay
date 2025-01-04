@@ -6,8 +6,10 @@ import com.efbsm5.easyway.data.Comment
 import com.efbsm5.easyway.data.DynamicPost
 import com.efbsm5.easyway.data.EasyPoint
 import com.efbsm5.easyway.data.EasyPointSimplify
+import com.efbsm5.easyway.data.UriTypeAdapter
 import com.efbsm5.easyway.data.User
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -21,7 +23,8 @@ import java.io.OutputStream
 class HttpClient(url: String) {
     private val client = OkHttpClient()
     private val baseUrl = url
-    private val gson = Gson()
+    private val gson: Gson =
+        GsonBuilder().registerTypeAdapter(Uri::class.java, UriTypeAdapter()).create()
 
     fun getAllComments(callback: (List<Comment>?) -> Unit) {
         val request = Request.Builder().url("$baseUrl/comments").build()

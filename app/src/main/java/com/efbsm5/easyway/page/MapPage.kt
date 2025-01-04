@@ -1,6 +1,6 @@
 package com.efbsm5.easyway.page
 
-import android.content.Context
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.BottomSheetScaffold
@@ -8,6 +8,8 @@ import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -16,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.amap.api.maps.AMapOptions
 import com.amap.api.maps.MapView
 import com.amap.api.maps.model.BitmapDescriptor
@@ -30,13 +33,15 @@ import com.efbsm5.easyway.components.FunctionCard
 import com.efbsm5.easyway.components.NewPlaceCard
 import com.efbsm5.easyway.components.NewPointCard
 import com.efbsm5.easyway.data.EasyPoint
+import com.efbsm5.easyway.data.EasyPointSimplify
 import com.efbsm5.easyway.database.fromMarkerToPoints
-import com.efbsm5.easyway.database.getCount
-import com.efbsm5.easyway.database.getPoints
 import com.efbsm5.easyway.map.MapController
 import com.efbsm5.easyway.map.MapSearchController
 import com.efbsm5.easyway.map.MapUtil.showMsg
+import com.efbsm5.easyway.viewmodel.PointsViewModel
+import com.efbsm5.easyway.viewmodel.PointsViewModelFactory
 
+private const val TAG = "MapPage"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,9 +56,8 @@ fun MapPage() {
     var selectedMarker: Marker? by remember { mutableStateOf(null) }
     var newPoint: EasyPoint
     var pois by remember { mutableStateOf(ArrayList<PoiItemV2>()) }
-    InitPoints(
-        mapView = mapView, context = context
-    )
+    val pointsViewModel: PointsViewModel = viewModel(factory = PointsViewModelFactory(context))
+    val points by pointsViewModel.points.collectAsState()
     val mapController = MapController(
         onPoiClick = { showMsg(it!!.name, context) },
         onMapClick = { showMsg(it!!.latitude.toString(), context) },
@@ -66,8 +70,27 @@ fun MapPage() {
         },
         context = context
     )
+
     mapController.MapLifecycle(mapView)
     val mapSearch = MapSearchController(context) { pois = it }
+    LaunchedEffect(points) {
+        points?.forEach {
+            mapView.map.addMarker(
+                MarkerOptions().position(LatLng(it.lat, it.lng)).title(it.name).icon(
+                    getIcon()
+                )
+            )
+            Log.e(TAG, "InitPoints: add point ${it.name}, ${it.lat}, ${it.lng}")
+        }
+        mapView.map.addMarker(
+            MarkerOptions().position(LatLng(30.513447, 114.426866)).title("666")
+                .icon(BitmapDescriptorFactory.defaultMarker())
+        )
+    }
+//    InitPoints(
+//        mapView = mapView, points = points
+//    )
+
     MapContent(
         scaffoldState = scaffoldState,
         mapView = mapView,
@@ -130,23 +153,10 @@ sealed interface Screen {
 }
 
 private fun getIcon(): BitmapDescriptor {
-    return BitmapDescriptorFactory.defaultMarker()
+    return BitmapDescriptorFactory.defaultMarker(5f)
 }
-
-@Composable
-private fun InitPoints(mapView: MapView, context: Context) {
-    val points = getPoints(context)
-    if (points == null) {
-        showMsg("no data ", context)
-        showMsg(
-            getCount(context).toString(), context = context
-        )
-    }
-    points?.forEach {
-        mapView.map.addMarker(
-            MarkerOptions().position(LatLng(it.lat, it.lng)).title(it.name).icon(
-                getIcon()
-            )
-        )
-    }
-}
+//
+//@Composable
+//private fun InitPoints(mapView: MapView, points: List<EasyPointSimplify>?) {
+//
+//}

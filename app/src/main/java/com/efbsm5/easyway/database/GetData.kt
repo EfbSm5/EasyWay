@@ -3,6 +3,7 @@ package com.efbsm5.easyway.database
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.rememberCoroutineScope
 import com.amap.api.maps.model.Marker
 import com.efbsm5.easyway.data.Comment
@@ -150,13 +151,13 @@ fun AddDisLikeForComment(context: Context, comment: Comment?, index: Int?) {
 @Composable
 fun getPoints(context: Context): List<EasyPointSimplify>? {
     val coroutineScope = rememberCoroutineScope()
-    var a: List<EasyPointSimplify>? = null
+    var points: List<EasyPointSimplify>? = null
     LaunchedEffect(Unit) {
         coroutineScope.launch(Dispatchers.IO) {
-            a = AppDataBase.getDatabase(context).pointsDao().loadAllPoints()
+            points = AppDataBase.getDatabase(context).pointsDao().loadAllPoints()
         }
     }
-    return a
+    return points
 }
 
 @Composable

@@ -28,15 +28,19 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.efbsm5.easyway.map.MapUtil
+import com.efbsm5.easyway.network.Repository
 
 @Composable
 fun HomePage() {
     val context = LocalContext.current
-    HomePageScreen(context)
+    HomePageScreen(context, onUpdate = {
+        val repository = Repository(context)
+        repository.syncData()
+    })
 }
 
 @Composable
-fun HomePageScreen(context: Context) {
+fun HomePageScreen(context: Context, onUpdate: () -> Unit) {
     Column(
         Modifier
             .fillMaxSize()
@@ -52,6 +56,7 @@ fun HomePageScreen(context: Context) {
         MenuItem("帮助中心") { MapUtil.showMsg("开发中", context) }
         MenuItem("免责声明") { MapUtil.showMsg("开发中", context) }
         MenuItem("关于") { MapUtil.showMsg("开发中", context) }
+        MenuItem("同步数据") { onUpdate() }
     }
 }
 
