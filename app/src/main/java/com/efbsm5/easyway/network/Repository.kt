@@ -83,10 +83,10 @@ class Repository(context: Context) {
             if (networkPoints != null) {
                 val localPoints = pointsDao.loadAllPoints()
                 val toInsert =
-                    networkPoints.filter { networkPoint -> localPoints.none { it.id  == networkPoint.pointId } }
+                    networkPoints.filter { networkPoint -> localPoints.none { it.pointId  == networkPoint.pointId } }
                 val toDelete =
-                    localPoints.filter { localPoint -> networkPoints.none { it.pointId == localPoint.id } }
-                        .map { it.id }
+                    localPoints.filter { localPoint -> networkPoints.none { it.pointId == localPoint.pointId } }
+                        .map { it.pointId }
                 db.runInTransaction {
                     pointsDao.deleteAll(toDelete)
                     pointsDao.insertAll(toInsert)

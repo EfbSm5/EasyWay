@@ -30,6 +30,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import coil.compose.rememberAsyncImagePainter
 import com.efbsm5.easyway.data.DynamicPost
 import com.efbsm5.easyway.data.Photo
@@ -64,7 +65,13 @@ fun NewDynamicPostPage() {
         photos = dynamicPost.value.photos,
         onSelectedPhoto = {
             dynamicPost.value =
-                dynamicPost.value.copy(photos = ArrayList(dynamicPost.value.photos).apply { add(it) })
+                dynamicPost.value.copy(photos = ArrayList(dynamicPost.value.photos).apply {
+                    add(
+                        Photo(
+                            id = 1, url = it!!.toString(), dynamicpostId = dynamicPost.value.id
+                        )
+                    )
+                })
         })
 }
 
@@ -90,8 +97,8 @@ fun DynamicPostScreen(
             onTitleChanged = { onTitleChanged(it) },
             onContentChanged = { onContentChanged(it) })
         Spacer(modifier = Modifier.height(16.dp))
-//            TagSelectionSection()
-//            Spacer(modifier = Modifier.height(16.dp))
+//        TagSelectionSection()
+        Spacer(modifier = Modifier.height(16.dp))
         AddLocationAndImagesSection(selectedPhotos = photos,
             onSelectedPhoto = { it?.let { onSelectedPhoto(it) } })
         Spacer(modifier = Modifier.weight(1f))
@@ -198,7 +205,7 @@ private fun AddLocationAndImagesSection(
                     modifier = Modifier
                         .size(100.dp)
                         .padding(4.dp)
-                        .clickable { showDialog = photoUri })
+                        .clickable { showDialog = photoUri.toUri() })
             }
             item {
                 Box(

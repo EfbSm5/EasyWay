@@ -29,11 +29,9 @@ import com.efbsm5.easyway.R
 import com.efbsm5.easyway.data.Comment
 import com.efbsm5.easyway.data.DynamicPost
 import com.efbsm5.easyway.data.User
-import com.efbsm5.easyway.database.AddLikeForComment
 import com.efbsm5.easyway.database.AppDataBase
 import com.efbsm5.easyway.database.getCommentByCommentId
 import com.efbsm5.easyway.database.getUserByUserId
-import com.efbsm5.easyway.map.MapUtil
 
 
 @Composable

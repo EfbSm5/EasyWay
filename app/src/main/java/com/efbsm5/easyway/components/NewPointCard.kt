@@ -33,7 +33,7 @@ fun NewPointCard(onUploadPoint: (EasyPoint) -> Unit) {
     var selectedOption by remember { mutableStateOf("") }
     NewPointCardSurface(
         point = tempPoint.value,
-        onInfoValueChange = { tempPoint.value = tempPoint.value.copy(introduce = it) },
+        onInfoValueChange = { tempPoint.value = tempPoint.value.copy(info = it) },
         onLocationValueChange = { tempPoint.value = tempPoint.value.copy(location = it) },
         onUploadImage = { uri ->
             uri?.let { uri1 ->
@@ -44,7 +44,7 @@ fun NewPointCard(onUploadPoint: (EasyPoint) -> Unit) {
                     it.copyTo(outputStream)
                     outputStream.close()
                     it.close()
-                    tempPoint.value = tempPoint.value.copy(photos = file.toURI().toURL())
+                    tempPoint.value = tempPoint.value.copy(photo = file.toURI().toURL())
                 }
             }
         },
@@ -98,7 +98,7 @@ fun NewPointCardSurface(
                 label = "设施名", text = point.name
             ) { onNameValueChange(it) }
             Spacer(modifier = Modifier.height(16.dp))
-            TextFieldWithText(label = "设施说明", text = point.introduce) { onInfoValueChange(it) }
+            TextFieldWithText(label = "设施说明", text = point.info) { onInfoValueChange(it) }
             Spacer(modifier = Modifier.height(16.dp))
             TextFieldWithText(
                 label = "所在位置", text = point.location

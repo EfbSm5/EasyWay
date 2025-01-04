@@ -9,7 +9,7 @@ import java.net.URL
     tableName = "points", foreignKeys = [ForeignKey(
         entity = User::class,
         parentColumns = arrayOf("id"),
-        childColumns = arrayOf("userId"),
+        childColumns = arrayOf("user_id"),
         onDelete = ForeignKey.CASCADE
     )]
 )
@@ -25,6 +25,6 @@ data class EasyPoint(
     @ColumnInfo(name = "dislike") @SerializedName("dislikes") var dislikes: Int = 0,
     @ColumnInfo(name = "lat") @SerializedName("lat") var lat: Double = 0.0,
     @ColumnInfo(name = "lng") @SerializedName("lng") var lng: Double = 0.0,
-    @ColumnInfo(name = "name") @SerializedName("user_id") var userId: Int = 0,
+    @ColumnInfo(name = "user_id") @SerializedName("user_id") var userId: Int = 0,
     @ColumnInfo(name = "comments") @SerializedName("comment_id") var commentId: Int = 0,
 )

@@ -47,8 +47,6 @@ import com.efbsm5.easyway.R
 import com.efbsm5.easyway.data.DynamicPost
 import com.efbsm5.easyway.database.getCommentsCount
 import com.efbsm5.easyway.database.getUserByUserId
-import com.efbsm5.easyway.map.MapUtil
-
 @Composable
 fun ShowPage(
     posts: List<DynamicPost>?, onChangeState: (State) -> Unit, onSelectedPost: (DynamicPost) -> Unit
@@ -57,7 +55,8 @@ fun ShowPage(
     var text by remember { mutableStateOf("") }
     val tabs = listOf("全部", "活动", "互助", "分享")
     var selectedTabIndex by remember { mutableIntStateOf(0) }
-    ShowPageScreen(posts = posts,
+    ShowPageScreen(
+        posts = posts,
         onChangeState = { onChangeState(it) },
         text = text,
         onChangeText = { text = it },
@@ -176,7 +175,6 @@ fun DynamicPostList(context: Context, posts: List<DynamicPost>?, onClick: (Dynam
 @Composable
 fun CommentItem(context: Context, dynamicPost: DynamicPost, onClick: () -> Unit) {
     val user = getUserByUserId(context = context, userId = dynamicPost.userId)
-    val (photo, content) = MapUtil.extractUrls(dynamicPost.content)
     val commentsCount = getCommentsCount(context)
     Row(modifier = Modifier
         .fillMaxWidth()
@@ -207,12 +205,12 @@ fun CommentItem(context: Context, dynamicPost: DynamicPost, onClick: () -> Unit)
                 text = dynamicPost.date, color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
-                text = if (content.length > 15) content.take(15) + "..." else dynamicPost.content,
+                text = if (dynamicPost.content.length > 15) dynamicPost.content.take(15) + "..." else dynamicPost.content,
                 modifier = Modifier.padding(vertical = 8.dp)
             )
             Image(
                 rememberAsyncImagePainter(
-                    photo.first()
+                    dynamicPost.photos.first().url
                 ),
                 contentDescription = "评论图片",
                 modifier = Modifier

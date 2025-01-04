@@ -11,11 +11,6 @@ import com.google.gson.annotations.SerializedName
         parentColumns = arrayOf("id"),
         childColumns = arrayOf("userId"),
         onDelete = ForeignKey.CASCADE
-    ), ForeignKey(
-        entity = Comment::class,
-        parentColumns = arrayOf("commentid"),
-        childColumns = arrayOf("commentId"),
-        onDelete = ForeignKey.SET_NULL
     )]
 )
 data class DynamicPost(
