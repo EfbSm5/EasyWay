@@ -21,31 +21,37 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
+import com.efbsm5.easyway.R
 import com.efbsm5.easyway.data.Comment
 import com.efbsm5.easyway.data.DynamicPost
-import com.efbsm5.easyway.getPostData
+import com.efbsm5.easyway.data.User
+import com.efbsm5.easyway.database.getCommentByCommentId
+import com.efbsm5.easyway.database.getUserByUserId
+import com.efbsm5.easyway.map.MapUtil
 
-@Preview
-@Composable
-fun p() {
-    DetailPage(getPostData())
-}
 
 @Composable
 fun DetailPage(post: DynamicPost) {
+    val context = LocalContext.current
     var newCommentText by remember { mutableStateOf("") }
     var showTextField by remember { mutableStateOf(false) }
+    val comments = getCommentByCommentId(context, post.commentId)
+    val user = getUserByUserId(context, post.userId)
     DetailPageScreen(
         post = post,
         newCommentText = newCommentText,
         onAddComment = { newCommentText = it },
         changeIfShowTextField = { showTextField = it },
         showTextField = showTextField,
-        likeComment = { post.comment.indexOf(it) }
+        likeComment = {
+
+        },
+        user = user,
+        comments = comments
     )
 }
 
@@ -56,7 +62,9 @@ fun DetailPageScreen(
     showTextField: Boolean,
     onAddComment: (String) -> Unit,
     changeIfShowTextField: (Boolean) -> Unit,
-    likeComment: (Int) -> Unit
+    likeComment: (Comment) -> Unit,
+    user: User?,
+    comments: List<Comment>?
 ) {
     Column(
         modifier = Modifier
@@ -65,9 +73,13 @@ fun DetailPageScreen(
     ) {
         TopBar()
         Spacer(modifier = Modifier.height(16.dp))
-        DetailsContent(post = post)
+        DetailsContent(
+            post = post, user = user
+        )
         HorizontalDivider(thickness = 1.dp, color = Color.Gray)
-        Comments(post = post, like = {})
+        Comments(
+            like = { likeComment(it) }, comments = comments
+        )
         HorizontalDivider(thickness = 1.dp, color = Color.Gray)
         CommentSection(comment = { changeIfShowTextField(true) })
         if (showTextField) {
@@ -89,28 +101,30 @@ fun TopBar() {
 }
 
 @Composable
-fun DetailsContent(post: DynamicPost) {
+fun DetailsContent(post: DynamicPost, user: User?) {
+    val (photo, content) = MapUtil.extractUrls(post.content)
     Row(
         modifier = Modifier.padding(bottom = 16.dp), verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
-            painter = rememberAsyncImagePainter(post.user.avatar),
+            painter = rememberAsyncImagePainter(user?.avatar ?: R.drawable.nouser),
             contentDescription = "User Avatar",
             modifier = Modifier
                 .size(40.dp)
                 .clip(CircleShape)
         )
+
         Spacer(modifier = Modifier.width(8.dp))
         Column {
-            Text(post.user.name, fontWeight = FontWeight.Bold)
+            Text(user?.name ?: "用户不存在", fontWeight = FontWeight.Bold)
             Text(post.date, color = Color.Gray)
         }
     }
     Text(post.content)
     Spacer(modifier = Modifier.height(8.dp))
-    if (post.photos.isNotEmpty()) {
+    if (photo.isNotEmpty()) {
         Image(
-            painter = rememberAsyncImagePainter(post.photos[0]),
+            painter = rememberAsyncImagePainter(photo.first()),
             contentDescription = "Post Image",
             modifier = Modifier
                 .fillMaxWidth()
@@ -128,10 +142,12 @@ fun DetailsContent(post: DynamicPost) {
 }
 
 @Composable
-fun Comments(post: DynamicPost, like: (Int) -> Unit) {
-    LazyColumn(modifier = Modifier.padding(vertical = 16.dp)) {
-        items(post.comment) { comment ->
-            CommentItems(comment) { like(post.comment.indexOf(comment)) }
+fun Comments(comments: List<Comment>?, like: (Comment) -> Unit) {
+    if (!comments.isNullOrEmpty()) {
+        LazyColumn(modifier = Modifier.padding(vertical = 16.dp)) {
+            items(comments) { comment ->
+                CommentItems(comment) { like(comment) }
+            }
         }
     }
 }
@@ -139,20 +155,21 @@ fun Comments(post: DynamicPost, like: (Int) -> Unit) {
 @Composable
 fun CommentItems(comment: Comment, like: () -> Unit) {
     var isLiked by remember { mutableStateOf(false) }
+    val user = getUserByUserId(LocalContext.current, comment.userId)
     Row(
         modifier = Modifier.padding(bottom = 16.dp), verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
-            painter = rememberAsyncImagePainter(comment.user.avatar),
-            contentDescription = "User Avatar",
-            modifier = Modifier
+            painter = rememberAsyncImagePainter(
+                user?.avatar ?: R.drawable.nouser
+            ), contentDescription = "User Avatar", modifier = Modifier
                 .size(40.dp)
                 .clip(CircleShape)
         )
         Spacer(modifier = Modifier.width(8.dp))
         Column {
             Row {
-                Text(comment.user.name, fontWeight = FontWeight.Bold)
+                Text(user?.name ?: "用户不存在", fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(comment.date, color = Color.Gray)
             }

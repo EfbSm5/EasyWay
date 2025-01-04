@@ -20,6 +20,7 @@ import com.amap.api.maps.AMapOptions
 import com.amap.api.maps.MapView
 import com.amap.api.maps.model.BitmapDescriptor
 import com.amap.api.maps.model.BitmapDescriptorFactory
+import com.amap.api.maps.model.LatLng
 import com.amap.api.maps.model.Marker
 import com.amap.api.maps.model.MarkerOptions
 import com.amap.api.services.core.PoiItemV2
@@ -29,8 +30,6 @@ import com.efbsm5.easyway.components.FunctionCard
 import com.efbsm5.easyway.components.NewPlaceCard
 import com.efbsm5.easyway.components.NewPointCard
 import com.efbsm5.easyway.data.EasyPoint
-import com.efbsm5.easyway.getPointData
-import com.efbsm5.easyway.database.InsertEasyPointToDataBase
 import com.efbsm5.easyway.database.fromMarkerToPoints
 import com.efbsm5.easyway.database.getCount
 import com.efbsm5.easyway.database.getPoints
@@ -89,7 +88,8 @@ fun MapPage() {
 
                 Screen.NewPoint -> NewPointCard(onUploadPoint = {
                     newPoint = it
-                    newPoint.latLng = mapController.getLastKnownLocation()!!
+                    newPoint.lat = mapController.getLastKnownLocation()!!.latitude
+                    newPoint.lng = mapController.getLastKnownLocation()!!.longitude
                 })
 
                 Screen.Places -> NewPlaceCard(
@@ -135,9 +135,6 @@ private fun getIcon(): BitmapDescriptor {
 
 @Composable
 private fun InitPoints(mapView: MapView, context: Context) {
-    if (getCount(context) == 0) {
-        InsertEasyPointToDataBase(context, getPointData())
-    }
     val points = getPoints(context)
     if (points == null) {
         showMsg("no data ", context)
@@ -147,7 +144,7 @@ private fun InitPoints(mapView: MapView, context: Context) {
     }
     points?.forEach {
         mapView.map.addMarker(
-            MarkerOptions().position(it.latLng).title(it.name).icon(
+            MarkerOptions().position(LatLng(it.lat, it.lng)).title(it.name).icon(
                 getIcon()
             )
         )

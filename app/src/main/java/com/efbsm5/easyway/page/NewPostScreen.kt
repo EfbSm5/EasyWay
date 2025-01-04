@@ -32,18 +32,35 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.efbsm5.easyway.data.DynamicPost
+import com.efbsm5.easyway.map.MapUtil
 
 
 @Composable
-fun DynamicPostPage() {
-    val dynamicPost = remember { mutableStateOf(DynamicPost()) }
+fun NewDynamicPostPage() {
+    val dynamicPost = remember {
+        mutableStateOf(
+            DynamicPost(
+                id = 0,
+                title = "",
+                date = "",
+                like = 0,
+                content = "",
+                lng = 0.0,
+                lat = 0.0,
+                position = "",
+                userId = 0,
+                commentId = 0
+            )
+        )
+    }
     var selectedButton by remember { mutableStateOf("") }
+
     DynamicPostScreen(dynamicPost = dynamicPost.value,
         selectedButton = selectedButton,
         onSelected = { selectedButton = it },
         onTitleChanged = { dynamicPost.value = dynamicPost.value.copy(title = it) },
         onContentChanged = { dynamicPost.value = dynamicPost.value.copy(content = it) },
-        photos = dynamicPost.value.photos,
+        photos = MapUtil.extractUrls(dynamicPost.value.content),
         onSelectedPhoto = {
             dynamicPost.value =
                 dynamicPost.value.copy(photos = ArrayList(dynamicPost.value.photos).apply { add(it) })
@@ -61,41 +78,42 @@ fun DynamicPostScreen(
     onContentChanged: (String) -> Unit,
     onSelectedPhoto: (Uri?) -> Unit
 ) {
-    Scaffold(topBar = {
-        TopAppBar(
-            navigationIcon = {
-                IconButton(onClick = { /*TODO*/ }) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "back")
-                }
-            },
-            title = { Text("动态发布", fontSize = 20.sp, fontWeight = FontWeight.Bold) },
-        )
-    }, content = { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp)
-        ) {
-            PublishToSection(selectedButton = selectedButton, onSelected = { onSelected(it) })
-            Spacer(modifier = Modifier.height(16.dp))
-            AddTitleAndContentSection(dynamicPost = dynamicPost,
-                onTitleChanged = { onTitleChanged(it) },
-                onContentChanged = { onContentChanged(it) })
-            Spacer(modifier = Modifier.height(16.dp))
+
+
+    Column(
+        modifier = Modifier.fillMaxSize().padding(paddingValues).padding(16.dp)
+    ) {
+        Topbar()
+        PublishToSection(selectedButton = selectedButton, onSelected = { onSelected(it) })
+        Spacer(modifier = Modifier.height(16.dp))
+        AddTitleAndContentSection(dynamicPost = dynamicPost,
+            onTitleChanged = { onTitleChanged(it) },
+            onContentChanged = { onContentChanged(it) })
+        Spacer(modifier = Modifier.height(16.dp))
 //            TagSelectionSection()
 //            Spacer(modifier = Modifier.height(16.dp))
-            AddLocationAndImagesSection(
-                selectedPhotos = photos,
-                onSelectedPhoto = { it?.let { onSelectedPhoto(it) } })
-            Spacer(modifier = Modifier.weight(1f))
-            PublishButton(publish = {})
-        }
-    })
+        AddLocationAndImagesSection(
+            selectedPhotos = photos,
+            onSelectedPhoto = { it?.let { onSelectedPhoto(it) } })
+        Spacer(modifier = Modifier.weight(1f))
+        PublishButton(publish = {})
+    }
 }
 
 @Composable
-fun PublishToSection(selectedButton: String, onSelected: (String) -> Unit) {
+private fun Topbar() {
+    TopAppBar(
+        navigationIcon = {
+            IconButton(onClick = { /*TODO*/ }) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "back")
+            }
+        },
+        title = { Text("动态发布", fontSize = 20.sp, fontWeight = FontWeight.Bold) },
+    )
+}
+
+@Composable
+private fun PublishToSection(selectedButton: String, onSelected: (String) -> Unit) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text("发布到：", fontSize = 16.sp, fontWeight = FontWeight.Medium)
         Spacer(modifier = Modifier.width(8.dp))
@@ -108,7 +126,7 @@ fun PublishToSection(selectedButton: String, onSelected: (String) -> Unit) {
 }
 
 @Composable
-fun PublishButton(label: String, selectedButton: String, onSelected: () -> Unit) {
+private fun PublishButton(label: String, selectedButton: String, onSelected: () -> Unit) {
     val isSelected = selectedButton == label
     val backgroundColor by animateColorAsState(
         targetValue = if (isSelected) Color.Blue else Color.Transparent, label = ""
@@ -125,7 +143,7 @@ fun PublishButton(label: String, selectedButton: String, onSelected: () -> Unit)
 
 
 @Composable
-fun AddTitleAndContentSection(
+private fun AddTitleAndContentSection(
     dynamicPost: DynamicPost, onTitleChanged: (String) -> Unit, onContentChanged: (String) -> Unit
 ) {
     Column {
@@ -148,7 +166,9 @@ fun AddTitleAndContentSection(
 }
 
 @Composable
-fun AddLocationAndImagesSection(selectedPhotos: ArrayList<Uri>, onSelectedPhoto: (Uri?) -> Unit) {
+private fun AddLocationAndImagesSection(
+    selectedPhotos: ArrayList<Uri>, onSelectedPhoto: (Uri?) -> Unit
+) {
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -216,7 +236,7 @@ fun AddLocationAndImagesSection(selectedPhotos: ArrayList<Uri>, onSelectedPhoto:
 }
 
 @Composable
-fun PublishButton(publish: () -> Unit) {
+private fun PublishButton(publish: () -> Unit) {
     Button(
         onClick = { publish() },
         modifier = Modifier

@@ -1,10 +1,10 @@
-package com.efbsm5.easyway.database
+package com.efbsm5.easyway.network
 
 import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import androidx.room.Room
 import com.efbsm5.easyway.data.Comment
-import com.efbsm5.easyway.network.HttpClient
+import com.efbsm5.easyway.database.AppDataBase
 
 class Repository(context: Context) {
     private val db = Room.databaseBuilder(

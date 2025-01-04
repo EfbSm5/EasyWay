@@ -31,4 +31,7 @@ interface CommentDao {
 
     @Query("DELETE FROM comments WHERE id IN (:ids)")
     fun deleteAll(ids: List<Int>)
+
+    @Query("SELECT COUNT(*) FROM comments")
+    fun getCount(): Int
 }

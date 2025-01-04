@@ -12,6 +12,8 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.regex.Pattern
+
 
 object MapUtil {
     fun convertToLatLonPoint(latLng: LatLng): LatLonPoint {
@@ -67,6 +69,7 @@ object MapUtil {
             Toast.makeText(context, "未找到地图应用", Toast.LENGTH_SHORT).show()
         }
     }
+
     fun Float.formatDistance(): String {
         return if (this < 500) {
             "${this.toInt()} m"  // 转为整数并以 m 为单位
@@ -74,4 +77,24 @@ object MapUtil {
             "%.2f km".format(this / 1000)  // 转为 km 并保留两位小数
         }
     }
+
+    fun extractUrls(input: String): Pair<List<String>, String> {
+        val urlPattern = Pattern.compile(
+            "(https?://[\\w-]+(\\.[\\w-]+)+(/[^\\s]*)?)", Pattern.CASE_INSENSITIVE
+        )
+        val matcher = urlPattern.matcher(input)
+        val urls = mutableListOf<String>()
+        val remainingText = StringBuilder(input)
+
+        while (matcher.find()) {
+            val url = matcher.group()
+            urls.add(url)
+            val start = matcher.start()
+            val end = matcher.end()
+            remainingText.replace(start, end, "")
+        }
+
+        return Pair(urls, remainingText.toString().trim())
+    }
+
 }

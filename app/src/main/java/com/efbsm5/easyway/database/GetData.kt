@@ -65,10 +65,22 @@ fun InsertDynamicPostToDataBase(context: Context, dynamicPost: DynamicPost) {
 @Composable
 fun getCount(context: Context): Int {
     val coroutineScope = rememberCoroutineScope()
-    var count: Int = 1
+    var count: Int = 0
     LaunchedEffect(Unit) {
         coroutineScope.launch(Dispatchers.IO) {
             count = AppDataBase.getDatabase(context).pointsDao().getCount()
+        }
+    }
+    return count
+}
+
+@Composable
+fun getCommentsCount(context: Context): Int {
+    val coroutineScope = rememberCoroutineScope()
+    var count: Int = 0
+    LaunchedEffect(Unit) {
+        coroutineScope.launch(Dispatchers.IO) {
+            count = AppDataBase.getDatabase(context).commentDao().getCount()
         }
     }
     return count
@@ -172,7 +184,7 @@ fun getHistory(context: Context, historyId: Int): List<EasyPoint>? {
 }
 
 @Composable
-fun fromMarkerToPoints(context: Context, marker: Marker): EasyPoint? {
+fun fromMarkerToPoints(context: Context, marker: Marker): EasyPoint {
     val coroutineScope = rememberCoroutineScope()
     var points: EasyPoint? = null
     LaunchedEffect(Unit) {
@@ -181,7 +193,7 @@ fun fromMarkerToPoints(context: Context, marker: Marker): EasyPoint? {
                 .getPointByLatLng(marker.position.latitude, marker.position.longitude)
         }
     }
-    return points
+    return points!!
 }
 
 @Composable
@@ -209,12 +221,24 @@ fun getUserByUserId(context: Context, userId: Int): User? {
 }
 
 @Composable
-fun getDynamicPoseByDynamicPostId(context: Context, dynamicPostId: Int): DynamicPost? {
+fun getDynamicPostByDynamicPostId(context: Context, dynamicPostId: Int): DynamicPost? {
     val coroutineScope = rememberCoroutineScope()
     var a: DynamicPost? = null
     LaunchedEffect(Unit) {
         coroutineScope.launch(Dispatchers.IO) {
             a = AppDataBase.getDatabase(context).dynamicPostDao().getDynamicPostById(dynamicPostId)
+        }
+    }
+    return a
+}
+
+@Composable
+fun getAllDynamicPost(context: Context): List<DynamicPost>? {
+    val coroutineScope = rememberCoroutineScope()
+    var a: List<DynamicPost>? = null
+    LaunchedEffect(Unit) {
+        coroutineScope.launch(Dispatchers.IO) {
+            a = AppDataBase.getDatabase(context).dynamicPostDao().getAllDynamicPosts()
         }
     }
     return a
