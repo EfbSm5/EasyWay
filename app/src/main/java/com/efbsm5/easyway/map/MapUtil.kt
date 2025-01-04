@@ -78,23 +78,4 @@ object MapUtil {
         }
     }
 
-    fun extractUrls(input: String): Pair<List<String>, String> {
-        val urlPattern = Pattern.compile(
-            "(https?://[\\w-]+(\\.[\\w-]+)+(/[^\\s]*)?)", Pattern.CASE_INSENSITIVE
-        )
-        val matcher = urlPattern.matcher(input)
-        val urls = mutableListOf<String>()
-        val remainingText = StringBuilder(input)
-
-        while (matcher.find()) {
-            val url = matcher.group()
-            urls.add(url)
-            val start = matcher.start()
-            val end = matcher.end()
-            remainingText.replace(start, end, "")
-        }
-
-        return Pair(urls, remainingText.toString().trim())
-    }
-
 }

@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.efbsm5.easyway.data.DynamicPost
-import com.efbsm5.easyway.map.MapUtil
+import com.efbsm5.easyway.data.Photo
 
 
 @Composable
@@ -49,7 +49,8 @@ fun NewDynamicPostPage() {
                 lat = 0.0,
                 position = "",
                 userId = 0,
-                commentId = 0
+                commentId = 0,
+                photos = emptyList()
             )
         )
     }
@@ -60,30 +61,29 @@ fun NewDynamicPostPage() {
         onSelected = { selectedButton = it },
         onTitleChanged = { dynamicPost.value = dynamicPost.value.copy(title = it) },
         onContentChanged = { dynamicPost.value = dynamicPost.value.copy(content = it) },
-        photos = MapUtil.extractUrls(dynamicPost.value.content),
+        photos = dynamicPost.value.photos,
         onSelectedPhoto = {
             dynamicPost.value =
                 dynamicPost.value.copy(photos = ArrayList(dynamicPost.value.photos).apply { add(it) })
         })
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DynamicPostScreen(
     dynamicPost: DynamicPost,
     selectedButton: String,
-    photos: ArrayList<Uri>,
+    photos: List<Photo>,
     onSelected: (String) -> Unit,
     onTitleChanged: (String) -> Unit,
     onContentChanged: (String) -> Unit,
     onSelectedPhoto: (Uri?) -> Unit
 ) {
-
-
     Column(
-        modifier = Modifier.fillMaxSize().padding(paddingValues).padding(16.dp)
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
     ) {
-        Topbar()
+        `Top-bar`()
         PublishToSection(selectedButton = selectedButton, onSelected = { onSelected(it) })
         Spacer(modifier = Modifier.height(16.dp))
         AddTitleAndContentSection(dynamicPost = dynamicPost,
@@ -92,16 +92,16 @@ fun DynamicPostScreen(
         Spacer(modifier = Modifier.height(16.dp))
 //            TagSelectionSection()
 //            Spacer(modifier = Modifier.height(16.dp))
-        AddLocationAndImagesSection(
-            selectedPhotos = photos,
+        AddLocationAndImagesSection(selectedPhotos = photos,
             onSelectedPhoto = { it?.let { onSelectedPhoto(it) } })
         Spacer(modifier = Modifier.weight(1f))
         PublishButton(publish = {})
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun Topbar() {
+private fun `Top-bar`() {
     TopAppBar(
         navigationIcon = {
             IconButton(onClick = { /*TODO*/ }) {
@@ -167,7 +167,7 @@ private fun AddTitleAndContentSection(
 
 @Composable
 private fun AddLocationAndImagesSection(
-    selectedPhotos: ArrayList<Uri>, onSelectedPhoto: (Uri?) -> Unit
+    selectedPhotos: List<Photo>, onSelectedPhoto: (Uri?) -> Unit
 ) {
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
@@ -191,7 +191,7 @@ private fun AddLocationAndImagesSection(
             columns = GridCells.Fixed(4), modifier = Modifier.height(200.dp)
         ) {
             items(selectedPhotos.size) { index ->
-                val photoUri = selectedPhotos[index]
+                val photoUri = selectedPhotos[index].url
                 Image(painter = rememberAsyncImagePainter(photoUri),
                     contentDescription = null,
                     contentScale = ContentScale.Crop,

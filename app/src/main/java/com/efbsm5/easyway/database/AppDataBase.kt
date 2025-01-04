@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import com.efbsm5.easyway.data.*
 
 @Database(
@@ -11,6 +12,7 @@ import com.efbsm5.easyway.data.*
     entities = [EasyPoint::class, User::class, Comment::class, DynamicPost::class],
     exportSchema = false
 )
+@TypeConverters(Converters::class)
 abstract class AppDataBase : RoomDatabase() {
     abstract fun pointsDao(): PointsDao
     abstract fun commentDao(): CommentDao

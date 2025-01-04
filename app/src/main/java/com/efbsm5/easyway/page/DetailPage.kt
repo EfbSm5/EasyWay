@@ -29,6 +29,8 @@ import com.efbsm5.easyway.R
 import com.efbsm5.easyway.data.Comment
 import com.efbsm5.easyway.data.DynamicPost
 import com.efbsm5.easyway.data.User
+import com.efbsm5.easyway.database.AddLikeForComment
+import com.efbsm5.easyway.database.AppDataBase
 import com.efbsm5.easyway.database.getCommentByCommentId
 import com.efbsm5.easyway.database.getUserByUserId
 import com.efbsm5.easyway.map.MapUtil
@@ -47,9 +49,6 @@ fun DetailPage(post: DynamicPost) {
         onAddComment = { newCommentText = it },
         changeIfShowTextField = { showTextField = it },
         showTextField = showTextField,
-        likeComment = {
-
-        },
         user = user,
         comments = comments
     )
@@ -62,7 +61,6 @@ fun DetailPageScreen(
     showTextField: Boolean,
     onAddComment: (String) -> Unit,
     changeIfShowTextField: (Boolean) -> Unit,
-    likeComment: (Comment) -> Unit,
     user: User?,
     comments: List<Comment>?
 ) {
@@ -77,9 +75,7 @@ fun DetailPageScreen(
             post = post, user = user
         )
         HorizontalDivider(thickness = 1.dp, color = Color.Gray)
-        Comments(
-            like = { likeComment(it) }, comments = comments
-        )
+        Comments(comments = comments)
         HorizontalDivider(thickness = 1.dp, color = Color.Gray)
         CommentSection(comment = { changeIfShowTextField(true) })
         if (showTextField) {
@@ -102,7 +98,6 @@ fun TopBar() {
 
 @Composable
 fun DetailsContent(post: DynamicPost, user: User?) {
-    val (photo, content) = MapUtil.extractUrls(post.content)
     Row(
         modifier = Modifier.padding(bottom = 16.dp), verticalAlignment = Alignment.CenterVertically
     ) {
@@ -122,9 +117,9 @@ fun DetailsContent(post: DynamicPost, user: User?) {
     }
     Text(post.content)
     Spacer(modifier = Modifier.height(8.dp))
-    if (photo.isNotEmpty()) {
+    if (post.photos.isNotEmpty()) {
         Image(
-            painter = rememberAsyncImagePainter(photo.first()),
+            painter = rememberAsyncImagePainter(post.photos.first().url),
             contentDescription = "Post Image",
             modifier = Modifier
                 .fillMaxWidth()
@@ -142,11 +137,14 @@ fun DetailsContent(post: DynamicPost, user: User?) {
 }
 
 @Composable
-fun Comments(comments: List<Comment>?, like: (Comment) -> Unit) {
+fun Comments(comments: List<Comment>?) {
+    val context = LocalContext.current
     if (!comments.isNullOrEmpty()) {
         LazyColumn(modifier = Modifier.padding(vertical = 16.dp)) {
             items(comments) { comment ->
-                CommentItems(comment) { like(comment) }
+                CommentItems(comment) {
+                    AppDataBase.getDatabase(context).commentDao().incrementLikes(comment.index)
+                }
             }
         }
     }
@@ -178,8 +176,9 @@ fun CommentItems(comment: Comment, like: () -> Unit) {
         Spacer(modifier = Modifier.weight(1f))
         Icon(
             Icons.Default.ThumbUp, contentDescription = "Like", modifier = Modifier.clickable {
-                like()
                 isLiked = true
+                comment.like += 1
+                like()
             }, tint = if (isLiked) Color.Red else Color.Black
         )
     }
