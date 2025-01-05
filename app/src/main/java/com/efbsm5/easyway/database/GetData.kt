@@ -185,7 +185,7 @@ fun getHistory(context: Context, historyId: Int): List<EasyPoint>? {
 }
 
 @Composable
-fun fromMarkerToPoints(context: Context, marker: Marker): EasyPoint {
+fun fromMarkerToPoints(context: Context, marker: Marker): EasyPoint? {
     val coroutineScope = rememberCoroutineScope()
     var points: EasyPoint? = null
     LaunchedEffect(Unit) {
@@ -194,7 +194,7 @@ fun fromMarkerToPoints(context: Context, marker: Marker): EasyPoint {
                 .getPointByLatLng(marker.position.latitude, marker.position.longitude)
         }
     }
-    return points!!
+    return points
 }
 
 @Composable

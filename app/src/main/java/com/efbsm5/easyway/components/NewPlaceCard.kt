@@ -22,14 +22,15 @@ import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.amap.api.maps.model.LatLng
 import com.amap.api.services.core.PoiItemV2
+import com.efbsm5.easyway.data.EasyPoint
 import com.efbsm5.easyway.map.MapUtil
 import com.efbsm5.easyway.map.MapUtil.formatDistance
 import com.efbsm5.easyway.map.MapUtil.onNavigate
 
 
 @Composable
-fun NewPlaceCard(latLng: LatLng, pois: ArrayList<PoiItemV2>) {
-    var selectedTab by remember { mutableStateOf(0) }
+fun NewPlaceCard(latLng: LatLng, pois: ArrayList<PoiItemV2>?, easyPoints: ArrayList<EasyPoint>?) {
+    var selectedTab by remember { mutableIntStateOf(0) }
     val context = LocalContext.current
     NewPlaceCardScreen(
         selectedTab = selectedTab,
@@ -37,12 +38,15 @@ fun NewPlaceCard(latLng: LatLng, pois: ArrayList<PoiItemV2>) {
         location = latLng,
         context = context,
         pois = pois,
+        easyPoints = easyPoints
     )
+
 }
 
 @Composable
 fun NewPlaceCardScreen(
-    pois: ArrayList<PoiItemV2>,
+    pois: ArrayList<PoiItemV2>?,
+    easyPoints: ArrayList<EasyPoint>?,
     location: LatLng,
     selectedTab: Int,
     context: Context,
@@ -57,17 +61,33 @@ fun NewPlaceCardScreen(
                 .fillMaxSize()
                 .padding(horizontal = 8.dp, vertical = 8.dp)
         ) {
-            items(pois) { poi ->
-                AccessiblePlaceItem(
-                    imageRes = poi.photos[1].url,
-                    title = poi.title,
-                    distance = MapUtil.calculateDistance(
-                        location, MapUtil.convertToLatLng(poi.latLonPoint)
-                    ),
-                    latLng = MapUtil.convertToLatLng(poi.latLonPoint),
-                    context = context
-                )
-                Spacer(modifier = Modifier.height(8.dp))
+            easyPoints?.let {
+                items(it) { easyPoint ->
+                    AccessiblePlaceItem(
+                        imageRes = easyPoint.photo.toString(),
+                        title = easyPoint.name,
+                        distance = MapUtil.calculateDistance(
+                            location, LatLng(easyPoint.lat, easyPoint.lng)
+                        ),
+                        latLng = LatLng(easyPoint.lat, easyPoint.lng),
+                        context = context
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+            }
+            pois?.let {
+                items(it) { poi ->
+                    AccessiblePlaceItem(
+                        imageRes = poi.photos[1].url,
+                        title = poi.title,
+                        distance = MapUtil.calculateDistance(
+                            location, MapUtil.convertToLatLng(poi.latLonPoint)
+                        ),
+                        latLng = MapUtil.convertToLatLng(poi.latLonPoint),
+                        context = context
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
             }
         }
     }

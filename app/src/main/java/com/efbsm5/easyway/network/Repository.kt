@@ -14,24 +14,11 @@ class Repository(context: Context) {
     private val userDao = db.userDao()
     private val dynamicPostDao = db.dynamicPostDao()
     private val pointsDao = db.pointsDao()
-    private val httpClient = HttpClient("https://b851-2001-250-4000-821d-aaa6-577d-4ac4-832c.ngrok-free.app")
-
-    fun getComments(): MutableLiveData<List<Comment>?> {
-        val data = MutableLiveData<List<Comment>?>()
-        httpClient.getAllComments { comments ->
-            if (comments != null) {
-                data.postValue(comments)
-                db.runInTransaction {
-                    commentDao.insertAll(comments)
-                }
-            }
-        }
-        return data
-    }
+    private val httpClient = HttpClient("https://0fd7-2001-250-4000-821d-aaa6-577d-4ac4-832c.ngrok-free.app")
 
     fun syncData() {
-        syncComments()
         syncUsers()
+        syncComments()
         syncDynamicPosts()
         syncEasyPoints()
     }

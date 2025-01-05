@@ -35,13 +35,13 @@ import com.efbsm5.easyway.database.getUserByUserId
 
 
 @Composable
-fun CommentAndHistoryCard(points: EasyPoint) {
+fun CommentAndHistoryCard(points: EasyPoint?) {
     var state: Screen by remember { mutableStateOf(Screen.Comment) }
     FacilityDetailScreen(points = points, screen = state, onChangeScreen = { state = it })
 }
 
 @Composable
-fun FacilityDetailScreen(points: EasyPoint, screen: Screen, onChangeScreen: (Screen) -> Unit) {
+fun FacilityDetailScreen(points: EasyPoint?, screen: Screen, onChangeScreen: (Screen) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -52,53 +52,62 @@ fun FacilityDetailScreen(points: EasyPoint, screen: Screen, onChangeScreen: (Scr
         SelectPoint { onChangeScreen(it) }
         when (screen) {
             Screen.Comment -> CommentCard(
-                onComment = {}, commentId = points.commentId
+                commentId = points?.commentId
             )
 
             Screen.History -> HistoryCard()
         }
         Spacer(modifier = Modifier.height(16.dp))
-        BottomActionBar()
+        BottomActionBar(
+            refresh = TODO(), comment = TODO()
+        )
     }
 }
 
 @Composable
-fun PointInfo(points: EasyPoint) {
-    Row(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Box(
-            modifier = Modifier
-                .size(120.dp)
-                .background(Color.Gray, RoundedCornerShape(8.dp)),
-            contentAlignment = Alignment.Center
+fun PointInfo(points: EasyPoint?) {
+    if (points != null) {
+        Row(
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Image(
-                painter = rememberAsyncImagePainter(model = points.photo), contentDescription = null
-            )
-        }
-        Spacer(modifier = Modifier.width(16.dp))
-        Column(
-            modifier = Modifier.weight(1f), verticalArrangement = Arrangement.SpaceEvenly
-        ) {
-            Text(text = "设施类别:${points.type}", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-            Text(text = "标注来源:", fontSize = 14.sp, color = Color.Gray)
-            Text(text = "更新日期:${points.refreshTime}", fontSize = 14.sp, color = Color.Gray)
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(text = "👍 次数:${points.likes}", fontSize = 14.sp, color = Color.Gray)
-                Spacer(modifier = Modifier.width(16.dp))
-                Text(text = "👎 次数:${points.dislikes}", fontSize = 14.sp, color = Color.Gray)
+            Box(
+                modifier = Modifier
+                    .size(120.dp)
+                    .background(Color.Gray, RoundedCornerShape(8.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = rememberAsyncImagePainter(model = points.photo),
+                    contentDescription = null
+                )
+            }
+            Spacer(modifier = Modifier.width(16.dp))
+            Column(
+                modifier = Modifier.weight(1f), verticalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Text(
+                    text = "设施类别:${points.type}", fontWeight = FontWeight.Bold, fontSize = 16.sp
+                )
+                Text(text = "标注来源:", fontSize = 14.sp, color = Color.Gray)
+                Text(text = "更新日期:${points.refreshTime}", fontSize = 14.sp, color = Color.Gray)
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(text = "👍 次数:${points.likes}", fontSize = 14.sp, color = Color.Gray)
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Text(text = "👎 次数:${points.dislikes}", fontSize = 14.sp, color = Color.Gray)
+                }
             }
         }
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "设施说明:", fontWeight = FontWeight.Bold, fontSize = 16.sp
+        )
+        Text(
+            text = points.info, fontSize = 14.sp, color = Color.Gray
+        )
+    } else Box(Modifier.fillMaxWidth()) {
+        Text("点位不在数据库中")
     }
-    Spacer(modifier = Modifier.height(16.dp))
-    Text(
-        text = "设施说明:", fontWeight = FontWeight.Bold, fontSize = 16.sp
-    )
-    Text(
-        text = points.info, fontSize = 14.sp, color = Color.Gray
-    )
 }
 
 @Composable
@@ -127,19 +136,21 @@ fun SelectPoint(onClick: (Screen) -> Unit) {
 }
 
 @Composable
-fun CommentCard(commentId: Int, onComment: () -> Unit) {
-    val comments = getCommentByCommentId(LocalContext.current, commentId)
-    if (comments.isNullOrEmpty()) {
-        Text("暂无")
-    } else LazyColumn {
-        items(comments) {
-            CommentItem(it, onComment = {})
+fun CommentCard(commentId: Int?) {
+    if (commentId != null) {
+        val comments = getCommentByCommentId(LocalContext.current, commentId)
+        if (comments.isNullOrEmpty()) {
+            Text("暂无")
+        } else LazyColumn {
+            items(comments) {
+                CommentItem(it)
+            }
         }
     }
 }
 
 @Composable
-fun CommentItem(comment: Comment, onComment: () -> Unit) {
+fun CommentItem(comment: Comment) {
     val user = getUserByUserId(LocalContext.current, comment.userId)
     Row(
         modifier = Modifier
@@ -208,9 +219,6 @@ fun CommentItem(comment: Comment, onComment: () -> Unit) {
                     text = "次数:${comment.dislike}", style = MaterialTheme.typography.bodySmall
                 )
             }
-            Row {
-                Button(onClick = { onComment() }) { Text("评论") }
-            }
         }
     }
 }
@@ -221,7 +229,7 @@ fun HistoryCard() {
 }
 
 @Composable
-fun BottomActionBar() {
+fun BottomActionBar(refresh: () -> Unit, comment: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -229,7 +237,7 @@ fun BottomActionBar() {
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         Button(
-            onClick = { /* 更新内容 */ }, modifier = Modifier
+            onClick = { refresh() }, modifier = Modifier
                 .weight(1f)
                 .height(48.dp)
         ) {
@@ -239,7 +247,7 @@ fun BottomActionBar() {
         Spacer(modifier = Modifier.width(16.dp))
 
         OutlinedButton(
-            onClick = { /* 发布评论 */ }, modifier = Modifier
+            onClick = { comment() }, modifier = Modifier
                 .weight(1f)
                 .height(48.dp)
         ) {

@@ -21,6 +21,7 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -29,16 +30,31 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.amap.api.maps.AMapOptions
+import com.amap.api.maps.MapView
+import com.efbsm5.easyway.data.MapSaver
+import com.efbsm5.easyway.viewmodel.PointsViewModel
+import com.efbsm5.easyway.viewmodel.PointsViewModelFactory
 
 @Composable
 fun EasyWay() {
+    val context = LocalContext.current
     val navControl = rememberNavController()
+    val map = MapSaver
+    map.mapView = MapView(
+        context, AMapOptions().compassEnabled(true)
+    )
+    val pointsViewModel: PointsViewModel = viewModel(factory = PointsViewModelFactory(context))
+    map.points by pointsViewModel.points.collectAsState()
+
     Scaffold(
         bottomBar = {
             NavigationBar {

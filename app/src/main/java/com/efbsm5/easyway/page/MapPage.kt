@@ -47,17 +47,14 @@ private const val TAG = "MapPage"
 @Composable
 fun MapPage() {
     val context = LocalContext.current
-    val mapView = MapView(
-        context, AMapOptions().compassEnabled(true)
-    )
+
     var content: Screen by remember { mutableStateOf(Screen.IconCard) }
     var searchBarText by remember { mutableStateOf("") }
     val scaffoldState = rememberBottomSheetScaffoldState()
     var selectedMarker: Marker? by remember { mutableStateOf(null) }
     var newPoint: EasyPoint
     var pois by remember { mutableStateOf(ArrayList<PoiItemV2>()) }
-    val pointsViewModel: PointsViewModel = viewModel(factory = PointsViewModelFactory(context))
-    val points by pointsViewModel.points.collectAsState()
+
     val mapController = MapController(
         onPoiClick = { showMsg(it!!.name, context) },
         onMapClick = { showMsg(it!!.latitude.toString(), context) },
@@ -73,24 +70,28 @@ fun MapPage() {
 
     mapController.MapLifecycle(mapView)
     val mapSearch = MapSearchController(context) { pois = it }
-    LaunchedEffect(points) {
-        points?.forEach {
-            mapView.map.addMarker(
-                MarkerOptions().position(LatLng(it.lat, it.lng)).title(it.name).icon(
-                    getIcon()
-                )
-            )
-            Log.e(TAG, "InitPoints: add point ${it.name}, ${it.lat}, ${it.lng}")
-        }
-        mapView.map.addMarker(
-            MarkerOptions().position(LatLng(30.513447, 114.426866)).title("666")
-                .icon(BitmapDescriptorFactory.defaultMarker())
-        )
-    }
+//    LaunchedEffect(points) {
+//        points?.forEach {
+//            mapView.map.addMarker(
+//                MarkerOptions().position(LatLng(it.lat, it.lng)).title(it.name).icon(
+//                    getIcon()
+//                )
+//            )
+//            Log.e(TAG, "InitPoints: add point ${it.name}, ${it.lat}, ${it.lng}")
+//        }
+//        mapView.map.addMarker(
+//            MarkerOptions().position(LatLng(30.513447, 114.426866)).title("666")
+//                .icon(BitmapDescriptorFactory.defaultMarker())
+//        )
+//        mapView.map.addMarker(
+//            MarkerOptions().position(LatLng(30.513447, 114.426866)).title("666")
+//                .icon(BitmapDescriptorFactory.defaultMarker())
+//        )
+//    }
 //    InitPoints(
 //        mapView = mapView, points = points
 //    )
-
+//不理解，log有输出也不显示点位
     MapContent(
         scaffoldState = scaffoldState,
         mapView = mapView,
@@ -116,7 +117,7 @@ fun MapPage() {
                 })
 
                 Screen.Places -> NewPlaceCard(
-                    mapController.getLastKnownLocation()!!, pois = pois
+                    mapController.getLastKnownLocation()!!, pois = pois, easyPoints = null
                 )
             }
         },
