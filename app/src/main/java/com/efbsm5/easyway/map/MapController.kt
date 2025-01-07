@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.os.Bundle
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.platform.LocalContext
@@ -28,7 +29,7 @@ import com.amap.api.maps.model.MyLocationStyle
 import com.amap.api.maps.model.Poi
 import com.efbsm5.easyway.ui.theme.isDarkTheme
 
-
+private const val TAG = "MapController"
 class MapController(
     onPoiClick: (Poi?) -> Unit,
     onMapClick: (LatLng?) -> Unit,
@@ -88,6 +89,7 @@ class MapController(
                 Lifecycle.Event.ON_CREATE -> {
                     mapView.onCreate(Bundle())
                     initMap(mapView)
+                    Log.e(TAG, "lifecycleObserver: initMap                       init", )
                 }
 
                 Lifecycle.Event.ON_RESUME -> {

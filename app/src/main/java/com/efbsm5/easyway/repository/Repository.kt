@@ -2,13 +2,23 @@ package com.efbsm5.easyway.repository
 
 
 import android.content.Context
+import com.efbsm5.easyway.data.Comment
+import com.efbsm5.easyway.data.DynamicPost
 import com.efbsm5.easyway.data.EasyPointSimplify
 import com.efbsm5.easyway.database.AppDataBase
 
-class PointsRepository(private val context: Context) {
-    private val pointsDao = AppDataBase.getDatabase(context).pointsDao()
+class DataRepository(private val context: Context) {
+    private val database = AppDataBase.getDatabase(context)
 
     suspend fun getAllPoints(): List<EasyPointSimplify> {
-        return pointsDao.loadAllPoints()
+        return database.pointsDao().loadAllPoints()
+    }
+
+    suspend fun getAllDynamicPosts(): List<DynamicPost> {
+        return database.dynamicPostDao().getAllDynamicPosts()
+    }
+
+    suspend fun getAllCommentsById(commentId: Int): List<Comment> {
+        return database.commentDao().getCommentByCommentId(commentId)
     }
 }

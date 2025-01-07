@@ -27,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
+import com.amap.api.maps.model.Marker
 import com.efbsm5.easyway.R
 import com.efbsm5.easyway.data.Comment
 import com.efbsm5.easyway.data.EasyPoint
@@ -35,7 +36,7 @@ import com.efbsm5.easyway.database.getUserByUserId
 
 
 @Composable
-fun CommentAndHistoryCard(points: EasyPoint?) {
+fun CommentAndHistoryCard(marker: Marker) {
     var state: Screen by remember { mutableStateOf(Screen.Comment) }
     FacilityDetailScreen(points = points, screen = state, onChangeScreen = { state = it })
 }

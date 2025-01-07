@@ -2,6 +2,7 @@ package com.efbsm5.easyway.components
 
 import android.app.Activity
 import android.content.Intent
+import android.location.Location
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -21,12 +22,13 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
+import com.amap.api.maps.model.LatLng
 import com.efbsm5.easyway.data.EasyPoint
 import java.io.File
 import java.io.FileOutputStream
 
 @Composable
-fun NewPointCard(onUploadPoint: (EasyPoint) -> Unit) {
+fun NewPointCard(location: LatLng?) {
     val context = LocalContext.current
     val tempPoint = remember { mutableStateOf(EasyPoint()) }
     var expanded by remember { mutableStateOf(false) }

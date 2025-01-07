@@ -40,7 +40,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.amap.api.maps.AMapOptions
 import com.amap.api.maps.MapView
-import com.efbsm5.easyway.data.MapSaver
+import com.efbsm5.easyway.map.MapSaver
 import com.efbsm5.easyway.viewmodel.PointsViewModel
 import com.efbsm5.easyway.viewmodel.PointsViewModelFactory
 

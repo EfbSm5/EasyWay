@@ -10,6 +10,12 @@ class PointsViewModelFactory(private val context: Context) : ViewModelProvider.F
         if (modelClass.isAssignableFrom(PointsViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST") return PointsViewModel(context) as T
         }
+        if (modelClass.isAssignableFrom(DynamicPostViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST") return DynamicPostViewModel(context) as T
+        }
+        if (modelClass.isAssignableFrom(CommentViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST") return CommentViewModel(context) as T
+        }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 

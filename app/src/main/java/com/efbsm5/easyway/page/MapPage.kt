@@ -1,6 +1,5 @@
 package com.efbsm5.easyway.page
 
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.BottomSheetScaffold
@@ -13,6 +12,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -33,13 +33,13 @@ import com.efbsm5.easyway.components.FunctionCard
 import com.efbsm5.easyway.components.NewPlaceCard
 import com.efbsm5.easyway.components.NewPointCard
 import com.efbsm5.easyway.data.EasyPoint
-import com.efbsm5.easyway.data.EasyPointSimplify
 import com.efbsm5.easyway.database.fromMarkerToPoints
 import com.efbsm5.easyway.map.MapController
+import com.efbsm5.easyway.map.MapSaver
+import com.efbsm5.easyway.map.MapSaver.mapView
 import com.efbsm5.easyway.map.MapSearchController
 import com.efbsm5.easyway.map.MapUtil.showMsg
 import com.efbsm5.easyway.viewmodel.PointsViewModel
-import com.efbsm5.easyway.viewmodel.PointsViewModelFactory
 
 private const val TAG = "MapPage"
 
@@ -47,51 +47,27 @@ private const val TAG = "MapPage"
 @Composable
 fun MapPage() {
     val context = LocalContext.current
-
-    var content: Screen by remember { mutableStateOf(Screen.IconCard) }
-    var searchBarText by remember { mutableStateOf("") }
+    var content: Screen by rememberSaveable { mutableStateOf(Screen.IconCard) }
     val scaffoldState = rememberBottomSheetScaffoldState()
-    var selectedMarker: Marker? by remember { mutableStateOf(null) }
-    var newPoint: EasyPoint
-    var pois by remember { mutableStateOf(ArrayList<PoiItemV2>()) }
-
+    var searchBarText by remember { mutableStateOf("") }
     val mapController = MapController(
         onPoiClick = { showMsg(it!!.name, context) },
         onMapClick = { showMsg(it!!.latitude.toString(), context) },
         onMarkerClick = {
             it?.let {
                 showMsg(it.id, context)
-                content = Screen.Comment
-                selectedMarker = it
+                content = Screen.Comment(marker = it)
             }
         },
         context = context
     )
+    if (!MapSaver.isMapViewInitialized()) {
+        mapView = MapView(context, AMapOptions().compassEnabled(true))
+        InitPoints()
+        mapController.MapLifecycle(mapView)
+    }
 
-    mapController.MapLifecycle(mapView)
-    val mapSearch = MapSearchController(context) { pois = it }
-//    LaunchedEffect(points) {
-//        points?.forEach {
-//            mapView.map.addMarker(
-//                MarkerOptions().position(LatLng(it.lat, it.lng)).title(it.name).icon(
-//                    getIcon()
-//                )
-//            )
-//            Log.e(TAG, "InitPoints: add point ${it.name}, ${it.lat}, ${it.lng}")
-//        }
-//        mapView.map.addMarker(
-//            MarkerOptions().position(LatLng(30.513447, 114.426866)).title("666")
-//                .icon(BitmapDescriptorFactory.defaultMarker())
-//        )
-//        mapView.map.addMarker(
-//            MarkerOptions().position(LatLng(30.513447, 114.426866)).title("666")
-//                .icon(BitmapDescriptorFactory.defaultMarker())
-//        )
-//    }
-//    InitPoints(
-//        mapView = mapView, points = points
-//    )
-//不理解，log有输出也不显示点位
+
     MapContent(
         scaffoldState = scaffoldState,
         mapView = mapView,
@@ -99,22 +75,13 @@ fun MapPage() {
         onLocate = { mapController.onLocate(mapView = mapView) },
         content = {
             when (content) {
-                Screen.Comment -> CommentAndHistoryCard(
-                    fromMarkerToPoints(
-                        context = context, selectedMarker!!
-                    )
-                )
+                is Screen.Comment -> CommentAndHistoryCard(marker = (content as Screen.Comment).marker)
 
                 Screen.IconCard -> FunctionCard(text = searchBarText, onclick = {
                     content = Screen.Places
-                    mapSearch.searchForPoi(it)
                 }, onTextChange = { searchBarText = it })
 
-                Screen.NewPoint -> NewPointCard(onUploadPoint = {
-                    newPoint = it
-                    newPoint.lat = mapController.getLastKnownLocation()!!.latitude
-                    newPoint.lng = mapController.getLastKnownLocation()!!.longitude
-                })
+                Screen.NewPoint -> NewPointCard(mapController.getLastKnownLocation()!!)
 
                 Screen.Places -> NewPlaceCard(
                     mapController.getLastKnownLocation()!!, pois = pois, easyPoints = null
@@ -150,14 +117,24 @@ sealed interface Screen {
     data object IconCard : Screen
     data object NewPoint : Screen
     data object Places : Screen
-    data object Comment : Screen
+    data class Comment(val marker: Marker) : Screen
 }
 
 private fun getIcon(): BitmapDescriptor {
     return BitmapDescriptorFactory.defaultMarker(5f)
 }
-//
-//@Composable
-//private fun InitPoints(mapView: MapView, points: List<EasyPointSimplify>?) {
-//
-//}
+
+@Composable
+private fun InitPoints() {
+    val pointsViewModel = viewModel<PointsViewModel>()
+    val points by pointsViewModel.points.collectAsState()
+    LaunchedEffect(points) {
+        points?.forEach {
+            mapView.map.addMarker(MarkerOptions().position(LatLng(it.lat, it.lng)).title(it.name))
+        }
+        //        mapView.map.addMarker(
+//            MarkerOptions().position(LatLng(30.513447, 114.426866)).title("666")
+//                .icon(BitmapDescriptorFactory.defaultMarker())
+//        )
+    }
+}
