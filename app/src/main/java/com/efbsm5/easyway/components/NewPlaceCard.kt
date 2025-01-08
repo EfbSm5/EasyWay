@@ -22,7 +22,10 @@ import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.amap.api.maps.model.LatLng
 import com.amap.api.services.core.PoiItemV2
-import com.efbsm5.easyway.data.EasyPoint
+import com.efbsm5.easyway.R
+import com.efbsm5.easyway.data.EasyPointSimplify
+import com.efbsm5.easyway.map.MapSaver.points
+import com.efbsm5.easyway.map.MapSearchController
 import com.efbsm5.easyway.map.MapUtil
 import com.efbsm5.easyway.map.MapUtil.formatDistance
 import com.efbsm5.easyway.map.MapUtil.onNavigate
@@ -32,21 +35,26 @@ import com.efbsm5.easyway.map.MapUtil.onNavigate
 fun NewPlaceCard(latLng: LatLng, text: String) {
     var selectedTab by remember { mutableIntStateOf(0) }
     val context = LocalContext.current
-//    NewPlaceCardScreen(
-//        selectedTab = selectedTab,
-//        onChangeSelected = { selectedTab = it },
-//        location = latLng,
-//        context = context,
-//        pois = pois,
-//        easyPoints = easyPoints
-//    )
-
+    var poi = ArrayList<PoiItemV2>()
+    val mapSearch = MapSearchController(onPoiSearched = { poi = it })
+    val pointForText = points.filter { it.name.contains(text) }
+    mapSearch.searchForPoi(
+        keyword = text, context = context, pageSize = 5, pageNum = 1
+    )
+    NewPlaceCardScreen(
+        selectedTab = selectedTab,
+        onChangeSelected = { selectedTab = it },
+        location = latLng,
+        context = context,
+        easyPoints = pointForText,
+        poi = poi
+    )
 }
 
 @Composable
-fun NewPlaceCardScreen(
-    pois: ArrayList<PoiItemV2>?,
-    easyPoints: ArrayList<EasyPoint>?,
+private fun NewPlaceCardScreen(
+    poi: ArrayList<PoiItemV2>,
+    easyPoints: List<EasyPointSimplify>,
     location: LatLng,
     selectedTab: Int,
     context: Context,
@@ -61,33 +69,25 @@ fun NewPlaceCardScreen(
                 .fillMaxSize()
                 .padding(horizontal = 8.dp, vertical = 8.dp)
         ) {
-            easyPoints?.let {
-                items(it) { easyPoint ->
-                    AccessiblePlaceItem(
-                        imageRes = easyPoint.photo.toString(),
-                        title = easyPoint.name,
-                        distance = MapUtil.calculateDistance(
-                            location, LatLng(easyPoint.lat, easyPoint.lng)
-                        ),
-                        latLng = LatLng(easyPoint.lat, easyPoint.lng),
-                        context = context
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
+            items(easyPoints) { easyPoint ->
+                AccessiblePlaceItem(
+                    imageRes = "", title = easyPoint.name, distance = MapUtil.calculateDistance(
+                        location, LatLng(easyPoint.lat, easyPoint.lng)
+                    ), latLng = LatLng(easyPoint.lat, easyPoint.lng), context = context
+                )
+                Spacer(modifier = Modifier.height(8.dp))
             }
-            pois?.let {
-                items(it) { poi ->
-                    AccessiblePlaceItem(
-                        imageRes = poi.photos[1].url,
-                        title = poi.title,
-                        distance = MapUtil.calculateDistance(
-                            location, MapUtil.convertToLatLng(poi.latLonPoint)
-                        ),
-                        latLng = MapUtil.convertToLatLng(poi.latLonPoint),
-                        context = context
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
+            items(poi) { poi ->
+                AccessiblePlaceItem(
+                    imageRes = poi.photos[1].url,
+                    title = poi.title,
+                    distance = MapUtil.calculateDistance(
+                        location, MapUtil.convertToLatLng(poi.latLonPoint)
+                    ),
+                    latLng = MapUtil.convertToLatLng(poi.latLonPoint),
+                    context = context
+                )
+                Spacer(modifier = Modifier.height(8.dp))
             }
         }
     }

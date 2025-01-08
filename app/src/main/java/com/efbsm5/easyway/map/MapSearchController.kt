@@ -8,16 +8,19 @@ import com.amap.api.services.poisearch.PoiResultV2
 import com.amap.api.services.poisearch.PoiSearchV2
 
 class MapSearchController(
-    private val context: Context,
     val onPoiSearched: (ArrayList<PoiItemV2>) -> Unit,
 ) : PoiSearchV2.OnPoiSearchListener {
-    fun searchForPoi(keyword: String) {
+    private var cityCode = "027"
+    fun searchForPoi(keyword: String, context: Context, pageSize: Int, pageNum: Int) {
         Thread {
+            val sharedPreferences =
+                context.getSharedPreferences("MapPreferences", Context.MODE_PRIVATE)
+            sharedPreferences.getString("citycode", cityCode)
             ServiceSettings.updatePrivacyShow(context, true, true)
             ServiceSettings.updatePrivacyAgree(context, true)
-            val query: PoiSearchV2.Query = PoiSearchV2.Query(keyword, "", "027")
-            query.pageSize = 5
-            query.pageNum = 1
+            val query: PoiSearchV2.Query = PoiSearchV2.Query(keyword, "", cityCode)
+            query.pageSize = pageSize
+            query.pageNum = pageNum
             try {
                 val poiSearch = PoiSearchV2(context, query)
                 poiSearch.setOnPoiSearchListener(this)

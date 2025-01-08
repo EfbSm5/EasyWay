@@ -31,42 +31,59 @@ import com.amap.api.maps.model.Marker
 import com.efbsm5.easyway.R
 import com.efbsm5.easyway.data.Comment
 import com.efbsm5.easyway.data.EasyPoint
-import com.efbsm5.easyway.getCommentByCommentId
-import com.efbsm5.easyway.getUserByUserId
-
+import com.efbsm5.easyway.database.AppDataBase
+import androidx.compose.runtime.*
+import com.efbsm5.easyway.data.User
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Composable
 fun CommentAndHistoryCard(marker: Marker) {
+    val context = LocalContext.current
     var state: Screen by remember { mutableStateOf(Screen.Comment) }
-//    FacilityDetailScreen(points = points, screen = state, onChangeScreen = { state = it })
+    var point by remember { mutableStateOf<EasyPoint?>(null) }
+    var comments by remember { mutableStateOf(emptyList<Comment>()) }
+    val scope = rememberCoroutineScope()
+    LaunchedEffect(marker) {
+        scope.launch(Dispatchers.IO) {
+            val database = AppDataBase.getDatabase(context)
+            val fetchedPoint = database.pointsDao()
+                .getPointByLatLng(marker.position.latitude, marker.position.longitude)
+            fetchedPoint?.let {
+                val fetchedComments = database.commentDao().getCommentByCommentId(it.commentId)
+                point = fetchedPoint
+                comments = fetchedComments
+            }
+        }
+    }
+
+    CommentAndHistoryCardScreen(point = point, onChangeScreen = { state = it }, content = {
+        when (state) {
+            Screen.Comment -> CommentCard(comments)
+            Screen.History -> HistoryCard()
+        }
+    })
 }
 
 @Composable
-fun FacilityDetailScreen(points: EasyPoint?, screen: Screen, onChangeScreen: (Screen) -> Unit) {
+private fun CommentAndHistoryCardScreen(
+    point: EasyPoint?, onChangeScreen: (Screen) -> Unit, content: @Composable () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        PointInfo(points)
+        PointInfo(point)
         Spacer(modifier = Modifier.height(16.dp))
-        SelectPoint { onChangeScreen(it) }
-        when (screen) {
-            Screen.Comment -> CommentCard(
-                commentId = points?.commentId
-            )
-
-            Screen.History -> HistoryCard()
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-        BottomActionBar(
-            refresh = TODO(), comment = TODO()
-        )
+        Select { onChangeScreen(it) }
+        content()
+        BottomActionBar(refresh = { }, comment = {})
     }
 }
 
 @Composable
-fun PointInfo(points: EasyPoint?) {
+private fun PointInfo(points: EasyPoint?) {
     if (points != null) {
         Row(
             modifier = Modifier.fillMaxWidth()
@@ -112,7 +129,7 @@ fun PointInfo(points: EasyPoint?) {
 }
 
 @Composable
-fun SelectPoint(onClick: (Screen) -> Unit) {
+private fun Select(onClick: (Screen) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -137,22 +154,28 @@ fun SelectPoint(onClick: (Screen) -> Unit) {
 }
 
 @Composable
-fun CommentCard(commentId: Int?) {
-    if (commentId != null) {
-        val comments = getCommentByCommentId(LocalContext.current, commentId)
-        if (comments.isNullOrEmpty()) {
-            Text("暂无")
-        } else LazyColumn {
-            items(comments) {
-                CommentItem(it)
-            }
+private fun CommentCard(comments: List<Comment>) {
+    if (comments.isEmpty()) {
+        Text("暂无")
+    } else LazyColumn {
+        items(comments) {
+            CommentItem(it)
         }
     }
 }
 
 @Composable
-fun CommentItem(comment: Comment) {
-    val user = getUserByUserId(LocalContext.current, comment.userId)
+private fun CommentItem(comment: Comment) {
+    var user: User? by remember { mutableStateOf(null) }
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    LaunchedEffect(user) {
+        scope.launch(Dispatchers.IO) {
+            val database = AppDataBase.getDatabase(context)
+            val _user = database.userDao().getUserById(comment.userId)
+            user = _user
+        }
+    }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -225,12 +248,12 @@ fun CommentItem(comment: Comment) {
 }
 
 @Composable
-fun HistoryCard() {
+private fun HistoryCard() {
     // 历史卡片内容,目前懒得开发
 }
 
 @Composable
-fun BottomActionBar(refresh: () -> Unit, comment: () -> Unit) {
+private fun BottomActionBar(refresh: () -> Unit, comment: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()

@@ -14,14 +14,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun AddAndLocateButton(onAdd: () -> Unit, onLocate: () -> Unit) {
+fun AddAndLocateButton(bottomHeight: Dp, onAdd: () -> Unit, onLocate: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(16.dp, bottom = bottomHeight),
         verticalArrangement = Arrangement.Bottom,
         horizontalAlignment = Alignment.End
     ) {
@@ -41,7 +42,7 @@ fun AddAndLocateButton(onAdd: () -> Unit, onLocate: () -> Unit) {
             onClick = { onLocate() },
             containerColor = MaterialTheme.colorScheme.primary,
             shape = CircleShape,
-            modifier = Modifier.padding(bottom = 120.dp)
+            modifier = Modifier.padding(bottom = 30.dp)
         ) {
             Icon(
                 imageVector = Icons.Default.LocationOn,

@@ -1,9 +1,7 @@
 package com.efbsm5.easyway.network
 
 import android.content.Context
-import androidx.lifecycle.MutableLiveData
 import androidx.room.Room
-import com.efbsm5.easyway.data.Comment
 import com.efbsm5.easyway.database.AppDataBase
 
 class Repository(context: Context) {
@@ -28,7 +26,7 @@ class Repository(context: Context) {
             if (networkComments != null) {
                 val localComments = commentDao.getAllComments()
                 val toInsert = networkComments.filter { it !in localComments }
-                val toDelete = localComments.filter { it !in networkComments }.map { it.id }
+                val toDelete = localComments.filter { it !in networkComments }.map { it.comment_id }
                 db.runInTransaction {
                     commentDao.deleteAll(toDelete)
                     commentDao.insertAll(toInsert)

@@ -11,14 +11,14 @@ interface CommentDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(comment: Comment)
 
-    @Query("SELECT * FROM comments WHERE id = :id")
+    @Query("SELECT * FROM comments WHERE comment_id = :id")
     fun getCommentByCommentId(id: Int): List<Comment>
 
     @Query("SELECT * FROM comments")
     fun getAllComments(): List<Comment>
 
     @Query("DELETE FROM comments WHERE `index` = :index")
-    fun deleteCommentById(index: Int)
+    fun deleteCommentByIndex(index: Int)
 
     @Query("UPDATE comments SET `like` = `like` + 1 WHERE `index` = :id")
     fun incrementLikes(id: Int)
@@ -29,9 +29,12 @@ interface CommentDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(posts: List<Comment>)
 
-    @Query("DELETE FROM comments WHERE id IN (:ids)")
+    @Query("DELETE FROM comments WHERE comment_id IN (:ids)")
     fun deleteAll(ids: List<Int>)
 
     @Query("SELECT COUNT(*) FROM comments")
     fun getCount(): Int
+
+    @Query("SELECT COUNT(*) FROM comments WHERE comment_id = :commentId ")
+    fun getCountById(commentId: Int): Int
 }

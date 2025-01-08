@@ -17,7 +17,7 @@ import com.google.gson.annotations.SerializedName
 )
 data class Comment(
     @SerializedName("index") @PrimaryKey val index: Int,
-    @SerializedName("comment_id") val id: Int,
+    @SerializedName("comment_id") val comment_id: Int,
     @SerializedName("user_id") val userId: Int,
     @SerializedName("content") val content: String,
     @SerializedName("like") var like: Int,

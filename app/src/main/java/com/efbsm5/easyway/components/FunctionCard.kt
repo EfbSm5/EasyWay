@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -41,11 +40,10 @@ fun FunctionCard(onclick: (String) -> Unit) {
 }
 
 @Composable
-fun FunctionCardScreen(text: String, onTextChange: (String) -> Unit, onclick: (String) -> Unit) {
+private fun FunctionCardScreen(text: String, onTextChange: (String) -> Unit, onclick: (String) -> Unit) {
     Column(
         Modifier
             .fillMaxWidth()
-            .heightIn(max = 350.dp)
             .padding(16.dp)
     ) {
         SearchBar(text = text) { onTextChange(it) }
@@ -55,7 +53,7 @@ fun FunctionCardScreen(text: String, onTextChange: (String) -> Unit, onclick: (S
 }
 
 @Composable
-fun SearchBar(text: String, onTextChange: (String) -> Unit) {
+private fun SearchBar(text: String, onTextChange: (String) -> Unit) {
     TextField(
         value = text,
         onValueChange = { onTextChange(it) },
@@ -69,7 +67,7 @@ fun SearchBar(text: String, onTextChange: (String) -> Unit) {
 
 
 @Composable
-fun IconGrid(onclick: (String) -> Unit) {
+private fun IconGrid(onclick: (String) -> Unit) {
     val items = listOf(
         Pair(R.drawable.elevator, "无障碍电梯"),
         Pair(R.drawable.toliet, "无障碍厕所"),

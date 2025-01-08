@@ -2,7 +2,6 @@ package com.efbsm5.easyway.components
 
 import android.app.Activity
 import android.content.Intent
-import android.location.Location
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -55,7 +54,7 @@ fun NewPointCard(location: LatLng?) {
         onSelectType = { selectedOption = it },
         onExpanded = { expanded = it },
         confirm = {
-//            onUploadPoint(tempPoint.value)
+
         },
         cancel = {},
         onNameValueChange = { tempPoint.value = tempPoint.value.copy(name = it) },

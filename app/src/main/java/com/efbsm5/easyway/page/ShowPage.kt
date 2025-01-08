@@ -30,10 +30,13 @@ import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,18 +48,30 @@ import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.efbsm5.easyway.R
 import com.efbsm5.easyway.data.DynamicPost
-import com.efbsm5.easyway.getCommentsCount
-import com.efbsm5.easyway.getUserByUserId
+import com.efbsm5.easyway.data.User
+import com.efbsm5.easyway.database.AppDataBase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+
 @Composable
 fun ShowPage(
-    posts: List<DynamicPost>?, onChangeState: (State) -> Unit, onSelectedPost: (DynamicPost) -> Unit
+    onChangeState: (State) -> Unit, onSelectedPost: (DynamicPost) -> Unit
 ) {
     val context = LocalContext.current
+    val postList = remember { mutableStateListOf<DynamicPost>() }
+    val scope = rememberCoroutineScope()
+    LaunchedEffect(postList) {
+        scope.launch(Dispatchers.IO) {
+            val database = AppDataBase.getDatabase(context)
+            val mPosts = database.dynamicPostDao().getAllDynamicPosts()
+            postList.addAll(mPosts)
+        }
+    }
     var text by remember { mutableStateOf("") }
     val tabs = listOf("全部", "活动", "互助", "分享")
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     ShowPageScreen(
-        posts = posts,
+        posts = postList,
         onChangeState = { onChangeState(it) },
         text = text,
         onChangeText = { text = it },
@@ -66,7 +81,6 @@ fun ShowPage(
         titleText = "心无距离，共享每一刻",
         onClick = {
             onSelectedPost(it)
-            onChangeState(State.Detail)
         },
         context = context
     )
@@ -160,7 +174,9 @@ fun TabSection(selectedTabIndex: Int, tabs: List<String>, onSelect: (Int) -> Uni
 }
 
 @Composable
-fun DynamicPostList(context: Context, posts: List<DynamicPost>?, onClick: (DynamicPost) -> Unit) {
+private fun DynamicPostList(
+    context: Context, posts: List<DynamicPost>?, onClick: (DynamicPost) -> Unit
+) {
     if (posts.isNullOrEmpty()) {
         Text("没有数据")
     } else {
@@ -173,23 +189,33 @@ fun DynamicPostList(context: Context, posts: List<DynamicPost>?, onClick: (Dynam
 }
 
 @Composable
-fun CommentItem(context: Context, dynamicPost: DynamicPost, onClick: () -> Unit) {
-    val user = getUserByUserId(context = context, userId = dynamicPost.userId)
-    val commentsCount = getCommentsCount(context)
+private fun CommentItem(context: Context, dynamicPost: DynamicPost, onClick: () -> Unit) {
+    var user: User? by remember { mutableStateOf(null) }
+    var commentsCount by remember { mutableIntStateOf(0) }
+    val scope = rememberCoroutineScope()
+    LaunchedEffect(user) {
+        scope.launch(Dispatchers.IO) {
+            val database = AppDataBase.getDatabase(context)
+            val muser = database.userDao().getUserById(dynamicPost.userId)
+            val count = database.commentDao().getCountById(dynamicPost.commentId)
+            user = muser
+            commentsCount = count
+        }
+    }
+
+
     Row(modifier = Modifier
         .fillMaxWidth()
         .padding(16.dp)
         .clickable { onClick() }) {
-        if (user != null) {
-            Image(
-                rememberAsyncImagePainter(user.avatar),
-                contentDescription = "头像",
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surface)
-            )
-        }
+        Image(
+            rememberAsyncImagePainter(user?.avatar ?: R.drawable.nouser),
+            contentDescription = "头像",
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surface)
+        )
         Spacer(modifier = Modifier.width(8.dp))
         Column {
             Row(verticalAlignment = Alignment.CenterVertically) {

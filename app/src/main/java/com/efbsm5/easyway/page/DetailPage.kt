@@ -13,9 +13,12 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,8 +33,8 @@ import com.efbsm5.easyway.data.Comment
 import com.efbsm5.easyway.data.DynamicPost
 import com.efbsm5.easyway.data.User
 import com.efbsm5.easyway.database.AppDataBase
-import com.efbsm5.easyway.getCommentByCommentId
-import com.efbsm5.easyway.getUserByUserId
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -39,10 +42,19 @@ fun DetailPage(post: DynamicPost) {
     val context = LocalContext.current
     var newCommentText by remember { mutableStateOf("") }
     var showTextField by remember { mutableStateOf(false) }
-    val comments = getCommentByCommentId(context, post.commentId)
-    val user = getUserByUserId(context, post.userId)
-    DetailPageScreen(
-        post = post,
+    val comments = remember { mutableStateListOf<Comment>() }
+    var user: User? by remember { mutableStateOf(null) }
+    val scope = rememberCoroutineScope()
+    LaunchedEffect(user, comments) {
+        scope.launch(Dispatchers.IO) {
+            val database = AppDataBase.getDatabase(context)
+            val mComments = database.commentDao().getCommentByCommentId(post.commentId)
+            val mUser = database.userDao().getUserById(post.userId)
+            user = mUser
+            comments.addAll(mComments)
+        }
+    }
+    DetailPageScreen(post = post,
         newCommentText = newCommentText,
         onAddComment = { newCommentText = it },
         changeIfShowTextField = { showTextField = it },
@@ -150,8 +162,17 @@ fun Comments(comments: List<Comment>?) {
 
 @Composable
 fun CommentItems(comment: Comment, like: () -> Unit) {
+    val context = LocalContext.current
     var isLiked by remember { mutableStateOf(false) }
-    val user = getUserByUserId(LocalContext.current, comment.userId)
+    var user: User? by remember { mutableStateOf(null) }
+    val scope = rememberCoroutineScope()
+    LaunchedEffect(user) {
+        scope.launch(Dispatchers.IO) {
+            val database = AppDataBase.getDatabase(context)
+            val mUser = database.userDao().getUserById(comment.userId)
+            user = mUser
+        }
+    }
     Row(
         modifier = Modifier.padding(bottom = 16.dp), verticalAlignment = Alignment.CenterVertically
     ) {

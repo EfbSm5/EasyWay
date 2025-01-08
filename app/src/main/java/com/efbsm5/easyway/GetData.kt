@@ -4,11 +4,9 @@ import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
-import com.amap.api.maps.model.Marker
 import com.efbsm5.easyway.data.Comment
 import com.efbsm5.easyway.data.DynamicPost
 import com.efbsm5.easyway.data.EasyPoint
-import com.efbsm5.easyway.data.EasyPointSimplify
 import com.efbsm5.easyway.data.User
 import com.efbsm5.easyway.database.AppDataBase
 import kotlinx.coroutines.Dispatchers
@@ -63,31 +61,7 @@ fun InsertDynamicPostToDataBase(context: Context, dynamicPost: DynamicPost) {
 }
 
 @Composable
-fun getCount(context: Context): Int {
-    val coroutineScope = rememberCoroutineScope()
-    var count: Int = 0
-    LaunchedEffect(Unit) {
-        coroutineScope.launch(Dispatchers.IO) {
-            count = AppDataBase.getDatabase(context).pointsDao().getCount()
-        }
-    }
-    return count
-}
-
-@Composable
-fun getCommentsCount(context: Context): Int {
-    val coroutineScope = rememberCoroutineScope()
-    var count: Int = 0
-    LaunchedEffect(Unit) {
-        coroutineScope.launch(Dispatchers.IO) {
-            count = AppDataBase.getDatabase(context).commentDao().getCount()
-        }
-    }
-    return count
-}
-
-@Composable
-fun AddLikeForPoint(context: Context, points: EasyPoint?, pointId: Int?) {
+fun AddLikeForPoint(context: Context, points: EasyPoint? = null, pointId: Int? = null) {
     val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(Unit) {
         coroutineScope.launch(Dispatchers.IO) {
@@ -144,102 +118,4 @@ fun AddDisLikeForComment(context: Context, comment: Comment?, index: Int?) {
             }
         }
     }
-}
-
-
-@Composable
-fun getPoints(context: Context): List<EasyPointSimplify>? {
-    val coroutineScope = rememberCoroutineScope()
-    var points: List<EasyPointSimplify>? = null
-    LaunchedEffect(Unit) {
-        coroutineScope.launch(Dispatchers.IO) {
-            points = AppDataBase.getDatabase(context).pointsDao().loadAllPoints()
-        }
-    }
-    return points
-}
-
-@Composable
-fun getPointContent(context: Context, pointId: Int): EasyPoint? {
-    val coroutineScope = rememberCoroutineScope()
-    var a: EasyPoint? = null
-    LaunchedEffect(Unit) {
-        coroutineScope.launch(Dispatchers.IO) {
-            a = AppDataBase.getDatabase(context).pointsDao().getPointById(pointId)
-        }
-    }
-    return a
-}
-
-@Composable
-fun getHistory(context: Context, historyId: Int): List<EasyPoint>? {
-    val coroutineScope = rememberCoroutineScope()
-    var a: List<EasyPoint>? = null
-    LaunchedEffect(Unit) {
-        coroutineScope.launch(Dispatchers.IO) {
-            a = AppDataBase.getDatabase(context).pointsDao().getHistory(historyId)
-        }
-    }
-    return a
-}
-
-@Composable
-fun fromMarkerToPoints(context: Context, marker: Marker): EasyPoint? {
-    val coroutineScope = rememberCoroutineScope()
-    var points: EasyPoint? = null
-    LaunchedEffect(Unit) {
-        coroutineScope.launch(Dispatchers.IO) {
-            points = AppDataBase.getDatabase(context).pointsDao()
-                .getPointByLatLng(marker.position.latitude, marker.position.longitude)
-        }
-    }
-    return points
-}
-
-@Composable
-fun getCommentByCommentId(context: Context, commentId: Int): List<Comment>? {
-    val coroutineScope = rememberCoroutineScope()
-    var a: List<Comment>? = null
-    LaunchedEffect(Unit) {
-        coroutineScope.launch(Dispatchers.IO) {
-            a = AppDataBase.getDatabase(context).commentDao().getCommentByCommentId(commentId)
-        }
-    }
-    return a
-}
-
-@Composable
-fun getUserByUserId(context: Context, userId: Int): User? {
-    val coroutineScope = rememberCoroutineScope()
-    var a: User? = null
-    LaunchedEffect(Unit) {
-        coroutineScope.launch(Dispatchers.IO) {
-            a = AppDataBase.getDatabase(context).userDao().getUserById(userId)
-        }
-    }
-    return a
-}
-
-@Composable
-fun getDynamicPostByDynamicPostId(context: Context, dynamicPostId: Int): DynamicPost? {
-    val coroutineScope = rememberCoroutineScope()
-    var a: DynamicPost? = null
-    LaunchedEffect(Unit) {
-        coroutineScope.launch(Dispatchers.IO) {
-            a = AppDataBase.getDatabase(context).dynamicPostDao().getDynamicPostById(dynamicPostId)
-        }
-    }
-    return a
-}
-
-@Composable
-fun getAllDynamicPost(context: Context): List<DynamicPost>? {
-    val coroutineScope = rememberCoroutineScope()
-    var a: List<DynamicPost>? = null
-    LaunchedEffect(Unit) {
-        coroutineScope.launch(Dispatchers.IO) {
-            a = AppDataBase.getDatabase(context).dynamicPostDao().getAllDynamicPosts()
-        }
-    }
-    return a
 }

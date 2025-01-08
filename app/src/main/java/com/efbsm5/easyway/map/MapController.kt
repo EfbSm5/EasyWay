@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.os.Bundle
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.lifecycle.Lifecycle
@@ -29,7 +28,6 @@ import com.amap.api.maps.model.Poi
 import com.efbsm5.easyway.map.MapSaver.mapView
 import com.efbsm5.easyway.ui.theme.isDarkTheme
 
-private const val TAG = "MapController"
 
 class MapController(
     onPoiClick: (Poi?) -> Unit, onMapClick: (LatLng?) -> Unit, onMarkerClick: (Marker?) -> Unit
@@ -48,12 +46,11 @@ class MapController(
     private var mLocation: LatLng? = null
     private var isDarkTheme: Boolean? = null
 
-    private fun initialize(context: Context) {
+    private fun initializeVariables(context: Context) {
         isDarkTheme = isDarkTheme(context)
         sharedPreferences = context.getSharedPreferences("MapPreferences", Context.MODE_PRIVATE)
         mLocationClient = AMapLocationClient(context)
         mLocation = getLastKnownLocation()
-        Log.e(TAG, "initialize: oninit init init                       ", )
     }
 
     fun getLastKnownLocation(): LatLng? {
@@ -62,20 +59,27 @@ class MapController(
         return if (!lat.isNaN() && !lng.isNaN()) LatLng(lat.toDouble(), lng.toDouble()) else null
     }
 
-    private fun saveLastKnownLocation(location: LatLng) {
+    private fun saveLastKnownLocation(location: LatLng, cityCode: String) {
         sharedPreferences.edit().putFloat("last_lat", location.latitude.toFloat())
-            .putFloat("last_lng", location.longitude.toFloat()).apply()
+            .putFloat("last_lng", location.longitude.toFloat()).putString("citycode", cityCode)
+            .apply()
     }
 
     @Composable
-    fun MapLocationInit(context: Context) {
-        initialize(context)
+    private fun MapLocationInit(context: Context) {
+        initializeVariables(context)
         mLocationClient.setLocationOption(mLocationOption)
         mLocationClient.setLocationListener(this@MapController)
     }
 
     @Composable
-    fun MapLifecycle(context: Context) {
+    fun InitMapLifeAndLocation(context: Context) {
+        MapLocationInit(context)
+        MapLifecycle(context)
+    }
+
+    @Composable
+    private fun MapLifecycle(context: Context) {
         val lifecycle = androidx.lifecycle.compose.LocalLifecycleOwner.current.lifecycle
         DisposableEffect(context, lifecycle, this) {
             val mapLifecycleObserver = lifecycleObserver(mapView)
@@ -101,7 +105,6 @@ class MapController(
                 Lifecycle.Event.ON_CREATE -> {
                     mapView.onCreate(Bundle())
                     initMap()
-                    Log.e(TAG, "lifecycleObserver: initMap                       init")
                 }
 
                 Lifecycle.Event.ON_RESUME -> {
@@ -134,6 +137,7 @@ class MapController(
         map.setOnPOIClickListener(this@MapController)
         map.setOnMarkerClickListener(this@MapController)
         map.showMapText(true)
+        getLastKnownLocation()?.let { map.animateCamera(CameraUpdateFactory.newLatLng(it)) }
     }
 
     override fun activate(p0: OnLocationChangedListener?) {
@@ -169,7 +173,7 @@ class MapController(
             val latitude = aMapLocation.latitude
             val longitude = aMapLocation.longitude
             mLocation = LatLng(latitude, longitude)
-            saveLastKnownLocation(mLocation!!)
+            saveLastKnownLocation(mLocation!!, aMapLocation.cityCode)
         }
     }
 }
