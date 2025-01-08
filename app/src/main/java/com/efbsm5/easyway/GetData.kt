@@ -1,9 +1,8 @@
-package com.efbsm5.easyway.database
+package com.efbsm5.easyway
 
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.rememberCoroutineScope
 import com.amap.api.maps.model.Marker
 import com.efbsm5.easyway.data.Comment
@@ -11,7 +10,7 @@ import com.efbsm5.easyway.data.DynamicPost
 import com.efbsm5.easyway.data.EasyPoint
 import com.efbsm5.easyway.data.EasyPointSimplify
 import com.efbsm5.easyway.data.User
-import com.efbsm5.easyway.map.MapUtil
+import com.efbsm5.easyway.database.AppDataBase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 

@@ -29,17 +29,17 @@ import com.efbsm5.easyway.map.MapUtil.onNavigate
 
 
 @Composable
-fun NewPlaceCard(latLng: LatLng, pois: ArrayList<PoiItemV2>?, easyPoints: ArrayList<EasyPoint>?) {
+fun NewPlaceCard(latLng: LatLng, text: String) {
     var selectedTab by remember { mutableIntStateOf(0) }
     val context = LocalContext.current
-    NewPlaceCardScreen(
-        selectedTab = selectedTab,
-        onChangeSelected = { selectedTab = it },
-        location = latLng,
-        context = context,
-        pois = pois,
-        easyPoints = easyPoints
-    )
+//    NewPlaceCardScreen(
+//        selectedTab = selectedTab,
+//        onChangeSelected = { selectedTab = it },
+//        location = latLng,
+//        context = context,
+//        pois = pois,
+//        easyPoints = easyPoints
+//    )
 
 }
 

@@ -45,8 +45,8 @@ import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.efbsm5.easyway.R
 import com.efbsm5.easyway.data.DynamicPost
-import com.efbsm5.easyway.database.getCommentsCount
-import com.efbsm5.easyway.database.getUserByUserId
+import com.efbsm5.easyway.getCommentsCount
+import com.efbsm5.easyway.getUserByUserId
 @Composable
 fun ShowPage(
     posts: List<DynamicPost>?, onChangeState: (State) -> Unit, onSelectedPost: (DynamicPost) -> Unit

@@ -1,7 +1,8 @@
-package com.efbsm5.easyway.data
+package com.efbsm5.easyway.database
 
 import android.net.Uri
 import androidx.room.TypeConverter
+import com.efbsm5.easyway.data.Photo
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.net.URL

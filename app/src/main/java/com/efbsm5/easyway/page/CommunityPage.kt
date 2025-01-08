@@ -7,7 +7,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import com.efbsm5.easyway.data.DynamicPost
-import com.efbsm5.easyway.database.getAllDynamicPost
+import com.efbsm5.easyway.getAllDynamicPost
 
 @Composable
 fun CommunityPage() {

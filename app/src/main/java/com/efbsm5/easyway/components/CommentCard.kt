@@ -31,14 +31,14 @@ import com.amap.api.maps.model.Marker
 import com.efbsm5.easyway.R
 import com.efbsm5.easyway.data.Comment
 import com.efbsm5.easyway.data.EasyPoint
-import com.efbsm5.easyway.database.getCommentByCommentId
-import com.efbsm5.easyway.database.getUserByUserId
+import com.efbsm5.easyway.getCommentByCommentId
+import com.efbsm5.easyway.getUserByUserId
 
 
 @Composable
 fun CommentAndHistoryCard(marker: Marker) {
     var state: Screen by remember { mutableStateOf(Screen.Comment) }
-    FacilityDetailScreen(points = points, screen = state, onChangeScreen = { state = it })
+//    FacilityDetailScreen(points = points, screen = state, onChangeScreen = { state = it })
 }
 
 @Composable

@@ -1,5 +1,7 @@
 package com.efbsm5.easyway.page
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -8,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,7 +24,6 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -33,28 +35,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.amap.api.maps.AMapOptions
-import com.amap.api.maps.MapView
-import com.efbsm5.easyway.map.MapSaver
-import com.efbsm5.easyway.viewmodel.PointsViewModel
-import com.efbsm5.easyway.viewmodel.PointsViewModelFactory
 
 @Composable
 fun EasyWay() {
-    val context = LocalContext.current
     val navControl = rememberNavController()
-    val map = MapSaver
-    map.mapView = MapView(
-        context, AMapOptions().compassEnabled(true)
-    )
-    val pointsViewModel: PointsViewModel = viewModel(factory = PointsViewModelFactory(context))
-    map.points by pointsViewModel.points.collectAsState()
-
     Scaffold(
         bottomBar = {
             NavigationBar {
@@ -64,7 +52,12 @@ fun EasyWay() {
         containerColor = MaterialTheme.colorScheme.primaryContainer,
         contentColor = MaterialTheme.colorScheme.surfaceContainer
     ) { paddingValues ->
-        Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(paddingValues)) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .padding(paddingValues)
+//                .imePadding()
+        ) {
             NavHost(navController = navControl, startDestination = "MapPage") {
                 composable("MapPage") {
                     MapPage()
@@ -100,13 +93,20 @@ fun HighlightButtonExample(navController: NavController) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         buttons.forEachIndexed { index, text ->
+            val backgroundColor by animateColorAsState(
+                targetValue = if (selectedIndex == index) MaterialTheme.colorScheme.primary.copy(
+                    alpha = 0.2f
+                ) else Color.Transparent, animationSpec = tween(durationMillis = 300), label = ""
+            )
+            val textColor by animateColorAsState(
+                targetValue = if (selectedIndex == index) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                animationSpec = tween(durationMillis = 300), label = ""
+            )
             Column(horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .width(100.dp)
                     .background(
-                        color = if (selectedIndex == index) MaterialTheme.colorScheme.primary.copy(
-                            alpha = 0.2f
-                        ) else Color.Transparent, shape = RoundedCornerShape(90)
+                        color = backgroundColor, shape = RoundedCornerShape(90)
                     )
                     .clip(shape = RoundedCornerShape(90))
                     .clickable {
@@ -116,14 +116,10 @@ fun HighlightButtonExample(navController: NavController) {
                         }
                     }) {
                 Icon(
-                    imageVector = icons[index],
-                    contentDescription = text,
-                    tint = if (selectedIndex == index) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                    imageVector = icons[index], contentDescription = text, tint = textColor
                 )
                 Text(
-                    text = text,
-                    fontSize = 14.sp,
-                    color = if (selectedIndex == index) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                    text = text, fontSize = 14.sp, color = textColor
                 )
             }
         }

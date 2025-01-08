@@ -20,6 +20,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,7 +35,13 @@ import androidx.compose.ui.unit.sp
 import com.efbsm5.easyway.R
 
 @Composable
-fun FunctionCard(text: String, onclick: (String) -> Unit, onTextChange: (String) -> Unit) {
+fun FunctionCard(onclick: (String) -> Unit) {
+    var text by remember { mutableStateOf("") }
+    FunctionCardScreen(text = text, onTextChange = { text = it }, onclick = { onclick(it) })
+}
+
+@Composable
+fun FunctionCardScreen(text: String, onTextChange: (String) -> Unit, onclick: (String) -> Unit) {
     Column(
         Modifier
             .fillMaxWidth()
@@ -53,7 +63,7 @@ fun SearchBar(text: String, onTextChange: (String) -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(5.dp),
-        leadingIcon = { Icon(Icons.Default.Search, null) },
+        leadingIcon = { Icon(Icons.Default.Search, "search") },
     )
 }
 

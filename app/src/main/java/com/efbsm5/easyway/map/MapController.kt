@@ -9,7 +9,6 @@ import android.os.Bundle
 import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.amap.api.location.AMapLocation
@@ -27,28 +26,35 @@ import com.amap.api.maps.model.LatLng
 import com.amap.api.maps.model.Marker
 import com.amap.api.maps.model.MyLocationStyle
 import com.amap.api.maps.model.Poi
+import com.efbsm5.easyway.map.MapSaver.mapView
 import com.efbsm5.easyway.ui.theme.isDarkTheme
 
 private const val TAG = "MapController"
+
 class MapController(
-    onPoiClick: (Poi?) -> Unit,
-    onMapClick: (LatLng?) -> Unit,
-    onMarkerClick: (Marker?) -> Unit,
-    context: Context
+    onPoiClick: (Poi?) -> Unit, onMapClick: (LatLng?) -> Unit, onMarkerClick: (Marker?) -> Unit
 ) : LocationSource, AMap.OnMapClickListener, AMap.OnPOIClickListener, AMap.OnMarkerClickListener,
     AMapLocationListener {
+    private lateinit var mLocationClient: AMapLocationClient
     private var mLocationOption =
         AMapLocationClientOption().setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy)
             .setOnceLocation(true).setOnceLocationLatest(true).setNeedAddress(true)
             .setHttpTimeOut(6000)
-    private var mLocationClient: AMapLocationClient = AMapLocationClient(context)
     private var mListener: OnLocationChangedListener? = null
     val monMapClick: (LatLng?) -> Unit = onMapClick
     val monPoiClick: (Poi?) -> Unit = onPoiClick
     val monMarkerClick: (Marker?) -> Unit = onMarkerClick
-    private var mContext = context
-    private val sharedPreferences: SharedPreferences = context.getSharedPreferences("MapPreferences", Context.MODE_PRIVATE)
-    private var mLocation: LatLng? = getLastKnownLocation()
+    private lateinit var sharedPreferences: SharedPreferences
+    private var mLocation: LatLng? = null
+    private var isDarkTheme: Boolean? = null
+
+    private fun initialize(context: Context) {
+        isDarkTheme = isDarkTheme(context)
+        sharedPreferences = context.getSharedPreferences("MapPreferences", Context.MODE_PRIVATE)
+        mLocationClient = AMapLocationClient(context)
+        mLocation = getLastKnownLocation()
+        Log.e(TAG, "initialize: oninit init init                       ", )
+    }
 
     fun getLastKnownLocation(): LatLng? {
         val lat = sharedPreferences.getFloat("last_lat", Float.NaN)
@@ -57,13 +63,19 @@ class MapController(
     }
 
     private fun saveLastKnownLocation(location: LatLng) {
-        sharedPreferences.edit().putFloat("last_lat", location.latitude.toFloat()).putFloat("last_lng", location.longitude.toFloat()).apply()
+        sharedPreferences.edit().putFloat("last_lat", location.latitude.toFloat())
+            .putFloat("last_lng", location.longitude.toFloat()).apply()
     }
+
     @Composable
-    fun MapLifecycle(mapView: MapView) {
+    fun MapLocationInit(context: Context) {
+        initialize(context)
         mLocationClient.setLocationOption(mLocationOption)
         mLocationClient.setLocationListener(this@MapController)
-        val context = LocalContext.current
+    }
+
+    @Composable
+    fun MapLifecycle(context: Context) {
         val lifecycle = androidx.lifecycle.compose.LocalLifecycleOwner.current.lifecycle
         DisposableEffect(context, lifecycle, this) {
             val mapLifecycleObserver = lifecycleObserver(mapView)
@@ -77,7 +89,7 @@ class MapController(
         }
     }
 
-    fun onLocate(mapView: MapView) {
+    fun onLocate() {
         mLocation?.let {
             mapView.map.animateCamera(CameraUpdateFactory.newLatLng(it))
         }
@@ -88,8 +100,8 @@ class MapController(
             when (event) {
                 Lifecycle.Event.ON_CREATE -> {
                     mapView.onCreate(Bundle())
-                    initMap(mapView)
-                    Log.e(TAG, "lifecycleObserver: initMap                       init", )
+                    initMap()
+                    Log.e(TAG, "lifecycleObserver: initMap                       init")
                 }
 
                 Lifecycle.Event.ON_RESUME -> {
@@ -111,9 +123,9 @@ class MapController(
         }
     }
 
-    private fun initMap(mapView: MapView) {
+    private fun initMap() {
         val map = mapView.map
-        map.mapType = if (isDarkTheme(mContext)) MAP_TYPE_NIGHT else MAP_TYPE_NORMAL
+        map.mapType = if (isDarkTheme!!) MAP_TYPE_NIGHT else MAP_TYPE_NORMAL
         map.setLocationSource(this@MapController)
         map.isMyLocationEnabled = true
         map.myLocationStyle =
@@ -123,7 +135,6 @@ class MapController(
         map.setOnMarkerClickListener(this@MapController)
         map.showMapText(true)
     }
-
 
     override fun activate(p0: OnLocationChangedListener?) {
         if (mListener == null) {
@@ -152,7 +163,6 @@ class MapController(
         return true
     }
 
-
     override fun onLocationChanged(aMapLocation: AMapLocation?) {
         if (aMapLocation!!.errorCode == 0) {
             mListener!!.onLocationChanged(aMapLocation)
@@ -163,6 +173,3 @@ class MapController(
         }
     }
 }
-
-
-

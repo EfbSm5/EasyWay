@@ -55,7 +55,7 @@ fun NewPointCard(location: LatLng?) {
         onSelectType = { selectedOption = it },
         onExpanded = { expanded = it },
         confirm = {
-            onUploadPoint(tempPoint.value)
+//            onUploadPoint(tempPoint.value)
         },
         cancel = {},
         onNameValueChange = { tempPoint.value = tempPoint.value.copy(name = it) },
