@@ -6,9 +6,11 @@ import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
@@ -41,20 +43,36 @@ fun DraggableBox(boxHeight: Dp, onChangeHeight: (Dp) -> Unit, content: @Composab
                     )
                 )
             })
-            .clip(RoundedCornerShape(20.dp))
+            .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
     ) {
         Column(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxSize()
-                .clip(RoundedCornerShape(20.dp))
                 .background(
                     color = Color.Transparent,
-                    shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
                 )
         ) {
-            Spacer(Modifier.height(10.dp))
+            Spacer(
+                Modifier
+                    .height(10.dp)
+                    .alpha(0.5f)
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(0.3f)
+                    .height(8.dp)
+                    .background(
+                        color = Color.White, shape = RoundedCornerShape(2.dp)
+                    )
+                    .alpha(0.5f)
+            )
+            Spacer(
+                Modifier
+                    .height(10.dp)
+                    .alpha(0.5f)
+            )
             content()
         }
     }

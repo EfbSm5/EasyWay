@@ -12,7 +12,7 @@ class Repository(context: Context) {
     private val userDao = db.userDao()
     private val dynamicPostDao = db.dynamicPostDao()
     private val pointsDao = db.pointsDao()
-    private val httpClient = HttpClient("https://0fd7-2001-250-4000-821d-aaa6-577d-4ac4-832c.ngrok-free.app")
+    private val httpClient = HttpClient("https://f35b-2001-df0-a640-1-00-4.ngrok-free.app")
 
     fun syncData() {
         syncUsers()
