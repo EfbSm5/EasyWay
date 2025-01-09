@@ -8,8 +8,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,6 +23,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -43,32 +46,30 @@ import androidx.navigation.compose.rememberNavController
 @Composable
 fun EasyWay() {
     val navControl = rememberNavController()
-    Scaffold(
-        bottomBar = {
-            NavigationBar {
-                HighlightButton(navController = navControl)
-            }
-        },
-        containerColor = MaterialTheme.colorScheme.primaryContainer,
-        contentColor = MaterialTheme.colorScheme.surfaceContainer
-    ) { paddingValues ->
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .padding(paddingValues)
-//                .imePadding()
+    Surface(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.SpaceBetween,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            NavHost(navController = navControl, startDestination = "MapPage") {
-                composable("MapPage") {
-                    MapPage()
-                }
-                composable("Community") {
-                    CommunityPage()
-                }
-                composable("home") {
-                    HomePage()
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .imePadding()
+            ) {
+                NavHost(navController = navControl, startDestination = "MapPage") {
+                    composable("MapPage") {
+                        MapPage()
+                    }
+                    composable("Community") {
+                        CommunityPage()
+                    }
+                    composable("home") {
+                        HomePage()
+                    }
                 }
             }
+            HighlightButton(navController = navControl)
         }
     }
 }
@@ -106,7 +107,8 @@ fun HighlightButton(navController: NavController) {
             )
             val textColor by animateColorAsState(
                 targetValue = if (selectedIndex == index) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
-                animationSpec = tween(durationMillis = 300), label = ""
+                animationSpec = tween(durationMillis = 300),
+                label = ""
             )
             Column(horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier

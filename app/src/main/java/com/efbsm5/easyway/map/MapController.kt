@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.os.Bundle
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.lifecycle.Lifecycle
@@ -27,8 +28,9 @@ import com.amap.api.maps.model.MyLocationStyle
 import com.amap.api.maps.model.Poi
 import com.efbsm5.easyway.map.MapSaver.mapView
 import com.efbsm5.easyway.ui.theme.isDarkTheme
+import kotlin.math.log
 
-
+private const val TAG = "MapController"
 class MapController(
     onPoiClick: (Poi?) -> Unit, onMapClick: (LatLng?) -> Unit, onMarkerClick: (Marker?) -> Unit
 ) : LocationSource, AMap.OnMapClickListener, AMap.OnPOIClickListener, AMap.OnMarkerClickListener,
@@ -105,14 +107,22 @@ class MapController(
                 Lifecycle.Event.ON_CREATE -> {
                     mapView.onCreate(Bundle())
                     initMap()
+                    Log.e(TAG, "lifecycleObserver:     oncreate view", )
                 }
 
                 Lifecycle.Event.ON_RESUME -> {
                     mapView.onResume()
+                    Log.e(TAG, "lifecycleObserver:           onresume view", )
                 }
 
-                Lifecycle.Event.ON_PAUSE -> mapView.onPause()  // 暂停地图的绘制
-                Lifecycle.Event.ON_DESTROY -> mapView.onDestroy() // 销毁地图
+                Lifecycle.Event.ON_PAUSE -> {
+                    mapView.onPause()
+                    Log.e(TAG, "lifecycleObserver:                on pause view", )
+                }  // 暂停地图的绘制
+                Lifecycle.Event.ON_DESTROY -> {
+                    mapView.onDestroy()
+                    Log.e(TAG, "lifecycleObserver:            on destory view", )
+                } // 销毁地图
                 else -> {}
             }
         }

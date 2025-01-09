@@ -13,12 +13,10 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,14 +25,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.efbsm5.easyway.R
 import com.efbsm5.easyway.data.Comment
 import com.efbsm5.easyway.data.DynamicPost
 import com.efbsm5.easyway.data.User
-import com.efbsm5.easyway.database.AppDataBase
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.efbsm5.easyway.viewmodel.CommentViewModel
+import com.efbsm5.easyway.viewmodel.UserViewModel
+import com.efbsm5.easyway.viewmodel.ViewModelFactory
 
 
 @Composable
@@ -42,19 +41,16 @@ fun DetailPage(post: DynamicPost) {
     val context = LocalContext.current
     var newCommentText by remember { mutableStateOf("") }
     var showTextField by remember { mutableStateOf(false) }
-    val comments = remember { mutableStateListOf<Comment>() }
-    var user: User? by remember { mutableStateOf(null) }
-    val scope = rememberCoroutineScope()
-    LaunchedEffect(user, comments) {
-        scope.launch(Dispatchers.IO) {
-            val database = AppDataBase.getDatabase(context)
-            val mComments = database.commentDao().getCommentByCommentId(post.commentId)
-            val mUser = database.userDao().getUserById(post.userId)
-            user = mUser
-            comments.addAll(mComments)
-        }
-    }
-    DetailPageScreen(post = post,
+    val userViewModel =
+        viewModel<UserViewModel>(factory = ViewModelFactory(context = context))
+    userViewModel.fetchUserById(post.userId)
+    val user by userViewModel.user.collectAsState()
+    val commentViewModel =
+        viewModel<CommentViewModel>(factory = ViewModelFactory(context = context))
+    commentViewModel.fetchCommentsById(post.commentId)
+    val comments by commentViewModel.comments.collectAsState()
+    DetailPageScreen(
+        post = post,
         newCommentText = newCommentText,
         onAddComment = { newCommentText = it },
         changeIfShowTextField = { showTextField = it },
@@ -153,7 +149,7 @@ fun Comments(comments: List<Comment>?) {
         LazyColumn(modifier = Modifier.padding(vertical = 16.dp)) {
             items(comments) { comment ->
                 CommentItems(comment) {
-                    AppDataBase.getDatabase(context).commentDao().incrementLikes(comment.index)
+
                 }
             }
         }
@@ -164,15 +160,10 @@ fun Comments(comments: List<Comment>?) {
 fun CommentItems(comment: Comment, like: () -> Unit) {
     val context = LocalContext.current
     var isLiked by remember { mutableStateOf(false) }
-    var user: User? by remember { mutableStateOf(null) }
-    val scope = rememberCoroutineScope()
-    LaunchedEffect(user) {
-        scope.launch(Dispatchers.IO) {
-            val database = AppDataBase.getDatabase(context)
-            val mUser = database.userDao().getUserById(comment.userId)
-            user = mUser
-        }
-    }
+    val userViewModel =
+        viewModel<UserViewModel>(factory = ViewModelFactory(context = context))
+    userViewModel.fetchUserById(comment.userId)
+    val user by userViewModel.user.collectAsState()
     Row(
         modifier = Modifier.padding(bottom = 16.dp), verticalAlignment = Alignment.CenterVertically
     ) {

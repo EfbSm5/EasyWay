@@ -31,6 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -45,11 +46,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.efbsm5.easyway.R
 import com.efbsm5.easyway.data.DynamicPost
 import com.efbsm5.easyway.data.User
 import com.efbsm5.easyway.database.AppDataBase
+import com.efbsm5.easyway.viewmodel.DynamicPostViewModel
+import com.efbsm5.easyway.viewmodel.PointsViewModel
+import com.efbsm5.easyway.viewmodel.ViewModelFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -58,15 +63,9 @@ fun ShowPage(
     onChangeState: (State) -> Unit, onSelectedPost: (DynamicPost) -> Unit
 ) {
     val context = LocalContext.current
-    val postList = remember { mutableStateListOf<DynamicPost>() }
-    val scope = rememberCoroutineScope()
-    LaunchedEffect(postList) {
-        scope.launch(Dispatchers.IO) {
-            val database = AppDataBase.getDatabase(context)
-            val mPosts = database.dynamicPostDao().getAllDynamicPosts()
-            postList.addAll(mPosts)
-        }
-    }
+    val postViewModel: DynamicPostViewModel =
+        viewModel<DynamicPostViewModel>(factory = ViewModelFactory(context = context))
+    val postList by postViewModel.dynamicPosts.collectAsState()
     var text by remember { mutableStateOf("") }
     val tabs = listOf("全部", "活动", "互助", "分享")
     var selectedTabIndex by remember { mutableIntStateOf(0) }

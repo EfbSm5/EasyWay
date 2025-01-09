@@ -33,7 +33,13 @@ import com.efbsm5.easyway.data.Comment
 import com.efbsm5.easyway.data.EasyPoint
 import com.efbsm5.easyway.database.AppDataBase
 import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.efbsm5.easyway.data.User
+import com.efbsm5.easyway.viewmodel.PointsViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -43,6 +49,8 @@ fun CommentAndHistoryCard(marker: Marker) {
     var state: Screen by remember { mutableStateOf(Screen.Comment) }
     var point by remember { mutableStateOf<EasyPoint?>(null) }
     var comments by remember { mutableStateOf(emptyList<Comment>()) }
+//    val pointsViewModel: PointsViewModel = viewModel<PointsViewModel>()
+//    val points by pointsViewModel.points.collectAsState()
     val scope = rememberCoroutineScope()
     LaunchedEffect(marker) {
         scope.launch(Dispatchers.IO) {
@@ -62,12 +70,16 @@ fun CommentAndHistoryCard(marker: Marker) {
             Screen.Comment -> CommentCard(comments)
             Screen.History -> HistoryCard()
         }
-    })
+    }, comment = {}, refresh = {})
 }
 
 @Composable
 private fun CommentAndHistoryCardScreen(
-    point: EasyPoint?, onChangeScreen: (Screen) -> Unit, content: @Composable () -> Unit
+    point: EasyPoint?,
+    onChangeScreen: (Screen) -> Unit,
+    content: @Composable () -> Unit,
+    comment: () -> Unit,
+    refresh: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -249,7 +261,7 @@ private fun CommentItem(comment: Comment) {
 
 @Composable
 private fun HistoryCard() {
-    // 历史卡片内容,目前懒得开发
+    Text("历史卡片内容,目前仍在开发")
 }
 
 @Composable

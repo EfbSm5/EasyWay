@@ -6,7 +6,7 @@ import com.efbsm5.easyway.data.EasyPointSimplify
 object MapSaver {
     lateinit var mapView: MapView
     lateinit var mapController: MapController
-    lateinit var points: List<EasyPointSimplify>
+    lateinit var points: ArrayList<EasyPointSimplify>
 
     fun isMapViewInitialized(): Boolean {
         return ::mapView.isInitialized
