@@ -31,6 +31,7 @@ import com.efbsm5.easyway.ui.theme.isDarkTheme
 import kotlin.math.log
 
 private const val TAG = "MapController"
+
 class MapController(
     onPoiClick: (Poi?) -> Unit, onMapClick: (LatLng?) -> Unit, onMarkerClick: (Marker?) -> Unit
 ) : LocationSource, AMap.OnMapClickListener, AMap.OnPOIClickListener, AMap.OnMarkerClickListener,
@@ -77,63 +78,7 @@ class MapController(
     @Composable
     fun InitMapLifeAndLocation(context: Context) {
         MapLocationInit(context)
-        MapLifecycle(context)
-    }
-
-    @Composable
-    private fun MapLifecycle(context: Context) {
-        val lifecycle = androidx.lifecycle.compose.LocalLifecycleOwner.current.lifecycle
-        DisposableEffect(context, lifecycle, this) {
-            val mapLifecycleObserver = lifecycleObserver(mapView)
-            val callbacks = mapView.componentCallbacks()
-            lifecycle.addObserver(mapLifecycleObserver)
-            context.registerComponentCallbacks(callbacks)
-            onDispose {
-                lifecycle.removeObserver(mapLifecycleObserver)
-                context.unregisterComponentCallbacks(callbacks)
-            }
-        }
-    }
-
-    fun onLocate() {
-        mLocation?.let {
-            mapView.map.animateCamera(CameraUpdateFactory.newLatLng(it))
-        }
-    }
-
-    private fun lifecycleObserver(mapView: MapView): LifecycleEventObserver =
-        LifecycleEventObserver { _, event ->
-            when (event) {
-                Lifecycle.Event.ON_CREATE -> {
-                    mapView.onCreate(Bundle())
-                    initMap()
-                    Log.e(TAG, "lifecycleObserver:     oncreate view", )
-                }
-
-                Lifecycle.Event.ON_RESUME -> {
-                    mapView.onResume()
-                    Log.e(TAG, "lifecycleObserver:           onresume view", )
-                }
-
-                Lifecycle.Event.ON_PAUSE -> {
-                    mapView.onPause()
-                    Log.e(TAG, "lifecycleObserver:                on pause view", )
-                }  // 暂停地图的绘制
-                Lifecycle.Event.ON_DESTROY -> {
-                    mapView.onDestroy()
-                    Log.e(TAG, "lifecycleObserver:            on destory view", )
-                } // 销毁地图
-                else -> {}
-            }
-        }
-
-    private fun MapView.componentCallbacks(): ComponentCallbacks = object : ComponentCallbacks {
-        override fun onConfigurationChanged(config: Configuration) {}
-
-        @Deprecated("Deprecated in Java", ReplaceWith("this@componentCallbacks.onLowMemory()"))
-        override fun onLowMemory() {
-            this@componentCallbacks.onLowMemory()
-        }
+        initMap()
     }
 
     private fun initMap() {
@@ -148,6 +93,12 @@ class MapController(
         map.setOnMarkerClickListener(this@MapController)
         map.showMapText(true)
         getLastKnownLocation()?.let { map.animateCamera(CameraUpdateFactory.newLatLng(it)) }
+    }
+
+    fun onLocate() {
+        mLocation?.let {
+            mapView.map.animateCamera(CameraUpdateFactory.newLatLng(it))
+        }
     }
 
     override fun activate(p0: OnLocationChangedListener?) {

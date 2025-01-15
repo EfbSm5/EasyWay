@@ -9,19 +9,19 @@ import com.efbsm5.easyway.data.DynamicPost
 
 @Composable
 fun CommunityPage() {
-    var state: State by remember { mutableStateOf(State.Community) }
-    when (state) {
-        State.Community -> ShowPage(onChangeState = { state = it },
-            onSelectedPost = { state = State.Detail(it) })
-
-        is State.Detail -> DetailPage((state as State.Detail).dynamicPost)
-        State.NewPost -> NewDynamicPostPage()
-    }
+//    var communityState: CommunityState by remember { mutableStateOf(CommunityState.Community) }
+//    when (communityState) {
+//        CommunityState.Community -> ShowPage(onChangeState = { communityState = it },
+//            onSelectedPost = { communityState = CommunityState.Detail(it) })
+//
+//        is CommunityState.Detail -> DetailPage((communityState as CommunityState.Detail).dynamicPost)
+//        CommunityState.NewPost -> NewDynamicPostPage()
+//    }
 }
 
 
-sealed interface State {
-    data object Community : State
-    data object NewPost : State
-    data class Detail(val dynamicPost: DynamicPost) : State
+sealed interface CommunityState {
+    data object Community : CommunityState
+    data object NewPost : CommunityState
+    data class Detail(val dynamicPost: DynamicPost) : CommunityState
 }

@@ -60,7 +60,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun ShowPage(
-    onChangeState: (State) -> Unit, onSelectedPost: (DynamicPost) -> Unit
+    onChangeState: (CommunityState) -> Unit, onSelectedPost: (DynamicPost) -> Unit
 ) {
     val context = LocalContext.current
     val postViewModel: DynamicPostViewModel =
@@ -94,7 +94,7 @@ fun ShowPageScreen(
     tabs: List<String>,
     titleText: String,
     onChangeText: (String) -> Unit,
-    onChangeState: (State) -> Unit,
+    onChangeState: (CommunityState) -> Unit,
     onSelect: (Int) -> Unit,
     onClick: (DynamicPost) -> Unit
 ) {
@@ -109,7 +109,7 @@ fun ShowPageScreen(
     }
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomEnd) {
         FloatingActionButton(
-            onClick = { onChangeState(State.NewPost) },
+            onClick = { onChangeState(CommunityState.NewPost) },
             modifier = Modifier.padding(bottom = 16.dp, end = 16.dp)
         ) {
             Icon(imageVector = Icons.Default.Add, contentDescription = "添加")

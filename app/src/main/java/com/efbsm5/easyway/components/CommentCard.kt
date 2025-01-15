@@ -292,7 +292,7 @@ private fun BottomActionBar(refresh: () -> Unit, comment: () -> Unit) {
     }
 }
 
-sealed interface Screen {
+private sealed interface Screen {
     data object Comment : Screen
     data object History : Screen
 }

@@ -1,51 +1,58 @@
 package com.efbsm5.easyway.page
 
-import android.content.Context
 import android.util.Log
-import android.view.ViewGroup
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBox
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Place
+import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.amap.api.maps.AMapOptions
-import com.amap.api.maps.MapView
-import com.amap.api.maps.model.BitmapDescriptorFactory
+import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.amap.api.maps.model.LatLng
 import com.amap.api.maps.model.Marker
-import com.amap.api.maps.model.MarkerOptions
 import com.efbsm5.easyway.components.AddAndLocateButton
 import com.efbsm5.easyway.components.CommentAndHistoryCard
 import com.efbsm5.easyway.components.DraggableBox
 import com.efbsm5.easyway.components.FunctionCard
 import com.efbsm5.easyway.components.NewPlaceCard
 import com.efbsm5.easyway.components.NewPointCard
-import com.efbsm5.easyway.map.MapController
-import com.efbsm5.easyway.map.MapSaver.isMapControllerInitialized
-import com.efbsm5.easyway.map.MapSaver.isMapViewInitialized
-import com.efbsm5.easyway.map.MapSaver.isPointsInitialized
 import com.efbsm5.easyway.map.MapSaver.mapController
 import com.efbsm5.easyway.map.MapSaver.mapView
-import com.efbsm5.easyway.map.MapSaver.points
-import com.efbsm5.easyway.map.MapUtil.showMsg
-import com.efbsm5.easyway.viewmodel.PointsViewModel
-import com.efbsm5.easyway.viewmodel.ViewModelFactory
 
 private const val TAG = "MapPage"
 
@@ -53,41 +60,58 @@ private const val TAG = "MapPage"
 fun MapPage() {
     val context = LocalContext.current
     var content: Screen by remember { mutableStateOf(Screen.IconCard) }
-    InitMap(context = context) { content = it }
+    var state: MapState by remember { mutableStateOf(MapState.MapPage) }
     var boxHeight by remember { mutableStateOf(100.dp) }
-    MapScreen(
-        onAdd = { content = Screen.NewPoint(mapController.getLastKnownLocation()) },
-        onLocate = { mapController.onLocate() },
-        content = {
-            Surface(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(color = MaterialTheme.colorScheme.surfaceContainer)
-            ) {
-                when (content) {
-                    is Screen.Comment -> {
-                        CommentAndHistoryCard(marker = (content as Screen.Comment).marker)
-                    }
+    Box(modifier = Modifier.fillMaxSize()) {
+        when (state) {
+            MapState.CommunityPage -> {
+                CommunityPage()
+            }
 
-                    Screen.IconCard -> FunctionCard(onclick = {
-                        content = Screen.Places(it)
-                    })
+            MapState.HomePage -> {
+                HomePage()
+            }
 
-                    is Screen.NewPoint -> NewPointCard((content as Screen.NewPoint).location)
+            MapState.MapPage -> {
 
-                    is Screen.Places -> {
-                        NewPlaceCard(
-                            mapController.getLastKnownLocation()!!,
-                            (content as Screen.Places).name,
-                        )
+            }
+        }
+        MapScreen(
+            onAdd = { content = Screen.NewPoint(mapController.getLastKnownLocation()) },
+            onLocate = { mapController.onLocate() },
+            content = {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(color = MaterialTheme.colorScheme.surfaceContainer)
+                ) {
+                    when (content) {
+                        is Screen.Comment -> {
+                            CommentAndHistoryCard(marker = (content as Screen.Comment).marker)
+                        }
+
+                        Screen.IconCard -> FunctionCard(onclick = {
+                            content = Screen.Places(it)
+                        })
+
+                        is Screen.NewPoint -> NewPointCard((content as Screen.NewPoint).location)
+
+                        is Screen.Places -> {
+                            NewPlaceCard(
+                                mapController.getLastKnownLocation()!!,
+                                (content as Screen.Places).name,
+                            )
+                        }
                     }
                 }
-            }
-        },
-        boxHeight = boxHeight,
-        onChangeHeight = { boxHeight = it },
-    )
-    BackHandler(enabled = content != Screen.IconCard, onBack = { content = Screen.IconCard })
+            },
+            boxHeight = boxHeight,
+            onChangeHeight = { boxHeight = it },
+        )
+        BackHandler(enabled = content != Screen.IconCard, onBack = { content = Screen.IconCard })
+
+    }
+    BottomAppBar { HighlightButton { state = it } }
 }
 
 @Composable
@@ -124,55 +148,6 @@ private fun MapScreen(
     }
 }
 
-@Composable
-private fun InitMap(context: Context, onChange: (Screen) -> Unit) {
-    if (!isMapViewInitialized()) {
-        mapView = MapView(context, AMapOptions().compassEnabled(true))
-        Log.e(TAG, "InitMap: initMapview")
-    }
-    if (!isMapControllerInitialized()) {
-        mapController = MapController(
-            onPoiClick = { showMsg(it!!.name, context) },
-            onMapClick = { showMsg(it!!.latitude.toString(), context) },
-            onMarkerClick = {
-                it?.let {
-                    onChange(Screen.Comment(marker = it))
-                    showMsg("click ${it.title}", context)
-                }
-            },
-        )
-        mapController.InitMapLifeAndLocation(context)
-        Log.e(TAG, "InitMap: initMapviewController")
-    }
-    if (!isPointsInitialized()) {
-        val pointsViewModel = viewModel<PointsViewModel>(factory = ViewModelFactory(context))
-        val point by pointsViewModel.points.collectAsState()
-        points = point
-        LaunchedEffect(point) {
-            if (point != null) {
-                mapView.map.clear()
-                point!!.forEach { point ->
-                    mapView.map.addMarker(
-                        MarkerOptions().title(point.name).position(LatLng(point.lat, point.lng))
-                    )
-                    Log.e(
-                        TAG,
-                        "InitMap: add point                                      addd   ${point.lat}          ${point.lng}      ${point.name}                  ",
-                    )
-                }
-                val map = mapView.map
-                map.addMarker(
-                    MarkerOptions().title("EasyPOint").position(LatLng(30.513482, 114.437642))
-                        .icon(BitmapDescriptorFactory.defaultMarker(5f))
-                )
-                showMsg("add point", context)
-
-            }
-        }
-        Log.e(TAG, "InitMap: initPoints")
-
-    }
-}
 
 sealed interface Screen {
     data object IconCard : Screen
@@ -181,3 +156,62 @@ sealed interface Screen {
     data class Comment(val marker: Marker) : Screen
 }
 
+sealed interface MapState {
+    data object MapPage : MapState
+    data object CommunityPage : MapState
+    data object HomePage : MapState
+}
+
+@Composable
+private fun HighlightButton(onChangeState: (MapState) -> Unit) {
+    var selectedIndex by remember { mutableIntStateOf(0) }
+    val direction = listOf(
+        MapState.MapPage, MapState.HomePage, MapState.CommunityPage
+    )
+    val buttons = listOf("首页", "社区", "我的")
+    val icons = listOf(
+        Icons.Default.Place,
+        Icons.Default.AccountBox,
+        Icons.Default.Home,
+    )
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(56.dp),
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        buttons.forEachIndexed { index, text ->
+            val backgroundColor by animateColorAsState(
+                targetValue = if (selectedIndex == index) MaterialTheme.colorScheme.primary.copy(
+                    alpha = 0.2f
+                ) else Color.Transparent, animationSpec = tween(durationMillis = 300), label = ""
+            )
+            val textColor by animateColorAsState(
+                targetValue = if (selectedIndex == index) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                animationSpec = tween(durationMillis = 300),
+                label = ""
+            )
+            Column(horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .width(100.dp)
+                    .background(
+                        color = backgroundColor, shape = RoundedCornerShape(90)
+                    )
+                    .clip(shape = RoundedCornerShape(90))
+                    .clickable {
+                        if (selectedIndex != index) {
+                            selectedIndex = index
+                            onChangeState(direction[index])
+                        }
+                    }) {
+                Icon(
+                    imageVector = icons[index], contentDescription = text, tint = textColor
+                )
+                Text(
+                    text = text, fontSize = 14.sp, color = textColor
+                )
+            }
+        }
+    }
+}

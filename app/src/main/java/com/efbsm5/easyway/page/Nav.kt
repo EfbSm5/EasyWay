@@ -45,37 +45,38 @@ import androidx.navigation.compose.rememberNavController
 
 @Composable
 fun EasyWay() {
-    val navControl = rememberNavController()
-    Surface(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.SpaceBetween,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .imePadding()
-            ) {
-                NavHost(navController = navControl, startDestination = "MapPage") {
-                    composable("MapPage") {
-                        MapPage()
-                    }
-                    composable("Community") {
-                        CommunityPage()
-                    }
-                    composable("home") {
-                        HomePage()
-                    }
-                }
-            }
-            HighlightButton(navController = navControl)
-        }
-    }
+//    val navControl = rememberNavController()
+//    Surface(modifier = Modifier.fillMaxSize()) {
+//        Column(
+//            modifier = Modifier.fillMaxSize(),
+//            verticalArrangement = Arrangement.SpaceBetween,
+//            horizontalAlignment = Alignment.CenterHorizontally
+//        ) {
+//            Box(
+//                modifier = Modifier
+//                    .weight(1f)
+//                    .imePadding()
+//            ) {
+//                NavHost(navController = navControl, startDestination = "MapPage") {
+//                    composable("MapPage") {
+//                        MapPage()
+//                    }
+//                    composable("Community") {
+//                        CommunityPage()
+//                    }
+//                    composable("home") {
+//                        HomePage()
+//                    }
+//                }
+//            }
+//            HighlightButton(navController = navControl)
+//        }
+//    }
+    MapPage()
 }
 
 @Composable
-fun HighlightButton(navController: NavController) {
+private fun HighlightButton(navController: NavController) {
     var selectedIndex by remember { mutableIntStateOf(0) }
     val direction = listOf(
         "MapPage", "Community", "home"
