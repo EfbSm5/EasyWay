@@ -2,7 +2,6 @@ package com.efbsm5.easyway.page
 
 import android.content.Context
 import android.util.Log
-import android.view.ViewGroup
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -12,10 +11,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,7 +22,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.amap.api.maps.AMapOptions
 import com.amap.api.maps.MapView
 import com.amap.api.maps.model.BitmapDescriptorFactory
@@ -36,6 +34,7 @@ import com.efbsm5.easyway.components.DraggableBox
 import com.efbsm5.easyway.components.FunctionCard
 import com.efbsm5.easyway.components.NewPlaceCard
 import com.efbsm5.easyway.components.NewPointCard
+import com.efbsm5.easyway.database.AppDataBase
 import com.efbsm5.easyway.map.MapController
 import com.efbsm5.easyway.map.MapSaver.isMapControllerInitialized
 import com.efbsm5.easyway.map.MapSaver.isMapViewInitialized
@@ -44,8 +43,8 @@ import com.efbsm5.easyway.map.MapSaver.mapController
 import com.efbsm5.easyway.map.MapSaver.mapView
 import com.efbsm5.easyway.map.MapSaver.points
 import com.efbsm5.easyway.map.MapUtil.showMsg
-import com.efbsm5.easyway.viewmodel.PointsViewModel
-import com.efbsm5.easyway.viewmodel.ViewModelFactory
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 private const val TAG = "MapPage"
 
@@ -73,7 +72,10 @@ fun MapPage() {
                         content = Screen.Places(it)
                     })
 
-                    is Screen.NewPoint -> NewPointCard((content as Screen.NewPoint).location)
+                    is Screen.NewPoint -> NewPointCard(
+                        (content as Screen.NewPoint).location,
+                        back = { content = Screen.IconCard }
+                    )
 
                     is Screen.Places -> {
                         NewPlaceCard(
@@ -145,32 +147,21 @@ private fun InitMap(context: Context, onChange: (Screen) -> Unit) {
         Log.e(TAG, "InitMap: initMapviewController")
     }
     if (!isPointsInitialized()) {
-        val pointsViewModel = viewModel<PointsViewModel>(factory = ViewModelFactory(context))
-        val point by pointsViewModel.points.collectAsState()
-        points = point
-        LaunchedEffect(point) {
-            if (point != null) {
-                mapView.map.clear()
-                point!!.forEach { point ->
+        val scope = rememberCoroutineScope()
+        LaunchedEffect(Unit) {
+            scope.launch(Dispatchers.IO) {
+                val database = AppDataBase.getDatabase(context)
+                val point = database.pointsDao().loadAllPoints()
+                point.forEach({ EasyPoint ->
                     mapView.map.addMarker(
-                        MarkerOptions().title(point.name).position(LatLng(point.lat, point.lng))
+                        MarkerOptions().title(EasyPoint.name)
+                            .position(LatLng(EasyPoint.lat, EasyPoint.lng))
+                            .icon(BitmapDescriptorFactory.defaultMarker())
                     )
-                    Log.e(
-                        TAG,
-                        "InitMap: add point                                      addd   ${point.lat}          ${point.lng}      ${point.name}                  ",
-                    )
-                }
-                val map = mapView.map
-                map.addMarker(
-                    MarkerOptions().title("EasyPOint").position(LatLng(30.513482, 114.437642))
-                        .icon(BitmapDescriptorFactory.defaultMarker(5f))
-                )
-                showMsg("add point", context)
-
+                })
+                points.addAll(point)
             }
         }
-        Log.e(TAG, "InitMap: initPoints")
-
     }
 }
 

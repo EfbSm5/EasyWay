@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.efbsm5.easyway.data.Comment
+import com.efbsm5.easyway.database.AppDataBase
 import com.efbsm5.easyway.repository.DataRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,6 +19,13 @@ class CommentViewModel(context: Context) : ViewModel() {
     fun fetchCommentsById(commentId: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             _comments.value = repository.getAllCommentsById(commentId)
+        }
+    }
+
+    fun insertComment(comment: Comment, context: Context) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val database = AppDataBase.getDatabase(context)
+            database.commentDao().insert(comment)
         }
     }
 }

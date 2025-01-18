@@ -23,5 +23,4 @@ data class Comment(
     @SerializedName("like") var like: Int,
     @SerializedName("dislike") val dislike: Int,
     @SerializedName("date") val date: String,
-
     )

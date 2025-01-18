@@ -27,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -34,29 +35,21 @@ import androidx.core.net.toUri
 import coil.compose.rememberAsyncImagePainter
 import com.efbsm5.easyway.data.DynamicPost
 import com.efbsm5.easyway.data.Photo
+import com.efbsm5.easyway.database.AppDataBase
 
 
 @Composable
-fun NewDynamicPostPage() {
+fun NewDynamicPostPage(navigate: () -> Unit) {
+    val context = LocalContext.current
     val dynamicPost = remember {
         mutableStateOf(
             DynamicPost(
-                id = 0,
-                title = "",
-                date = "",
-                like = 0,
-                content = "",
-                lng = 0.0,
-                lat = 0.0,
-                position = "",
-                userId = 0,
-                commentId = 0,
                 photos = emptyList()
             )
         )
     }
     var selectedButton by remember { mutableStateOf("") }
-
+    var push by remember { mutableStateOf(false) }
     DynamicPostScreen(dynamicPost = dynamicPost.value,
         selectedButton = selectedButton,
         onSelected = { selectedButton = it },
@@ -72,7 +65,13 @@ fun NewDynamicPostPage() {
                         )
                     )
                 })
-        })
+        },
+        publish = { push = true })
+    if (push) {
+        val dynamicPostDao = AppDataBase.getDatabase(context).dynamicPostDao()
+        dynamicPostDao.insert(dynamicPost.value)
+        navigate()
+    }
 }
 
 @Composable
@@ -83,7 +82,8 @@ fun DynamicPostScreen(
     onSelected: (String) -> Unit,
     onTitleChanged: (String) -> Unit,
     onContentChanged: (String) -> Unit,
-    onSelectedPhoto: (Uri?) -> Unit
+    onSelectedPhoto: (Uri?) -> Unit,
+    publish: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -102,7 +102,7 @@ fun DynamicPostScreen(
         AddLocationAndImagesSection(selectedPhotos = photos,
             onSelectedPhoto = { it?.let { onSelectedPhoto(it) } })
         Spacer(modifier = Modifier.weight(1f))
-        PublishButton(publish = {})
+        PublishButton(publish = { publish() })
     }
 }
 

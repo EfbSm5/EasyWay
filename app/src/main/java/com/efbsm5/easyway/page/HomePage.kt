@@ -20,6 +20,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.efbsm5.easyway.GetInitialData
 import com.efbsm5.easyway.map.MapUtil
 import com.efbsm5.easyway.network.Repository
 
@@ -34,13 +36,12 @@ import com.efbsm5.easyway.network.Repository
 fun HomePage() {
     val context = LocalContext.current
     HomePageScreen(context, onUpdate = {
-        val repository = Repository(context)
-        repository.syncData()
+
     })
 }
 
 @Composable
-fun HomePageScreen(context: Context, onUpdate: () -> Unit) {
+private fun HomePageScreen(context: Context, onUpdate: () -> Unit) {
     Column(
         Modifier
             .fillMaxSize()
@@ -61,7 +62,7 @@ fun HomePageScreen(context: Context, onUpdate: () -> Unit) {
 }
 
 @Composable
-fun ProfileHeader() {
+private fun ProfileHeader() {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Start,
@@ -84,12 +85,12 @@ fun ProfileHeader() {
 }
 
 @Composable
-fun MenuItem(title: String, onClick: () -> Unit) {
+private fun MenuItem(title: String, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
-            .clickable(onClick = onClick),
+            .clickable(onClick = { onClick() }),
         shape = MaterialTheme.shapes.medium,
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {

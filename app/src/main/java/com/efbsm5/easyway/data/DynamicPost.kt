@@ -14,17 +14,17 @@ import com.google.gson.annotations.SerializedName
     )]
 )
 data class DynamicPost(
-    @PrimaryKey @SerializedName("id") val id: Int,
-    @SerializedName("title") var title: String,
-    @SerializedName("date") var date: String,
+    @PrimaryKey @SerializedName("id") var id: Int = 0,
+    @SerializedName("title") var title: String = "",
+    @SerializedName("date") var date: String = "",
     @SerializedName("like") var like: Int = 0,
-    @SerializedName("content") var content: String,
-    @SerializedName("lat") var lat: Double,
-    @SerializedName("lng") var lng: Double,
-    @SerializedName("position") var position: String,
-    @SerializedName("user_id") val userId: Int,
-    @SerializedName("comment_id") val commentId: Int,
-    @SerializedName("photos") val photos: List<Photo>
+    @SerializedName("content") var content: String = "",
+    @SerializedName("lat") var lat: Double = 0.0,
+    @SerializedName("lng") var lng: Double = 0.0,
+    @SerializedName("position") var position: String = "",
+    @SerializedName("user_id") var userId: Int = 0,
+    @SerializedName("comment_id") var commentId: Int = 0,
+    @SerializedName("photos") var photos: List<Photo>
 )
 
 @Entity(

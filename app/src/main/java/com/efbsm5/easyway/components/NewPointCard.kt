@@ -20,17 +20,31 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import coil.compose.rememberAsyncImagePainter
+import com.amap.api.maps.model.BitmapDescriptorFactory
 import com.amap.api.maps.model.LatLng
+import com.amap.api.maps.model.MarkerOptions
 import com.efbsm5.easyway.data.EasyPoint
+import com.efbsm5.easyway.database.AppDataBase
+import com.efbsm5.easyway.map.MapSaver
 import java.io.File
 import java.io.FileOutputStream
 
 @Composable
-fun NewPointCard(location: LatLng?) {
+fun NewPointCard(location: LatLng?, back: () -> Unit) {
     val context = LocalContext.current
-    val tempPoint = remember { mutableStateOf(EasyPoint()) }
+    val tempPoint = remember {
+        mutableStateOf(
+            if (location != null) {
+                EasyPoint(lat = location.latitude, lng = location.longitude)
+            } else {
+                EasyPoint()
+            }
+        )
+    }
     var expanded by remember { mutableStateOf(false) }
+    var onUpload by remember { mutableStateOf(false) }
     var selectedOption by remember { mutableStateOf("") }
     NewPointCardSurface(
         point = tempPoint.value,
@@ -45,7 +59,7 @@ fun NewPointCard(location: LatLng?) {
                     it.copyTo(outputStream)
                     outputStream.close()
                     it.close()
-                    tempPoint.value = tempPoint.value.copy(photo = file.toURI().toURL())
+                    tempPoint.value = tempPoint.value.copy(photo = file.toUri())
                 }
             }
         },
@@ -54,11 +68,20 @@ fun NewPointCard(location: LatLng?) {
         onSelectType = { selectedOption = it },
         onExpanded = { expanded = it },
         confirm = {
-
+            onUpload = true
         },
         cancel = {},
         onNameValueChange = { tempPoint.value = tempPoint.value.copy(name = it) },
     )
+    if (onUpload) {
+        val pointDao = AppDataBase.getDatabase(context).pointsDao()
+        pointDao.insert(tempPoint.value)
+        MapSaver.mapView.map.addMarker(
+            MarkerOptions().title(tempPoint.value.name)
+                .position(LatLng(tempPoint.value.lat, tempPoint.value.lng))
+                .icon(BitmapDescriptorFactory.defaultMarker())
+        )
+    }
 }
 
 @Composable
