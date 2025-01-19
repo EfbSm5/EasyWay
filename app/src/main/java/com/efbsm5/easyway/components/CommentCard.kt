@@ -33,36 +33,40 @@ import com.efbsm5.easyway.data.Comment
 import com.efbsm5.easyway.data.EasyPoint
 import com.efbsm5.easyway.database.AppDataBase
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.efbsm5.easyway.data.User
+import com.efbsm5.easyway.viewmodel.CommentViewModel
+import com.efbsm5.easyway.viewmodel.ViewModelFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Composable
 fun CommentAndHistoryCard(marker: Marker) {
     val context = LocalContext.current
-    var state: Screen by remember { mutableStateOf(Screen.Comment) }
-    var point by remember { mutableStateOf<EasyPoint?>(null) }
-    var comments by remember { mutableStateOf(emptyList<Comment>()) }
-    val scope = rememberCoroutineScope()
-    LaunchedEffect(marker) {
-        scope.launch(Dispatchers.IO) {
-            val database = AppDataBase.getDatabase(context)
-            val fetchedPoint = database.pointsDao()
-                .getPointByLatLng(marker.position.latitude, marker.position.longitude)
-            fetchedPoint?.let {
-                val fetchedComments = database.commentDao().getCommentByCommentId(it.commentId)
-                point = fetchedPoint
-                comments = fetchedComments
-            }
-        }
-    }
-
-    CommentAndHistoryCardScreen(point = point, onChangeScreen = { state = it }, content = {
+    val commentViewModel = viewModel<CommentViewModel>(factory = ViewModelFactory(context))
+    commentViewModel.getCommentFromMarker(marker, context)
+    val comments = commentViewModel.comments.collectAsState()
+    val point = commentViewModel.point.collectAsState()
+    var state: Screen by rememberSaveable { mutableStateOf(Screen.Comment) }
+    var showComment by remember { mutableStateOf(false) }
+    val comment by remember { mutableStateOf(Comment()) }
+    CommentAndHistoryCardScreen(point = point.value, onChangeScreen = { state = it }, content = {
         when (state) {
-            Screen.Comment -> CommentCard(comments)
+            Screen.Comment -> CommentCard(comments.value)
             Screen.History -> HistoryCard()
         }
-    }, comment = {}, refresh = {})
+        if (showComment) {
+            ShowTextField(text = comment.content,
+                changeText = { comment.content = it },
+                publish = { showComment = false },
+                cancel = { showComment = false })
+        }
+    }, comment = {
+        showComment = true
+        commentViewModel.insertComment(comment, context)
+    }, refresh = {})
 }
 
 @Composable
@@ -82,7 +86,7 @@ private fun CommentAndHistoryCardScreen(
         Spacer(modifier = Modifier.height(16.dp))
         Select { onChangeScreen(it) }
         content()
-        BottomActionBar(refresh = { }, comment = {})
+        BottomActionBar(refresh = { refresh() }, comment = { comment() })
     }
 }
 
@@ -158,8 +162,8 @@ private fun Select(onClick: (Screen) -> Unit) {
 }
 
 @Composable
-private fun CommentCard(comments: List<Comment>) {
-    if (comments.isEmpty()) {
+private fun CommentCard(comments: List<Comment>?) {
+    if (comments.isNullOrEmpty()) {
         Text("暂无")
     } else LazyColumn {
         items(comments) {
@@ -170,14 +174,12 @@ private fun CommentCard(comments: List<Comment>) {
 
 @Composable
 private fun CommentItem(comment: Comment) {
-    var user: User? by remember { mutableStateOf(null) }
+    var user by remember { mutableStateOf<User?>(null) }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
-    LaunchedEffect(user) {
+    LaunchedEffect(comment.userId) {
         scope.launch(Dispatchers.IO) {
-            val database = AppDataBase.getDatabase(context)
-            val _user = database.userDao().getUserById(comment.userId)
-            user = _user
+            user = AppDataBase.getDatabase(context).userDao().getUserById(comment.userId)
         }
     }
     Row(
@@ -191,22 +193,19 @@ private fun CommentItem(comment: Comment) {
                 .size(50.dp)
                 .clip(CircleShape)
                 .border(1.dp, Color.Black, CircleShape),
-            contentDescription = "头像"
+            contentDescription = stringResource(R.string.avatar)
         )
         Spacer(modifier = Modifier.width(16.dp))
         Column(
             modifier = Modifier.fillMaxWidth()
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = "用户:${
-                        user?.name ?: "用户不存在"
-                    }", style = MaterialTheme.typography.bodyMedium
+                    text = stringResource(
+                        R.string.username, user?.name ?: stringResource(R.string.user_not_found)
+                    ), style = MaterialTheme.typography.bodyMedium
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-
             }
             Text(
                 text = comment.content,
@@ -220,31 +219,33 @@ private fun CommentItem(comment: Comment) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "时间${comment.date}",
+                    text = stringResource(R.string.time, comment.date),
                     style = MaterialTheme.typography.bodyLarge,
                     color = Color.Gray
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Icon(
                     imageVector = Icons.Default.ThumbUp,
-                    contentDescription = "点赞",
+                    contentDescription = stringResource(R.string.like),
                     modifier = Modifier.size(16.dp),
                     tint = Color.Green
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = "次数:${comment.like}", style = MaterialTheme.typography.bodySmall
+                    text = stringResource(R.string.like, comment.like),
+                    style = MaterialTheme.typography.bodySmall
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowDown,
-                    contentDescription = "点踩",
+                    contentDescription = stringResource(R.string.dislike),
                     modifier = Modifier.size(16.dp),
                     tint = Color.Red
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = "次数:${comment.dislike}", style = MaterialTheme.typography.bodySmall
+                    text = stringResource(R.string.dislike, comment.dislike),
+                    style = MaterialTheme.typography.bodySmall
                 )
             }
         }
@@ -283,6 +284,33 @@ private fun BottomActionBar(refresh: () -> Unit, comment: () -> Unit) {
         }
     }
 }
+
+@Composable
+private fun ShowTextField(
+    text: String, changeText: (String) -> Unit, publish: () -> Unit, cancel: () -> Unit
+) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Bottom,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            TextField(modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp),
+                value = text,
+                onValueChange = { changeText(it) })
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Button(onClick = { publish() }, modifier = Modifier.weight(1f)) { Text("发布") }
+                Spacer(modifier = Modifier.width(20.dp))
+                Button(onClick = { cancel() }, modifier = Modifier.weight(1f)) { Text("取消") }
+            }
+
+        }
+
+    }
+}
+
 
 sealed interface Screen {
     data object Comment : Screen

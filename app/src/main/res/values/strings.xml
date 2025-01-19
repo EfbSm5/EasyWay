@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">EasyWay</string>
+    <string name="like">赞</string>
+    <string name="dislike">踩</string>
+    <string name="username">%d</string>
+    <string name="user_not_found">无用户</string>
+    <string name="avatar">用户头像</string>
+    <string name="time">%d</string>
 </resources>

@@ -16,11 +16,11 @@ import com.google.gson.annotations.SerializedName
     )]
 )
 data class Comment(
-    @SerializedName("index") @PrimaryKey val index: Int,
-    @SerializedName("comment_id") val comment_id: Int,
-    @SerializedName("user_id") val userId: Int,
-    @SerializedName("content") val content: String,
-    @SerializedName("like") var like: Int,
-    @SerializedName("dislike") val dislike: Int,
-    @SerializedName("date") val date: String,
-    )
+    @SerializedName("index") @PrimaryKey val index: Int = 0,
+    @SerializedName("comment_id") val comment_id: Int = 0,
+    @SerializedName("user_id") val userId: Int = 0,
+    @SerializedName("content") var content: String = "",
+    @SerializedName("like") var like: Int = 0,
+    @SerializedName("dislike") val dislike: Int = 0,
+    @SerializedName("date") val date: String = "",
+)
