@@ -1,4 +1,4 @@
-package com.efbsm5.easyway.page
+package com.efbsm5.easyway.ui.page
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -21,8 +20,6 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -75,7 +72,7 @@ fun EasyWay() {
 }
 
 @Composable
-fun HighlightButton(navController: NavController) {
+private fun HighlightButton(navController: NavController) {
     var selectedIndex by remember { mutableIntStateOf(0) }
     val direction = listOf(
         "MapPage", "Community", "home"

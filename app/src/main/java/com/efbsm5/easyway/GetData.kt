@@ -9,7 +9,7 @@ import com.efbsm5.easyway.data.Comment
 import com.efbsm5.easyway.data.DynamicPost
 import com.efbsm5.easyway.data.EasyPoint
 import com.efbsm5.easyway.data.User
-import com.efbsm5.easyway.database.AppDataBase
+import com.efbsm5.easyway.data.database.AppDataBase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.HttpUrl.Companion.toHttpUrl

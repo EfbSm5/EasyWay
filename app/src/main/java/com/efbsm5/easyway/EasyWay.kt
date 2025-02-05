@@ -17,8 +17,8 @@ import androidx.work.WorkManager
 import com.efbsm5.easyway.ui.theme.EasyWayTheme
 import com.amap.api.maps.MapsInitializer
 import com.amap.apis.utils.core.api.AMapUtilCoreApi
-import com.efbsm5.easyway.network.SyncWorker
-import com.efbsm5.easyway.page.EasyWay
+import com.efbsm5.easyway.data.network.SyncWorker
+import com.efbsm5.easyway.ui.page.EasyWay
 import java.util.concurrent.TimeUnit
 
 class MainActivity : ComponentActivity() {

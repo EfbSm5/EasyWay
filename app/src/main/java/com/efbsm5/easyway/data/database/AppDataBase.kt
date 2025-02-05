@@ -1,4 +1,4 @@
-package com.efbsm5.easyway.database
+package com.efbsm5.easyway.data.database
 
 import android.content.Context
 import androidx.room.Database

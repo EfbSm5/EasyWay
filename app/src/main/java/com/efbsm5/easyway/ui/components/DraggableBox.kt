@@ -1,4 +1,4 @@
-package com.efbsm5.easyway.components
+package com.efbsm5.easyway.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation

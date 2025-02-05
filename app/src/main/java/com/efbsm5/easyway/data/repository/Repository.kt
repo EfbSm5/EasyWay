@@ -1,4 +1,4 @@
-package com.efbsm5.easyway.repository
+package com.efbsm5.easyway.data.repository
 
 
 import android.content.Context
@@ -6,7 +6,7 @@ import com.efbsm5.easyway.data.Comment
 import com.efbsm5.easyway.data.DynamicPost
 import com.efbsm5.easyway.data.EasyPointSimplify
 import com.efbsm5.easyway.data.User
-import com.efbsm5.easyway.database.AppDataBase
+import com.efbsm5.easyway.data.database.AppDataBase
 
 class DataRepository(private val context: Context) {
     private val database = AppDataBase.getDatabase(context)

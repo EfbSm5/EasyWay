@@ -1,4 +1,4 @@
-package com.efbsm5.easyway.page
+package com.efbsm5.easyway.ui.page
 
 import android.app.Activity
 import android.content.Intent
@@ -35,7 +35,7 @@ import androidx.core.net.toUri
 import coil.compose.rememberAsyncImagePainter
 import com.efbsm5.easyway.data.DynamicPost
 import com.efbsm5.easyway.data.Photo
-import com.efbsm5.easyway.database.AppDataBase
+import com.efbsm5.easyway.data.database.AppDataBase
 
 
 @Composable

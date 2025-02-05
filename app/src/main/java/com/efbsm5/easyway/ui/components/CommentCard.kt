@@ -1,4 +1,4 @@
-package com.efbsm5.easyway.components
+package com.efbsm5.easyway.ui.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -31,7 +31,7 @@ import com.amap.api.maps.model.Marker
 import com.efbsm5.easyway.R
 import com.efbsm5.easyway.data.Comment
 import com.efbsm5.easyway.data.EasyPoint
-import com.efbsm5.easyway.database.AppDataBase
+import com.efbsm5.easyway.data.database.AppDataBase
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.res.stringResource
@@ -41,6 +41,7 @@ import com.efbsm5.easyway.viewmodel.CommentViewModel
 import com.efbsm5.easyway.viewmodel.ViewModelFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+
 
 @Composable
 fun CommentAndHistoryCard(marker: Marker) {

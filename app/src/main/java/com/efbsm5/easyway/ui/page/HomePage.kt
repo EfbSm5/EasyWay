@@ -1,4 +1,4 @@
-package com.efbsm5.easyway.page
+package com.efbsm5.easyway.ui.page
 
 import android.content.Context
 import androidx.compose.foundation.background
@@ -20,7 +20,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,9 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.efbsm5.easyway.GetInitialData
 import com.efbsm5.easyway.map.MapUtil
-import com.efbsm5.easyway.network.Repository
 
 @Composable
 fun HomePage() {

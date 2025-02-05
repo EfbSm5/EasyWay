@@ -1,4 +1,4 @@
-package com.efbsm5.easyway.database
+package com.efbsm5.easyway.data.database
 
 import android.net.Uri
 import androidx.room.TypeConverter

@@ -1,4 +1,4 @@
-package com.efbsm5.easyway.components
+package com.efbsm5.easyway.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

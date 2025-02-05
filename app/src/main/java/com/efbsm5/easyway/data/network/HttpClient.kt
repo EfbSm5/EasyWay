@@ -1,4 +1,4 @@
-package com.efbsm5.easyway.network
+package com.efbsm5.easyway.data.network
 
 import android.content.Context
 import android.net.Uri

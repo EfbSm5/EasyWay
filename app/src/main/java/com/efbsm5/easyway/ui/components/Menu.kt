@@ -1,4 +1,4 @@
-package com.efbsm5.easyway.components
+package com.efbsm5.easyway.ui.components
 
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text

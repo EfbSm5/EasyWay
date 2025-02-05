@@ -19,6 +19,9 @@ class ViewModelFactory(private val context: Context) : ViewModelProvider.Factory
         if (modelClass.isAssignableFrom(UserViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST") return UserViewModel(context) as T
         }
+        if (modelClass.isAssignableFrom(MapViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST") return MapViewModel(context) as T
+        }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 

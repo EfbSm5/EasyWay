@@ -1,4 +1,4 @@
-package com.efbsm5.easyway.components
+package com.efbsm5.easyway.ui.components
 
 import android.app.Activity
 import android.content.Intent
@@ -26,7 +26,7 @@ import com.amap.api.maps.model.BitmapDescriptorFactory
 import com.amap.api.maps.model.LatLng
 import com.amap.api.maps.model.MarkerOptions
 import com.efbsm5.easyway.data.EasyPoint
-import com.efbsm5.easyway.database.AppDataBase
+import com.efbsm5.easyway.data.database.AppDataBase
 import com.efbsm5.easyway.map.MapSaver
 import java.io.File
 import java.io.FileOutputStream

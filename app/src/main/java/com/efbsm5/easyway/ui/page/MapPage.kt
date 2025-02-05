@@ -1,6 +1,5 @@
-package com.efbsm5.easyway.page
+package com.efbsm5.easyway.ui.page
 
-import android.content.Context
 import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -10,11 +9,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,29 +19,19 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import com.amap.api.maps.AMapOptions
-import com.amap.api.maps.MapView
-import com.amap.api.maps.model.BitmapDescriptorFactory
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.amap.api.maps.model.LatLng
 import com.amap.api.maps.model.Marker
-import com.amap.api.maps.model.MarkerOptions
-import com.efbsm5.easyway.components.AddAndLocateButton
-import com.efbsm5.easyway.components.CommentAndHistoryCard
-import com.efbsm5.easyway.components.DraggableBox
-import com.efbsm5.easyway.components.FunctionCard
-import com.efbsm5.easyway.components.NewPlaceCard
-import com.efbsm5.easyway.components.NewPointCard
-import com.efbsm5.easyway.database.AppDataBase
-import com.efbsm5.easyway.map.MapController
-import com.efbsm5.easyway.map.MapSaver.isMapControllerInitialized
-import com.efbsm5.easyway.map.MapSaver.isMapViewInitialized
-import com.efbsm5.easyway.map.MapSaver.isPointsInitialized
+import com.efbsm5.easyway.ui.components.AddAndLocateButton
+import com.efbsm5.easyway.ui.components.CommentAndHistoryCard
+import com.efbsm5.easyway.ui.components.DraggableBox
+import com.efbsm5.easyway.ui.components.FunctionCard
+import com.efbsm5.easyway.ui.components.NewPlaceCard
+import com.efbsm5.easyway.ui.components.NewPointCard
 import com.efbsm5.easyway.map.MapSaver.mapController
 import com.efbsm5.easyway.map.MapSaver.mapView
-import com.efbsm5.easyway.map.MapSaver.points
-import com.efbsm5.easyway.map.MapUtil.showMsg
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.efbsm5.easyway.viewmodel.MapViewModel
+import com.efbsm5.easyway.viewmodel.ViewModelFactory
 
 private const val TAG = "MapPage"
 
@@ -52,8 +39,8 @@ private const val TAG = "MapPage"
 fun MapPage() {
     val context = LocalContext.current
     var content: Screen by remember { mutableStateOf(Screen.IconCard) }
-    InitMap(context = context) { content = it }
     var boxHeight by remember { mutableStateOf(100.dp) }
+    val mapViewModel = viewModel<MapViewModel>(factory = ViewModelFactory(context))
     MapScreen(
         onAdd = { content = Screen.NewPoint(mapController.getLastKnownLocation()) },
         onLocate = { mapController.onLocate() },
@@ -72,10 +59,8 @@ fun MapPage() {
                         content = Screen.Places(it)
                     })
 
-                    is Screen.NewPoint -> NewPointCard(
-                        (content as Screen.NewPoint).location,
-                        back = { content = Screen.IconCard }
-                    )
+                    is Screen.NewPoint -> NewPointCard((content as Screen.NewPoint).location,
+                        back = { content = Screen.IconCard })
 
                     is Screen.Places -> {
                         NewPlaceCard(
@@ -126,44 +111,6 @@ private fun MapScreen(
     }
 }
 
-@Composable
-private fun InitMap(context: Context, onChange: (Screen) -> Unit) {
-    if (!isMapViewInitialized()) {
-        mapView = MapView(context, AMapOptions().compassEnabled(true))
-        Log.e(TAG, "InitMap: initMapview")
-    }
-    if (!isMapControllerInitialized()) {
-        mapController = MapController(
-            onPoiClick = { showMsg(it!!.name, context) },
-            onMapClick = { showMsg(it!!.latitude.toString(), context) },
-            onMarkerClick = {
-                it?.let {
-                    onChange(Screen.Comment(marker = it))
-                    showMsg("click ${it.title}", context)
-                }
-            },
-        )
-        mapController.InitMapLifeAndLocation(context)
-        Log.e(TAG, "InitMap: initMapviewController")
-    }
-    if (!isPointsInitialized()) {
-        val scope = rememberCoroutineScope()
-        LaunchedEffect(Unit) {
-            scope.launch(Dispatchers.IO) {
-                val database = AppDataBase.getDatabase(context)
-                val point = database.pointsDao().loadAllPoints()
-                point.forEach({ EasyPoint ->
-                    mapView.map.addMarker(
-                        MarkerOptions().title(EasyPoint.name)
-                            .position(LatLng(EasyPoint.lat, EasyPoint.lng))
-                            .icon(BitmapDescriptorFactory.defaultMarker())
-                    )
-                })
-                points.addAll(point)
-            }
-        }
-    }
-}
 
 sealed interface Screen {
     data object IconCard : Screen
