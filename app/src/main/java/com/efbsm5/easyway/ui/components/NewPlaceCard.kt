@@ -23,7 +23,6 @@ import coil.compose.rememberAsyncImagePainter
 import com.amap.api.maps.model.LatLng
 import com.amap.api.services.core.PoiItemV2
 import com.efbsm5.easyway.data.EasyPointSimplify
-import com.efbsm5.easyway.map.MapSaver.points
 import com.efbsm5.easyway.map.MapSearchController
 import com.efbsm5.easyway.map.MapUtil
 import com.efbsm5.easyway.map.MapUtil.formatDistance
@@ -36,7 +35,8 @@ fun NewPlaceCard(latLng: LatLng, text: String) {
     val context = LocalContext.current
     var poi = ArrayList<PoiItemV2>()
     val mapSearch = MapSearchController(onPoiSearched = { poi = it })
-    val pointForText = points.filter { it.name.contains(text) }
+    val pointForText = emptyList<EasyPointSimplify>()
+//        points.filter { it.name.contains(text) }
     mapSearch.searchForPoi(
         keyword = text, context = context, pageSize = 5, pageNum = 1
     )

@@ -1,28 +1,39 @@
 package com.efbsm5.easyway.viewmodel
 
 import android.content.Context
-
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.amap.api.maps.AMapOptions
 import com.amap.api.maps.MapView
 import com.amap.api.maps.model.BitmapDescriptorFactory
 import com.amap.api.maps.model.LatLng
+import com.amap.api.maps.model.Marker
 import com.amap.api.maps.model.MarkerOptions
 import com.efbsm5.easyway.data.repository.DataRepository
+import com.efbsm5.easyway.map.MapController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class MapViewModel(context: Context) : ViewModel() {
+class MapPageViewModel(context: Context) : ViewModel() {
     private val repository = DataRepository(context)
-    private val _mapView = MutableStateFlow<MapView?>(null)
+    private var _mapView = MutableStateFlow<MapView?>(null)
+    private var _content = MutableStateFlow<Screen>(Screen.IconCard)
+    private var _boxHeight = MutableStateFlow(100.dp)
+    var mapController: MapController? = null
     val mapView: StateFlow<MapView?> = _mapView
+    val content: StateFlow<Screen> = _content
+    val boxHeight: StateFlow<Dp> = _boxHeight
+
 
     init {
         _mapView.value = MapView(context, AMapOptions().compassEnabled(true))
+        mapController = MapController(onPoiClick = {}, onMapClick = {}, onMarkerClick = {})
         fetchPoints(context)
+
     }
 
     private fun fetchPoints(context: Context) {
@@ -39,4 +50,18 @@ class MapViewModel(context: Context) : ViewModel() {
         }
     }
 
+    fun changeScreen(screen: Screen) {
+        _content.value = screen
+    }
+
+    fun changeBoxHeight(height: Dp) {
+        _boxHeight.value = height
+    }
+}
+
+sealed interface Screen {
+    data object IconCard : Screen
+    data class NewPoint(val location: LatLng?) : Screen
+    data class Places(val name: String) : Screen
+    data class Comment(val marker: Marker) : Screen
 }

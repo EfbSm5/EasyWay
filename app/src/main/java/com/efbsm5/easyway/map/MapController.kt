@@ -26,16 +26,16 @@ import com.amap.api.maps.model.LatLng
 import com.amap.api.maps.model.Marker
 import com.amap.api.maps.model.MyLocationStyle
 import com.amap.api.maps.model.Poi
-import com.efbsm5.easyway.map.MapSaver.mapView
 import com.efbsm5.easyway.ui.theme.isDarkTheme
-import kotlin.math.log
 
 private const val TAG = "MapController"
+
 class MapController(
     onPoiClick: (Poi?) -> Unit, onMapClick: (LatLng?) -> Unit, onMarkerClick: (Marker?) -> Unit
 ) : LocationSource, AMap.OnMapClickListener, AMap.OnPOIClickListener, AMap.OnMarkerClickListener,
     AMapLocationListener {
     private lateinit var mLocationClient: AMapLocationClient
+    private lateinit var sharedPreferences: SharedPreferences
     private var mLocationOption =
         AMapLocationClientOption().setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy)
             .setOnceLocation(true).setOnceLocationLatest(true).setNeedAddress(true)
@@ -44,7 +44,6 @@ class MapController(
     val monMapClick: (LatLng?) -> Unit = onMapClick
     val monPoiClick: (Poi?) -> Unit = onPoiClick
     val monMarkerClick: (Marker?) -> Unit = onMarkerClick
-    private lateinit var sharedPreferences: SharedPreferences
     private var mLocation: LatLng? = null
     private var isDarkTheme: Boolean? = null
 
@@ -67,21 +66,21 @@ class MapController(
             .apply()
     }
 
-    @Composable
-    private fun MapLocationInit(context: Context) {
+
+    private fun mapLocationInit(context: Context) {
         initializeVariables(context)
         mLocationClient.setLocationOption(mLocationOption)
         mLocationClient.setLocationListener(this@MapController)
     }
 
     @Composable
-    fun InitMapLifeAndLocation(context: Context) {
-        MapLocationInit(context)
-        MapLifecycle(context)
+    fun InitMapLifeAndLocation(mapView: MapView, context: Context) {
+        mapLocationInit(context)
+        MapLifecycle(mapView, context)
     }
 
     @Composable
-    private fun MapLifecycle(context: Context) {
+    private fun MapLifecycle(mapView: MapView, context: Context) {
         val lifecycle = androidx.lifecycle.compose.LocalLifecycleOwner.current.lifecycle
         DisposableEffect(context, lifecycle, this) {
             val mapLifecycleObserver = lifecycleObserver(mapView)
@@ -95,7 +94,7 @@ class MapController(
         }
     }
 
-    fun onLocate() {
+    fun onLocate(mapView: MapView) {
         mLocation?.let {
             mapView.map.animateCamera(CameraUpdateFactory.newLatLng(it))
         }
@@ -106,22 +105,22 @@ class MapController(
             when (event) {
                 Lifecycle.Event.ON_CREATE -> {
                     mapView.onCreate(Bundle())
-                    initMap()
-                    Log.e(TAG, "lifecycleObserver:     oncreate view", )
+                    initMap(mapView)
+                    Log.e(TAG, "lifecycleObserver:     oncreate view")
                 }
 
                 Lifecycle.Event.ON_RESUME -> {
                     mapView.onResume()
-                    Log.e(TAG, "lifecycleObserver:           onresume view", )
+                    Log.e(TAG, "lifecycleObserver:           onresume view")
                 }
 
                 Lifecycle.Event.ON_PAUSE -> {
                     mapView.onPause()
-                    Log.e(TAG, "lifecycleObserver:                on pause view", )
+                    Log.e(TAG, "lifecycleObserver:                on pause view")
                 }  // 暂停地图的绘制
                 Lifecycle.Event.ON_DESTROY -> {
                     mapView.onDestroy()
-                    Log.e(TAG, "lifecycleObserver:            on destory view", )
+                    Log.e(TAG, "lifecycleObserver:            on destory view")
                 } // 销毁地图
                 else -> {}
             }
@@ -136,7 +135,7 @@ class MapController(
         }
     }
 
-    private fun initMap() {
+    private fun initMap(mapView: MapView) {
         val map = mapView.map
         map.mapType = if (isDarkTheme!!) MAP_TYPE_NIGHT else MAP_TYPE_NORMAL
         map.setLocationSource(this@MapController)

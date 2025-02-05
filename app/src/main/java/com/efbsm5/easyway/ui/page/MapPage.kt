@@ -1,6 +1,5 @@
 package com.efbsm5.easyway.ui.page
 
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -8,42 +7,38 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.amap.api.maps.model.LatLng
-import com.amap.api.maps.model.Marker
+import com.amap.api.maps.MapView
 import com.efbsm5.easyway.ui.components.AddAndLocateButton
 import com.efbsm5.easyway.ui.components.CommentAndHistoryCard
 import com.efbsm5.easyway.ui.components.DraggableBox
 import com.efbsm5.easyway.ui.components.FunctionCard
 import com.efbsm5.easyway.ui.components.NewPlaceCard
 import com.efbsm5.easyway.ui.components.NewPointCard
-import com.efbsm5.easyway.map.MapSaver.mapController
-import com.efbsm5.easyway.map.MapSaver.mapView
-import com.efbsm5.easyway.viewmodel.MapViewModel
+import com.efbsm5.easyway.viewmodel.MapPageViewModel
+import com.efbsm5.easyway.viewmodel.Screen
 import com.efbsm5.easyway.viewmodel.ViewModelFactory
 
-private const val TAG = "MapPage"
 
 @Composable
 fun MapPage() {
     val context = LocalContext.current
-    var content: Screen by remember { mutableStateOf(Screen.IconCard) }
-    var boxHeight by remember { mutableStateOf(100.dp) }
-    val mapViewModel = viewModel<MapViewModel>(factory = ViewModelFactory(context))
+    val mapPageViewModel = viewModel<MapPageViewModel>(factory = ViewModelFactory(context))
+    val content by mapPageViewModel.content.collectAsState()
+    val boxHeight by mapPageViewModel.boxHeight.collectAsState()
+    val mapView by mapPageViewModel.mapView.collectAsState()
+    val mapController = mapPageViewModel.mapController
+    mapController?.InitMapLifeAndLocation(mapView!!, context)
     MapScreen(
-        onAdd = { content = Screen.NewPoint(mapController.getLastKnownLocation()) },
-        onLocate = { mapController.onLocate() },
+        onAdd = { mapPageViewModel.changeScreen(Screen.NewPoint(mapController?.getLastKnownLocation())) },
+        onLocate = { mapController?.onLocate(mapView!!) },
         content = {
             Surface(
                 modifier = Modifier
@@ -56,48 +51,41 @@ fun MapPage() {
                     }
 
                     Screen.IconCard -> FunctionCard(onclick = {
-                        content = Screen.Places(it)
+                        mapPageViewModel.changeScreen(Screen.Places(it))
                     })
 
                     is Screen.NewPoint -> NewPointCard((content as Screen.NewPoint).location,
-                        back = { content = Screen.IconCard })
+                        back = { mapPageViewModel.changeScreen(Screen.IconCard) })
 
                     is Screen.Places -> {
                         NewPlaceCard(
-                            mapController.getLastKnownLocation()!!,
+                            mapController?.getLastKnownLocation()!!,
                             (content as Screen.Places).name,
                         )
                     }
+
                 }
             }
         },
         boxHeight = boxHeight,
-        onChangeHeight = { boxHeight = it },
+        onChangeHeight = { mapPageViewModel.changeBoxHeight(it) },
+        mapView = mapView!!,
     )
-    BackHandler(enabled = content != Screen.IconCard, onBack = { content = Screen.IconCard })
+    BackHandler(
+        enabled = content != Screen.IconCard,
+        onBack = { mapPageViewModel.changeScreen(Screen.IconCard) })
 }
 
 @Composable
 private fun MapScreen(
     onAdd: () -> Unit,
     onLocate: () -> Unit,
+    mapView: MapView,
     boxHeight: Dp,
     onChangeHeight: (Dp) -> Unit,
     content: @Composable () -> Unit
 ) {
-    DisposableEffect(Unit) {
-        onDispose {
-            mapView.onPause()
-            Log.e(TAG, "MapScreen: on pause")
-        }
-    }
-    AndroidView(modifier = Modifier.fillMaxSize(), factory = { mapView }, update = { view ->
-//        if (view.parent != null) {
-//            (view.parent as ViewGroup).removeView(view)
-//        }
-//        (view.parent as? ViewGroup)?.addView(view)
-//        view.onResume()
-    })
+    AndroidView(modifier = Modifier.fillMaxSize(), factory = { mapView })
     AddAndLocateButton(onAdd = {
         onAdd()
     }, onLocate = { onLocate() }, bottomHeight = boxHeight
@@ -112,10 +100,5 @@ private fun MapScreen(
 }
 
 
-sealed interface Screen {
-    data object IconCard : Screen
-    data class NewPoint(val location: LatLng?) : Screen
-    data class Places(val name: String) : Screen
-    data class Comment(val marker: Marker) : Screen
-}
+
 

@@ -27,7 +27,6 @@ import com.amap.api.maps.model.LatLng
 import com.amap.api.maps.model.MarkerOptions
 import com.efbsm5.easyway.data.EasyPoint
 import com.efbsm5.easyway.data.database.AppDataBase
-import com.efbsm5.easyway.map.MapSaver
 import java.io.File
 import java.io.FileOutputStream
 
@@ -76,11 +75,7 @@ fun NewPointCard(location: LatLng?, back: () -> Unit) {
     if (onUpload) {
         val pointDao = AppDataBase.getDatabase(context).pointsDao()
         pointDao.insert(tempPoint.value)
-        MapSaver.mapView.map.addMarker(
-            MarkerOptions().title(tempPoint.value.name)
-                .position(LatLng(tempPoint.value.lat, tempPoint.value.lng))
-                .icon(BitmapDescriptorFactory.defaultMarker())
-        )
+
     }
 }
 
