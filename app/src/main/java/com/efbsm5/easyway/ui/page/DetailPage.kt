@@ -32,6 +32,7 @@ import com.efbsm5.easyway.data.Comment
 import com.efbsm5.easyway.data.DynamicPost
 import com.efbsm5.easyway.data.User
 import com.efbsm5.easyway.viewmodel.CommentViewModel
+import com.efbsm5.easyway.viewmodel.DetailPageViewModel
 import com.efbsm5.easyway.viewmodel.UserViewModel
 import com.efbsm5.easyway.viewmodel.ViewModelFactory
 
@@ -39,21 +40,16 @@ import com.efbsm5.easyway.viewmodel.ViewModelFactory
 @Composable
 fun DetailPage(post: DynamicPost) {
     val context = LocalContext.current
-    var newCommentText by remember { mutableStateOf("") }
-    var showTextField by remember { mutableStateOf(false) }
-    val userViewModel =
-        viewModel<UserViewModel>(factory = ViewModelFactory(context = context))
-    userViewModel.fetchUserById(post.userId)
-    val user by userViewModel.user.collectAsState()
-    val commentViewModel =
-        viewModel<CommentViewModel>(factory = ViewModelFactory(context = context))
-    commentViewModel.fetchCommentsById(post.commentId)
-    val comments by commentViewModel.comments.collectAsState()
+    val detailPageViewModel = viewModel<DetailPageViewModel>(factory = ViewModelFactory(context))
+    val comments by detailPageViewModel.comments.collectAsState()
+    val users by detailPageViewModel.users.collectAsState()
+    val newCommentText by detailPageViewModel.newCommentText.collectAsState()
+    val showTextField by detailPageViewModel.showTextField.collectAsState()
     DetailPageScreen(
         post = post,
         newCommentText = newCommentText,
-        onAddComment = { newCommentText = it },
-        changeIfShowTextField = { showTextField = it },
+        onAddComment = { detailPageViewModel.changeText(it) },
+        changeIfShowTextField = { detailPageViewModel.ifShowTextField(it) },
         showTextField = showTextField,
         user = user,
         comments = comments
@@ -62,6 +58,7 @@ fun DetailPage(post: DynamicPost) {
 
 @Composable
 fun DetailPageScreen(
+    onBack: () -> Unit,
     post: DynamicPost,
     newCommentText: String,
     showTextField: Boolean,
@@ -75,7 +72,7 @@ fun DetailPageScreen(
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        TopBar()
+        TopBar { onBack() }
         Spacer(modifier = Modifier.height(16.dp))
         DetailsContent(
             post = post, user = user
@@ -94,21 +91,21 @@ fun DetailPageScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBar() {
+private fun TopBar(back: () -> Unit) {
     TopAppBar(title = { Text("详情页") }, navigationIcon = {
-        IconButton(onClick = { /* 返回逻辑 */ }) {
+        IconButton(onClick = { back() }) {
             Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
         }
     })
 }
 
 @Composable
-fun DetailsContent(post: DynamicPost, user: User?) {
+private fun DetailsContent(post: DynamicPost, user: User) {
     Row(
         modifier = Modifier.padding(bottom = 16.dp), verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
-            painter = rememberAsyncImagePainter(user?.avatar ?: R.drawable.nouser),
+            painter = rememberAsyncImagePainter(user.avatar ?: R.drawable.nouser),
             contentDescription = "User Avatar",
             modifier = Modifier
                 .size(40.dp)
@@ -117,7 +114,7 @@ fun DetailsContent(post: DynamicPost, user: User?) {
 
         Spacer(modifier = Modifier.width(8.dp))
         Column {
-            Text(user?.name ?: "用户不存在", fontWeight = FontWeight.Bold)
+            Text(user.name, fontWeight = FontWeight.Bold)
             Text(post.date, color = Color.Gray)
         }
     }
@@ -143,8 +140,7 @@ fun DetailsContent(post: DynamicPost, user: User?) {
 }
 
 @Composable
-fun Comments(comments: List<Comment>?) {
-    val context = LocalContext.current
+private fun Comments(comments: List<Comment>?) {
     if (!comments.isNullOrEmpty()) {
         LazyColumn(modifier = Modifier.padding(vertical = 16.dp)) {
             items(comments) { comment ->
@@ -157,19 +153,14 @@ fun Comments(comments: List<Comment>?) {
 }
 
 @Composable
-fun CommentItems(comment: Comment, like: () -> Unit) {
-    val context = LocalContext.current
+private fun CommentItems(comment: Comment, like: () -> Unit) {
     var isLiked by remember { mutableStateOf(false) }
-    val userViewModel =
-        viewModel<UserViewModel>(factory = ViewModelFactory(context = context))
-    userViewModel.fetchUserById(comment.userId)
-    val user by userViewModel.user.collectAsState()
     Row(
         modifier = Modifier.padding(bottom = 16.dp), verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
             painter = rememberAsyncImagePainter(
-                user?.avatar ?: R.drawable.nouser
+                user.avatar ?: R.drawable.nouser
             ), contentDescription = "User Avatar", modifier = Modifier
                 .size(40.dp)
                 .clip(CircleShape)
@@ -177,7 +168,7 @@ fun CommentItems(comment: Comment, like: () -> Unit) {
         Spacer(modifier = Modifier.width(8.dp))
         Column {
             Row {
-                Text(user?.name ?: "用户不存在", fontWeight = FontWeight.Bold)
+                Text(user.name, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(comment.date, color = Color.Gray)
             }

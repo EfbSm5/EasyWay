@@ -23,7 +23,8 @@ class DataRepository(private val context: Context) {
         return database.commentDao().getCommentByCommentId(commentId)
     }
 
-    suspend fun getUserById(userId: Int): User? {
-        return database.userDao().getUserById(userId)
+    suspend fun getUserById(userId: Int): User {
+        return database.userDao().getUserById(userId) ?: User(
+        )
     }
 }

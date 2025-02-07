@@ -32,11 +32,11 @@ class MapPageViewModel(context: Context) : ViewModel() {
     init {
         _mapView.value = MapView(context, AMapOptions().compassEnabled(true))
         mapController = MapController(onPoiClick = {}, onMapClick = {}, onMarkerClick = {})
-        fetchPoints(context)
+        fetchPoints()
 
     }
 
-    private fun fetchPoints(context: Context) {
+    private fun fetchPoints() {
         viewModelScope.launch(Dispatchers.IO) {
             val points = repository.getAllPoints()
             points.forEach { point ->

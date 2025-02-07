@@ -24,7 +24,7 @@ data class DynamicPost(
     @SerializedName("position") var position: String = "",
     @SerializedName("user_id") var userId: Int = 0,
     @SerializedName("comment_id") var commentId: Int = 0,
-    @SerializedName("photos") var photos: List<Photo>
+    @SerializedName("photos") var photos: List<Photo> = emptyList()
 )
 
 @Entity(

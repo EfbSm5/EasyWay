@@ -9,6 +9,6 @@ import com.google.gson.annotations.SerializedName
 @Entity(tableName = "users")
 data class User(
     @PrimaryKey(autoGenerate = true) @SerializedName("id") val id: Int = 0,
-    @ColumnInfo(name = "name") @SerializedName("name") val name: String,
-    @ColumnInfo(name = "avatar") @SerializedName("avatar") val avatar: Uri
+    @ColumnInfo(name = "name") @SerializedName("name") val name: String = "用户不存在",
+    @ColumnInfo(name = "avatar") @SerializedName("avatar") val avatar: Uri? = null
 )

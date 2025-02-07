@@ -71,8 +71,7 @@ fun MapPage() {
         onChangeHeight = { mapPageViewModel.changeBoxHeight(it) },
         mapView = mapView!!,
     )
-    BackHandler(
-        enabled = content != Screen.IconCard,
+    BackHandler(enabled = content != Screen.IconCard,
         onBack = { mapPageViewModel.changeScreen(Screen.IconCard) })
 }
 
