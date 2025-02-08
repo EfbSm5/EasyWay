@@ -27,4 +27,7 @@ class DataRepository(private val context: Context) {
         return database.userDao().getUserById(userId) ?: User(
         )
     }
+    suspend fun addLike(commentId: Int) {
+        database.commentDao().incrementLikes(commentId)
+    }
 }

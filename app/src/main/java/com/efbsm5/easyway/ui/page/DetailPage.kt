@@ -1,5 +1,6 @@
 package com.efbsm5.easyway.ui.page
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -31,41 +32,46 @@ import com.efbsm5.easyway.R
 import com.efbsm5.easyway.data.Comment
 import com.efbsm5.easyway.data.DynamicPost
 import com.efbsm5.easyway.data.User
-import com.efbsm5.easyway.viewmodel.CommentViewModel
 import com.efbsm5.easyway.viewmodel.DetailPageViewModel
-import com.efbsm5.easyway.viewmodel.UserViewModel
 import com.efbsm5.easyway.viewmodel.ViewModelFactory
 
 
 @Composable
-fun DetailPage(post: DynamicPost) {
+fun DetailPage(post: DynamicPost, onBack: () -> Unit) {
     val context = LocalContext.current
-    val detailPageViewModel = viewModel<DetailPageViewModel>(factory = ViewModelFactory(context))
-    val comments by detailPageViewModel.comments.collectAsState()
-    val users by detailPageViewModel.users.collectAsState()
-    val newCommentText by detailPageViewModel.newCommentText.collectAsState()
-    val showTextField by detailPageViewModel.showTextField.collectAsState()
+    val detailPageViewModel =
+        viewModel<DetailPageViewModel>(factory = ViewModelFactory(context, post))
     DetailPageScreen(
         post = post,
-        newCommentText = newCommentText,
+        newCommentText = detailPageViewModel.newCommentText.collectAsState().value,
         onAddComment = { detailPageViewModel.changeText(it) },
         changeIfShowTextField = { detailPageViewModel.ifShowTextField(it) },
-        showTextField = showTextField,
-        user = user,
-        comments = comments
+        showTextField = detailPageViewModel.showTextField.collectAsState().value,
+        postUser = detailPageViewModel.postUser.collectAsState().value,
+        comments = detailPageViewModel.comments.collectAsState().value,
+        onBack = { onBack() },
+        viewModel = detailPageViewModel,
+        users = detailPageViewModel.users.collectAsState().value
     )
+    BackHandler(enabled = detailPageViewModel.showTextField.collectAsState().value) {
+        detailPageViewModel.ifShowTextField(
+            false
+        )
+    }
 }
 
 @Composable
-fun DetailPageScreen(
+private fun DetailPageScreen(
+    viewModel: DetailPageViewModel,
     onBack: () -> Unit,
     post: DynamicPost,
     newCommentText: String,
     showTextField: Boolean,
     onAddComment: (String) -> Unit,
     changeIfShowTextField: (Boolean) -> Unit,
-    user: User?,
-    comments: List<Comment>?
+    postUser: User,
+    comments: List<Comment>?,
+    users: List<User>
 ) {
     Column(
         modifier = Modifier
@@ -75,10 +81,10 @@ fun DetailPageScreen(
         TopBar { onBack() }
         Spacer(modifier = Modifier.height(16.dp))
         DetailsContent(
-            post = post, user = user
+            post = post, user = postUser
         )
         HorizontalDivider(thickness = 1.dp, color = Color.Gray)
-        Comments(comments = comments)
+        Comments(comments = comments, users = users)
         HorizontalDivider(thickness = 1.dp, color = Color.Gray)
         CommentSection(comment = { changeIfShowTextField(true) })
         if (showTextField) {
@@ -140,12 +146,13 @@ private fun DetailsContent(post: DynamicPost, user: User) {
 }
 
 @Composable
-private fun Comments(comments: List<Comment>?) {
+private fun Comments(comments: List<Comment>?, users: List<User>, viewModel: DetailPageViewModel) {
     if (!comments.isNullOrEmpty()) {
         LazyColumn(modifier = Modifier.padding(vertical = 16.dp)) {
             items(comments) { comment ->
-                CommentItems(comment) {
-
+                val user = users.find { it.id == comment.userId } ?: User()
+                CommentItems(comment, user) {
+                    viewModel.addLike(commentId = comment.index)
                 }
             }
         }
@@ -153,7 +160,7 @@ private fun Comments(comments: List<Comment>?) {
 }
 
 @Composable
-private fun CommentItems(comment: Comment, like: () -> Unit) {
+private fun CommentItems(comment: Comment, user: User, like: () -> Unit) {
     var isLiked by remember { mutableStateOf(false) }
     Row(
         modifier = Modifier.padding(bottom = 16.dp), verticalAlignment = Alignment.CenterVertically
@@ -186,7 +193,7 @@ private fun CommentItems(comment: Comment, like: () -> Unit) {
 }
 
 @Composable
-fun CommentSection(comment: () -> Unit) {
+private fun CommentSection(comment: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -209,7 +216,7 @@ fun CommentSection(comment: () -> Unit) {
 }
 
 @Composable
-fun AddCommentField(
+private fun AddCommentField(
     commentText: String, onAddComment: (String) -> Unit, onClickButton: () -> Unit
 ) {
     Row(verticalAlignment = Alignment.CenterVertically) {

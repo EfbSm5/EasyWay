@@ -4,8 +4,12 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.CreationExtras
+import com.efbsm5.easyway.data.DynamicPost
 
-class ViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
+class ViewModelFactory(
+    private val context: Context,
+    private val dynamicPost: DynamicPost = DynamicPost()
+) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(PointsViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST") return PointsViewModel(context) as T
@@ -23,7 +27,7 @@ class ViewModelFactory(private val context: Context) : ViewModelProvider.Factory
             @Suppress("UNCHECKED_CAST") return MapPageViewModel(context) as T
         }
         if (modelClass.isAssignableFrom(DetailPageViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST") return DetailPageViewModel(context) as T
+            @Suppress("UNCHECKED_CAST") return DetailPageViewModel(context, dynamicPost) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

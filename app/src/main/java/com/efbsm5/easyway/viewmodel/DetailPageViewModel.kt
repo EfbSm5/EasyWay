@@ -20,10 +20,12 @@ class DetailPageViewModel(context: Context, private val dynamicPost: DynamicPost
     private var _users = MutableStateFlow(emptyList<User>().toMutableList())
     private var _newCommentText = MutableStateFlow("")
     private var _showTextField = MutableStateFlow(false)
-    val users: StateFlow<MutableList<User>?> = _users
+    private var _postUser = MutableStateFlow(User())
+    val users: StateFlow<MutableList<User>> = _users
     val comments: StateFlow<List<Comment>?> = _comments
     val newCommentText: StateFlow<String> = _newCommentText
     val showTextField: StateFlow<Boolean> = _showTextField
+    val postUser: StateFlow<User> = _postUser
 
     init {
         getComment()
@@ -31,8 +33,19 @@ class DetailPageViewModel(context: Context, private val dynamicPost: DynamicPost
 
     private fun getComment() {
         viewModelScope.launch(Dispatchers.IO) {
+            _postUser.value = repository.getUserById(dynamicPost.userId)
             _comments.value =
                 repository.getAllCommentsById(commentId = _dynamicPost.value.commentId)
+            _comments.value?.forEach {
+                _users.value.add(repository.getUserById(it.userId))
+            }
+
+        }
+    }
+
+    fun addLike(commentId: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.addLike(commentId)
         }
     }
 

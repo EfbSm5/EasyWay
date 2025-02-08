@@ -14,10 +14,11 @@ fun CommunityPage() {
         State.Community -> ShowPage(onChangeState = { state = it },
             onSelectedPost = { state = State.Detail(it) })
 
-        is State.Detail -> DetailPage((state as State.Detail).dynamicPost)
-        State.NewPost -> NewDynamicPostPage(
-            navigate = { state = State.Community }
-        )
+        is State.Detail -> DetailPage(
+            (state as State.Detail).dynamicPost,
+            onBack = { state = State.Community })
+
+        State.NewPost -> NewDynamicPostPage(navigate = { state = State.Community })
     }
 }
 
