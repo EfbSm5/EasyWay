@@ -84,7 +84,7 @@ private fun DetailPageScreen(
             post = post, user = postUser
         )
         HorizontalDivider(thickness = 1.dp, color = Color.Gray)
-        Comments(comments = comments, users = users)
+        Comments(comments = comments, users = users, viewModel = viewModel)
         HorizontalDivider(thickness = 1.dp, color = Color.Gray)
         CommentSection(comment = { changeIfShowTextField(true) })
         if (showTextField) {
