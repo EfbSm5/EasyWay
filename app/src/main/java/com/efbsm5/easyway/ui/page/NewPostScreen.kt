@@ -19,6 +19,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,46 +33,36 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.efbsm5.easyway.data.DynamicPost
 import com.efbsm5.easyway.data.Photo
 import com.efbsm5.easyway.data.database.AppDataBase
+import com.efbsm5.easyway.viewmodel.NewPostPageViewModel
+import com.efbsm5.easyway.viewmodel.ViewModelFactory
 
 
 @Composable
 fun NewDynamicPostPage(navigate: () -> Unit) {
     val context = LocalContext.current
-    val dynamicPost = remember {
-        mutableStateOf(
-            DynamicPost(
-                photos = emptyList()
-            )
-        )
-    }
-    var selectedButton by remember { mutableStateOf("") }
-    var push by remember { mutableStateOf(false) }
-    DynamicPostScreen(dynamicPost = dynamicPost.value,
-        selectedButton = selectedButton,
-        onSelected = { selectedButton = it },
-        onTitleChanged = { dynamicPost.value = dynamicPost.value.copy(title = it) },
-        onContentChanged = { dynamicPost.value = dynamicPost.value.copy(content = it) },
-        photos = dynamicPost.value.photos,
+    val newPostPageViewModel = viewModel<NewPostPageViewModel>(factory = ViewModelFactory(context))
+    val newPost = newPostPageViewModel.newPost.collectAsState().value
+    DynamicPostScreen(dynamicPost = newPost,
+        selectedButton = newPostPageViewModel.selectedButton.collectAsState().value,
+        onSelected = { newPostPageViewModel.changeSelectedButton(it) },
+        onTitleChanged = { newPostPageViewModel.editPost(newPost.copy(title = it)) },
+        onContentChanged = { newPostPageViewModel.editPost(newPost.copy(content = it)) },
+        photos = newPost.photos,
         onSelectedPhoto = {
-            dynamicPost.value =
-                dynamicPost.value.copy(photos = ArrayList(dynamicPost.value.photos).apply {
-                    add(
-                        Photo(
-                            id = 1, url = it!!.toString(), dynamicpostId = dynamicPost.value.id
-                        )
+            newPostPageViewModel.editPost(newPost.copy(photos = ArrayList(newPost.photos).apply {
+                add(
+                    Photo(
+                        id = 1, url = it!!.toString(), dynamicpostId = newPost.id
                     )
-                })
+                )
+            }))
         },
-        publish = { push = true })
-    if (push) {
-        val dynamicPostDao = AppDataBase.getDatabase(context).dynamicPostDao()
-        dynamicPostDao.insert(dynamicPost.value)
-        navigate()
-    }
+        publish = { newPostPageViewModel.push() })
 }
 
 @Composable
@@ -99,7 +90,8 @@ fun DynamicPostScreen(
         Spacer(modifier = Modifier.height(16.dp))
 //        TagSelectionSection()
         Spacer(modifier = Modifier.height(16.dp))
-        AddLocationAndImagesSection(selectedPhotos = photos,
+        AddLocationAndImagesSection(
+            selectedPhotos = photos,
             onSelectedPhoto = { it?.let { onSelectedPhoto(it) } })
         Spacer(modifier = Modifier.weight(1f))
         PublishButton(publish = { publish() })

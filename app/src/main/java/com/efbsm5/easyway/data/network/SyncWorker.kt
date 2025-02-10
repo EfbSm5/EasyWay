@@ -5,10 +5,10 @@ import androidx.work.Worker
 import androidx.work.WorkerParameters
 
 class SyncWorker(context: Context, workerParams: WorkerParameters) : Worker(context, workerParams) {
-    private val repository = Repository(context)
+    private val intentRepository = IntentRepository(context)
     override fun doWork(): Result {
         return try {
-            repository.syncData()
+            intentRepository.syncData()
             Result.success()
         } catch (e: Exception) {
             Result.failure()

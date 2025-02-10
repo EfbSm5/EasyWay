@@ -1,4 +1,4 @@
-package com.efbsm5.easyway.data.repository
+package com.efbsm5.easyway.data.ViewModelRepository
 
 
 import android.content.Context
@@ -27,7 +27,12 @@ class DataRepository(private val context: Context) {
         return database.userDao().getUserById(userId) ?: User(
         )
     }
+
     suspend fun addLike(commentId: Int) {
         database.commentDao().incrementLikes(commentId)
+    }
+
+    suspend fun uploadPost(dynamicPost: DynamicPost) {
+        database.dynamicPostDao().insert(dynamicPost)
     }
 }

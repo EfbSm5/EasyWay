@@ -37,7 +37,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.efbsm5.easyway.data.User
-import com.efbsm5.easyway.viewmodel.CommentViewModel
 import com.efbsm5.easyway.viewmodel.ViewModelFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -46,13 +45,6 @@ import kotlinx.coroutines.launch
 @Composable
 fun CommentAndHistoryCard(marker: Marker) {
     val context = LocalContext.current
-    val commentViewModel = viewModel<CommentViewModel>(factory = ViewModelFactory(context))
-    commentViewModel.getCommentFromMarker(marker, context)
-    val comments = commentViewModel.comments.collectAsState()
-    val point = commentViewModel.point.collectAsState()
-    var state: Screen by rememberSaveable { mutableStateOf(Screen.Comment) }
-    var showComment by remember { mutableStateOf(false) }
-    val comment by remember { mutableStateOf(Comment()) }
     CommentAndHistoryCardScreen(point = point.value, onChangeScreen = { state = it }, content = {
         when (state) {
             Screen.Comment -> CommentCard(comments.value)
@@ -174,22 +166,15 @@ private fun CommentCard(comments: List<Comment>?) {
 }
 
 @Composable
-private fun CommentItem(comment: Comment) {
-    var user by remember { mutableStateOf<User?>(null) }
-    val scope = rememberCoroutineScope()
-    val context = LocalContext.current
-    LaunchedEffect(comment.userId) {
-        scope.launch(Dispatchers.IO) {
-            user = AppDataBase.getDatabase(context).userDao().getUserById(comment.userId)
-        }
-    }
+private fun CommentItem(comment: Comment, user: User) {
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
     ) {
         Image(
-            painter = rememberAsyncImagePainter(user?.avatar ?: R.drawable.nouser),
+            painter = rememberAsyncImagePainter(user.avatar ?: R.drawable.nouser),
             modifier = Modifier
                 .size(50.dp)
                 .clip(CircleShape)
@@ -203,7 +188,7 @@ private fun CommentItem(comment: Comment) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = stringResource(
-                        R.string.username, user?.name ?: stringResource(R.string.user_not_found)
+                        R.string.username, user.name ?: stringResource(R.string.user_not_found)
                     ), style = MaterialTheme.typography.bodyMedium
                 )
                 Spacer(modifier = Modifier.width(8.dp))
@@ -310,10 +295,4 @@ private fun ShowTextField(
         }
 
     }
-}
-
-
-sealed interface Screen {
-    data object Comment : Screen
-    data object History : Screen
 }

@@ -11,7 +11,7 @@ import com.amap.api.maps.model.BitmapDescriptorFactory
 import com.amap.api.maps.model.LatLng
 import com.amap.api.maps.model.Marker
 import com.amap.api.maps.model.MarkerOptions
-import com.efbsm5.easyway.data.repository.DataRepository
+import com.efbsm5.easyway.data.ViewModelRepository.DataRepository
 import com.efbsm5.easyway.map.MapController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow

@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.efbsm5.easyway.data.database.AppDataBase
 
-class Repository(context: Context) {
+class IntentRepository(context: Context) {
     private val db = Room.databaseBuilder(
         context.applicationContext, AppDataBase::class.java, "app_database"
     ).build()

@@ -51,7 +51,6 @@ import com.efbsm5.easyway.R
 import com.efbsm5.easyway.data.DynamicPost
 import com.efbsm5.easyway.data.User
 import com.efbsm5.easyway.data.database.AppDataBase
-import com.efbsm5.easyway.viewmodel.DynamicPostViewModel
 import com.efbsm5.easyway.viewmodel.ViewModelFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
