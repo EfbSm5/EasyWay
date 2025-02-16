@@ -37,6 +37,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.efbsm5.easyway.data.User
+import com.efbsm5.easyway.viewmodel.CommentAndHistoryCardViewModel
+import com.efbsm5.easyway.viewmodel.CommentCardScreen
 import com.efbsm5.easyway.viewmodel.ViewModelFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -45,27 +47,40 @@ import kotlinx.coroutines.launch
 @Composable
 fun CommentAndHistoryCard(marker: Marker) {
     val context = LocalContext.current
-    CommentAndHistoryCardScreen(point = point.value, onChangeScreen = { state = it }, content = {
-        when (state) {
-            Screen.Comment -> CommentCard(comments.value)
-            Screen.History -> HistoryCard()
-        }
-        if (showComment) {
-            ShowTextField(text = comment.content,
-                changeText = { comment.content = it },
-                publish = { showComment = false },
-                cancel = { showComment = false })
-        }
-    }, comment = {
-        showComment = true
-        commentViewModel.insertComment(comment, context)
-    }, refresh = {})
+    val commentAndHistoryCardViewModel =
+        viewModel<CommentAndHistoryCardViewModel>(factory = ViewModelFactory(context))
+    commentAndHistoryCardViewModel.getPoint(marker)
+    val newComment = commentAndHistoryCardViewModel.newComment.collectAsState().value
+    CommentAndHistoryCardScreen(point = commentAndHistoryCardViewModel.point.collectAsState().value,
+        onChangeScreen = { commentAndHistoryCardViewModel.changeState(it) },
+        content = {
+            when (commentAndHistoryCardViewModel.state.collectAsState().value) {
+                CommentCardScreen.Comment -> CommentCard(commentAndHistoryCardViewModel.pointComments.collectAsState().value)
+                CommentCardScreen.History -> HistoryCard()
+            }
+            if (commentAndHistoryCardViewModel.showComment.collectAsState().value) {
+                ShowTextField(
+                    text = newComment.content,
+                    changeText = {
+                        commentAndHistoryCardViewModel.editComment(it)
+                    },
+                    publish = {
+                        commentAndHistoryCardViewModel.showComment(false)
+                        commentAndHistoryCardViewModel.publish()
+                    },
+                    cancel = { commentAndHistoryCardViewModel.showComment(false) })
+            }
+        },
+        comment = {
+            commentAndHistoryCardViewModel.showComment(true)
+        },
+        refresh = {})
 }
 
 @Composable
 private fun CommentAndHistoryCardScreen(
     point: EasyPoint?,
-    onChangeScreen: (Screen) -> Unit,
+    onChangeScreen: (CommentCardScreen) -> Unit,
     content: @Composable () -> Unit,
     comment: () -> Unit,
     refresh: () -> Unit
@@ -130,7 +145,7 @@ private fun PointInfo(points: EasyPoint?) {
 }
 
 @Composable
-private fun Select(onClick: (Screen) -> Unit) {
+private fun Select(onClick: (CommentCardScreen) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()

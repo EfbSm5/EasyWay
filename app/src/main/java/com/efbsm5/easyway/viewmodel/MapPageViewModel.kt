@@ -33,7 +33,6 @@ class MapPageViewModel(context: Context) : ViewModel() {
         _mapView.value = MapView(context, AMapOptions().compassEnabled(true))
         mapController = MapController(onPoiClick = {}, onMapClick = {}, onMarkerClick = {})
         fetchPoints()
-
     }
 
     private fun fetchPoints() {
