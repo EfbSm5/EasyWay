@@ -16,19 +16,19 @@ class DataRepository(private val context: Context) {
     private val database = AppDataBase.getDatabase(context)
     private val userManager = UserManager(context)
 
-    suspend fun getAllPoints(): List<EasyPointSimplify> {
+    fun getAllPoints(): List<EasyPointSimplify> {
         return database.pointsDao().loadAllPoints()
     }
 
-    suspend fun getAllDynamicPosts(): List<DynamicPost> {
+    fun getAllDynamicPosts(): List<DynamicPost> {
         return database.dynamicPostDao().getAllDynamicPosts()
     }
 
-    suspend fun getAllCommentsById(commentId: Int): List<Comment> {
+    fun getAllCommentsById(commentId: Int): List<Comment> {
         return database.commentDao().getCommentByCommentId(commentId)
     }
 
-    suspend fun getUserById(userId: Int): User {
+    fun getUserById(userId: Int): User {
         return database.userDao().getUserById(userId) ?: User(
             id = 0,
             name = "用户不存在",
@@ -36,11 +36,11 @@ class DataRepository(private val context: Context) {
         )
     }
 
-    suspend fun addLike(commentId: Int) {
+    fun addLike(commentId: Int) {
         database.commentDao().increaseLikes(commentId)
     }
 
-    suspend fun addDisLike(commentId: Int) {
+    fun addDisLike(commentId: Int) {
         database.commentDao().increaseDislikes(commentId)
     }
 
@@ -48,7 +48,7 @@ class DataRepository(private val context: Context) {
         val id = database.dynamicPostDao().getCount() + 1
         val date = MapUtil.getCurrentFormattedTime()
         val commentId = database.commentDao().getMaxCommentId() + 1
-        val _post = DynamicPost(
+        val post = DynamicPost(
             id = id,
             title = dynamicPost.title,
             date = date,
@@ -61,12 +61,13 @@ class DataRepository(private val context: Context) {
             commentId = commentId,
             photos = emptyList()
         )
-        database.dynamicPostDao().insert(dynamicPost)
+        database.dynamicPostDao().insert(post)
     }
 
-    suspend fun getPointFromMarker(marker: Marker): EasyPoint? {
-        return database.pointsDao()
+    fun getPointFromMarker(marker: Marker): EasyPoint? {
+        val point = database.pointsDao()
             .getPointByLatLng(marker.position.latitude, marker.position.longitude)
+        return point
     }
 
     suspend fun uploadComment(commentContent: String, commentId: Int) {
@@ -84,17 +85,17 @@ class DataRepository(private val context: Context) {
         database.commentDao().insert(comment)
     }
 
-    suspend fun uploadPoint(point: EasyPoint) {
-        val _point = point
+    suspend fun uploadPoint(easypoint: EasyPoint) {
+        val point = easypoint
         val pointId = database.pointsDao().getCount() + 1
         val refreshTime = MapUtil.getCurrentFormattedTime()
         val userId = 1
         val commentId = database.commentDao().getMaxCommentId() + 1
-        _point.commentId = commentId
-        _point.userId = userId
-        _point.refreshTime = refreshTime
-        _point.pointId = pointId
-        database.pointsDao().insert(point)
+        point.commentId = commentId
+        point.userId = userId
+        point.refreshTime = refreshTime
+        point.pointId = pointId
+        database.pointsDao().insert(easypoint)
     }
 
 }

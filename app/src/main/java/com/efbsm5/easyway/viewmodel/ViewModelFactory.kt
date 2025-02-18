@@ -7,7 +7,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import com.efbsm5.easyway.data.models.DynamicPost
 
 class ViewModelFactory(
-    private val context: Context, private val dynamicPost: DynamicPost = DynamicPost()
+    private val context: Context, private val dynamicPost: DynamicPost? = null
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(MapPageViewModel::class.java)) {

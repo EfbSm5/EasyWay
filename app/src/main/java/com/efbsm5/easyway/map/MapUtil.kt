@@ -7,9 +7,6 @@ import android.net.Uri
 import android.widget.Toast
 import com.amap.api.maps.model.LatLng
 import com.amap.api.services.core.LatLonPoint
-import com.efbsm5.easyway.data.models.Comment
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
