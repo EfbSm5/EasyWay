@@ -44,7 +44,7 @@ class DataRepository(private val context: Context) {
         database.commentDao().increaseDislikes(commentId)
     }
 
-    suspend fun uploadPost(dynamicPost: DynamicPost) {
+    fun uploadPost(dynamicPost: DynamicPost) {
         val id = database.dynamicPostDao().getCount() + 1
         val date = MapUtil.getCurrentFormattedTime()
         val commentId = database.commentDao().getMaxCommentId() + 1
@@ -70,7 +70,7 @@ class DataRepository(private val context: Context) {
         return point
     }
 
-    suspend fun uploadComment(commentContent: String, commentId: Int) {
+    fun uploadComment(commentContent: String, commentId: Int) {
         val index = database.commentDao().getCount() + 1
         val time = MapUtil.getCurrentFormattedTime()
         val comment = Comment(
@@ -85,7 +85,7 @@ class DataRepository(private val context: Context) {
         database.commentDao().insert(comment)
     }
 
-    suspend fun uploadPoint(easypoint: EasyPoint) {
+    fun uploadPoint(easypoint: EasyPoint) {
         val point = easypoint
         val pointId = database.pointsDao().getCount() + 1
         val refreshTime = MapUtil.getCurrentFormattedTime()
