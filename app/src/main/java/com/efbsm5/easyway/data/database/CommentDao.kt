@@ -4,7 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.efbsm5.easyway.data.Comment
+import com.efbsm5.easyway.data.models.Comment
 
 @Dao
 interface CommentDao {
@@ -21,10 +21,10 @@ interface CommentDao {
     fun deleteCommentByIndex(index: Int)
 
     @Query("UPDATE comments SET `like` = `like` + 1 WHERE `index` = :id")
-    fun incrementLikes(id: Int)
+    fun increaseLikes(id: Int)
 
     @Query("UPDATE comments SET dislike = dislike + 1 WHERE `index` = :id")
-    fun incrementDislikes(id: Int)
+    fun increaseDislikes(id: Int)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(posts: List<Comment>)
@@ -35,6 +35,9 @@ interface CommentDao {
     @Query("SELECT COUNT(*) FROM comments")
     fun getCount(): Int
 
-    @Query("SELECT COUNT(*) FROM comments WHERE comment_id = :commentId ")
-    fun getCountById(commentId: Int): Int
+//    @Query("SELECT COUNT(*) FROM comments WHERE comment_id = :commentId ")
+//    fun getCountById(commentId: Int): Int
+
+    @Query("SELECT MAX(comment_id) FROM comments")
+    fun getMaxCommentId(): Int
 }

@@ -4,8 +4,8 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.efbsm5.easyway.data.EasyPoint
-import com.efbsm5.easyway.data.EasyPointSimplify
+import com.efbsm5.easyway.data.models.EasyPoint
+import com.efbsm5.easyway.data.models.EasyPointSimplify
 
 @Dao
 interface PointsDao {

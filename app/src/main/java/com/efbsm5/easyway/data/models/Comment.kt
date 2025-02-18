@@ -1,4 +1,4 @@
-package com.efbsm5.easyway.data
+package com.efbsm5.easyway.data.models
 
 
 import androidx.room.Entity

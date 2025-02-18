@@ -4,8 +4,8 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.amap.api.maps.model.Marker
-import com.efbsm5.easyway.data.Comment
-import com.efbsm5.easyway.data.EasyPoint
+import com.efbsm5.easyway.data.models.Comment
+import com.efbsm5.easyway.data.models.EasyPoint
 import com.efbsm5.easyway.data.ViewModelRepository.DataRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow

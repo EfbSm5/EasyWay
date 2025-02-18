@@ -1,4 +1,4 @@
-package com.efbsm5.easyway.data
+package com.efbsm5.easyway.data.models
 
 import android.net.Uri
 import androidx.room.ColumnInfo

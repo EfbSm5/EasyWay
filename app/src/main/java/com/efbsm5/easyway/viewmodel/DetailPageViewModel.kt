@@ -3,9 +3,9 @@ package com.efbsm5.easyway.viewmodel
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.efbsm5.easyway.data.Comment
-import com.efbsm5.easyway.data.DynamicPost
-import com.efbsm5.easyway.data.User
+import com.efbsm5.easyway.data.models.Comment
+import com.efbsm5.easyway.data.models.DynamicPost
+import com.efbsm5.easyway.data.models.User
 import com.efbsm5.easyway.data.ViewModelRepository.DataRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow

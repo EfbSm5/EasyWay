@@ -1,4 +1,4 @@
-package com.efbsm5.easyway.data
+package com.efbsm5.easyway.data.database
 
 import com.google.gson.TypeAdapter
 import com.google.gson.stream.JsonReader

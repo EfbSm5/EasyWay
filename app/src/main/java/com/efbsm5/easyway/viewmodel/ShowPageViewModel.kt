@@ -10,25 +10,25 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class NewPostPageViewModel(context: Context) : ViewModel() {
+class ShowPageViewModel(context: Context) : ViewModel() {
     private val repository = DataRepository(context)
-    private var _newPost = MutableStateFlow(DynamicPost())
-    private var _selectedButton = MutableStateFlow("")
-    val newPost: StateFlow<DynamicPost> = _newPost
-    val selectedButton: StateFlow<String> = _selectedButton
+    private var _posts = MutableStateFlow<List<DynamicPost>>(emptyList())
+    val posts: StateFlow<List<DynamicPost>> = _posts
 
-
-    fun changeSelectedButton(string: String) {
-        _selectedButton.value = string
+    init {
+        fetchPosts()
     }
 
-    fun editPost(dynamicPost: DynamicPost) {
-        _newPost.value = dynamicPost
-    }
-
-    fun push() {
+    private fun fetchPosts() {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.uploadPost(_newPost.value)
+            val postList = repository.getAllDynamicPosts()
+            _posts.value = postList
         }
     }
+
+    fun fetchUser() {
+
+    }
+
 }
+

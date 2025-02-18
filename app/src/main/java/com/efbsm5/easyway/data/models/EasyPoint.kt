@@ -1,11 +1,10 @@
-package com.efbsm5.easyway.data
+package com.efbsm5.easyway.data.models
 
 import android.net.Uri
 import androidx.core.net.toUri
 import androidx.room.*
 import com.google.gson.annotations.SerializedName
 import androidx.room.ForeignKey
-import java.net.URL
 
 @Entity(
     tableName = "points", foreignKeys = [ForeignKey(

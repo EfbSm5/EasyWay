@@ -25,12 +25,12 @@ import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.amap.api.maps.model.Marker
 import com.efbsm5.easyway.R
-import com.efbsm5.easyway.data.Comment
-import com.efbsm5.easyway.data.EasyPoint
+import com.efbsm5.easyway.data.models.Comment
+import com.efbsm5.easyway.data.models.EasyPoint
 import androidx.compose.runtime.*
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.efbsm5.easyway.data.User
+import com.efbsm5.easyway.data.models.User
 import com.efbsm5.easyway.viewmodel.CommentAndHistoryCardViewModel
 import com.efbsm5.easyway.viewmodel.CommentCardScreen
 import com.efbsm5.easyway.viewmodel.ViewModelFactory

@@ -35,9 +35,8 @@ import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
-import com.efbsm5.easyway.data.DynamicPost
-import com.efbsm5.easyway.data.Photo
-import com.efbsm5.easyway.data.database.AppDataBase
+import com.efbsm5.easyway.data.models.DynamicPost
+import com.efbsm5.easyway.data.models.Photo
 import com.efbsm5.easyway.viewmodel.NewPostPageViewModel
 import com.efbsm5.easyway.viewmodel.ViewModelFactory
 

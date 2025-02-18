@@ -29,9 +29,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.efbsm5.easyway.R
-import com.efbsm5.easyway.data.Comment
-import com.efbsm5.easyway.data.DynamicPost
-import com.efbsm5.easyway.data.User
+import com.efbsm5.easyway.data.models.Comment
+import com.efbsm5.easyway.data.models.DynamicPost
+import com.efbsm5.easyway.data.models.User
 import com.efbsm5.easyway.viewmodel.DetailPageViewModel
 import com.efbsm5.easyway.viewmodel.ViewModelFactory
 

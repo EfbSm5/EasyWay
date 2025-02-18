@@ -2,12 +2,12 @@ package com.efbsm5.easyway.data.network
 
 import android.content.Context
 import android.net.Uri
-import com.efbsm5.easyway.data.Comment
-import com.efbsm5.easyway.data.DynamicPost
-import com.efbsm5.easyway.data.EasyPoint
-import com.efbsm5.easyway.data.EasyPointSimplify
-import com.efbsm5.easyway.data.UriTypeAdapter
-import com.efbsm5.easyway.data.User
+import com.efbsm5.easyway.data.models.Comment
+import com.efbsm5.easyway.data.models.DynamicPost
+import com.efbsm5.easyway.data.models.EasyPoint
+import com.efbsm5.easyway.data.models.EasyPointSimplify
+import com.efbsm5.easyway.data.database.UriTypeAdapter
+import com.efbsm5.easyway.data.models.User
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import okhttp3.*

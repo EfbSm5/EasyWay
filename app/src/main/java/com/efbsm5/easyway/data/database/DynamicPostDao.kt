@@ -4,7 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.efbsm5.easyway.data.DynamicPost
+import com.efbsm5.easyway.data.models.DynamicPost
 
 @Dao
 interface DynamicPostDao {

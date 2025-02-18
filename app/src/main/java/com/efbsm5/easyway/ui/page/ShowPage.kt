@@ -1,9 +1,9 @@
 package com.efbsm5.easyway.ui.page
 
-import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -36,7 +36,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,60 +47,60 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.efbsm5.easyway.R
-import com.efbsm5.easyway.data.DynamicPost
-import com.efbsm5.easyway.data.User
-import com.efbsm5.easyway.data.database.AppDataBase
+import com.efbsm5.easyway.data.models.DynamicPost
+import com.efbsm5.easyway.data.models.User
+import com.efbsm5.easyway.data.ViewModelRepository.DataRepository
+import com.efbsm5.easyway.viewmodel.ShowPageViewModel
 import com.efbsm5.easyway.viewmodel.ViewModelFactory
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 @Composable
 fun ShowPage(
     onChangeState: (State) -> Unit, onSelectedPost: (DynamicPost) -> Unit
 ) {
     val context = LocalContext.current
-    val postViewModel: DynamicPostViewModel =
-        viewModel<DynamicPostViewModel>(factory = ViewModelFactory(context = context))
-    val postList by postViewModel.dynamicPosts.collectAsState()
+    val showPageViewModel = viewModel<ShowPageViewModel>(factory = ViewModelFactory(context))
+    val postList = showPageViewModel.posts.collectAsState().value
     var text by remember { mutableStateOf("") }
     val tabs = listOf("全部", "活动", "互助", "分享")
     var selectedTabIndex by remember { mutableIntStateOf(0) }
-    ShowPageScreen(
-        posts = postList,
+    ShowPageScreen(posts = postList,
         onChangeState = { onChangeState(it) },
         text = text,
         onChangeText = { text = it },
         selectedTabIndex = selectedTabIndex,
         tabs = tabs,
+        viewModel = showPageViewModel,
         onSelect = { selectedTabIndex = it },
         titleText = "心无距离，共享每一刻",
         onClick = {
             onSelectedPost(it)
-        },
-        context = context
-    )
+        })
 }
 
 @Composable
 fun ShowPageScreen(
-    context: Context,
     posts: List<DynamicPost>?,
     selectedTabIndex: Int,
     text: String,
     tabs: List<String>,
     titleText: String,
+    viewModel: ShowPageViewModel,
     onChangeText: (String) -> Unit,
     onChangeState: (State) -> Unit,
     onSelect: (Int) -> Unit,
     onClick: (DynamicPost) -> Unit
 ) {
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         TopBar(text = titleText)
         BannerSection()
         SearchBar(text = text, onChangeText = { onChangeText(it) })
         TabSection(selectedTabIndex = selectedTabIndex, tabs = tabs, onSelect = { onSelect(it) })
         DynamicPostList(
-            posts = posts, onClick = { onClick(it) }, context = context
+            posts = posts, onClick = { onClick(it) },
         )
     }
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomEnd) {
@@ -171,35 +170,33 @@ fun TabSection(selectedTabIndex: Int, tabs: List<String>, onSelect: (Int) -> Uni
 
 @Composable
 private fun DynamicPostList(
-    context: Context, posts: List<DynamicPost>?, onClick: (DynamicPost) -> Unit
+    posts: List<DynamicPost>?, onClick: (DynamicPost) -> Unit
 ) {
     if (posts.isNullOrEmpty()) {
         Text("没有数据")
     } else {
         LazyColumn {
             items(posts) {
-                CommentItem(context, it) { onClick(it) }
+                PostsItem(it) { onClick(it) }
             }
         }
     }
 }
 
+
 @Composable
-private fun CommentItem(context: Context, dynamicPost: DynamicPost, onClick: () -> Unit) {
-    var user: User? by remember { mutableStateOf(null) }
-    var commentsCount by remember { mutableIntStateOf(0) }
-    val scope = rememberCoroutineScope()
-    LaunchedEffect(user) {
-        scope.launch(Dispatchers.IO) {
-            val database = AppDataBase.getDatabase(context)
-            val muser = database.userDao().getUserById(dynamicPost.userId)
-            val count = database.commentDao().getCountById(dynamicPost.commentId)
-            user = muser
-            commentsCount = count
-        }
+private fun PostsItem(dynamicPost: DynamicPost, onClick: () -> Unit) {
+    val context = LocalContext.current
+    val repository = DataRepository(context)
+    var user by remember { mutableStateOf<User?>(null) }
+    LaunchedEffect(dynamicPost.userId) {
+        user = repository.getUserById(dynamicPost.userId)
     }
-
-
+    var commentsCount by remember { mutableIntStateOf(0) }
+    LaunchedEffect(dynamicPost.commentId) {
+        val comments = repository.getAllCommentsById(dynamicPost.commentId)
+        commentsCount = comments.size
+    }
     Row(modifier = Modifier
         .fillMaxWidth()
         .padding(16.dp)

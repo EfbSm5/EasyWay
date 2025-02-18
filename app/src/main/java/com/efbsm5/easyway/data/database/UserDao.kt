@@ -4,7 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.efbsm5.easyway.data.User
+import com.efbsm5.easyway.data.models.User
 
 @Dao
 interface UserDao {

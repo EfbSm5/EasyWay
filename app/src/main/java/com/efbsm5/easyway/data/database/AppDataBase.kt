@@ -5,7 +5,10 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.efbsm5.easyway.data.*
+import com.efbsm5.easyway.data.models.Comment
+import com.efbsm5.easyway.data.models.DynamicPost
+import com.efbsm5.easyway.data.models.EasyPoint
+import com.efbsm5.easyway.data.models.User
 
 @Database(
     version = 1,

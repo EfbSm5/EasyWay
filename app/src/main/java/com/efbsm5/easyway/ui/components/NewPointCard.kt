@@ -23,11 +23,8 @@ import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
-import com.amap.api.maps.model.BitmapDescriptorFactory
 import com.amap.api.maps.model.LatLng
-import com.amap.api.maps.model.MarkerOptions
-import com.efbsm5.easyway.data.EasyPoint
-import com.efbsm5.easyway.data.database.AppDataBase
+import com.efbsm5.easyway.data.models.EasyPoint
 import com.efbsm5.easyway.viewmodel.NewPointCardViewModel
 import com.efbsm5.easyway.viewmodel.ViewModelFactory
 import java.io.File
