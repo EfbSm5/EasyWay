@@ -27,20 +27,6 @@ object MapUtil {
         Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
     }
 
-    fun fromComment(comment: ArrayList<Comment>): String {
-        return Gson().toJson(comment)
-    }
-
-    fun toComment(commentString: String): ArrayList<Comment> {
-        val type = object : TypeToken<Comment>() {}.type
-        return Gson().fromJson(commentString, type)
-    }
-
-    fun getImageUrl(context: Context, imageName: String): String {
-        val resId = context.resources.getIdentifier(imageName, "drawable", context.packageName)
-        return "android.resource://${context.packageName}/$resId"
-    }
-
     fun getCurrentFormattedTime(): String {
         val currentTime = LocalDateTime.now()
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")

@@ -25,4 +25,7 @@ interface DynamicPostDao {
 
     @Query("DELETE FROM dynamicposts WHERE id IN (:ids)")
     fun deleteAll(ids: List<Int>)
+
+    @Query("SELECT COUNT(*) FROM dynamicposts")
+    fun getCount(): Int
 }

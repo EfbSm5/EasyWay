@@ -69,7 +69,7 @@ private fun DetailPageScreen(
     showTextField: Boolean,
     onAddComment: (String) -> Unit,
     changeIfShowTextField: (Boolean) -> Unit,
-    postUser: User,
+    postUser: User?,
     comments: List<Comment>?,
     users: List<User>
 ) {
@@ -106,7 +106,7 @@ private fun TopBar(back: () -> Unit) {
 }
 
 @Composable
-private fun DetailsContent(post: DynamicPost, user: User) {
+private fun DetailsContent(post: DynamicPost, user: User?) {
     Row(
         modifier = Modifier.padding(bottom = 16.dp), verticalAlignment = Alignment.CenterVertically
     ) {
@@ -150,7 +150,7 @@ private fun Comments(comments: List<Comment>?, users: List<User>, viewModel: Det
     if (!comments.isNullOrEmpty()) {
         LazyColumn(modifier = Modifier.padding(vertical = 16.dp)) {
             items(comments) { comment ->
-                val user = users.find { it.id == comment.userId } ?: User()
+                val user = users.find { it.id == comment.userId }
                 CommentItems(comment, user) {
                     viewModel.addLike(commentId = comment.index)
                 }
@@ -160,14 +160,16 @@ private fun Comments(comments: List<Comment>?, users: List<User>, viewModel: Det
 }
 
 @Composable
-private fun CommentItems(comment: Comment, user: User, like: () -> Unit) {
+private fun CommentItems(comment: Comment, user: User?, like: () -> Unit) {
     var isLiked by remember { mutableStateOf(false) }
     Row(
         modifier = Modifier.padding(bottom = 16.dp), verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
             painter = rememberAsyncImagePainter(
-                user.avatar ?: R.drawable.nouser
+                (if ((user != null)) {
+                    user.avatar
+                } else R.drawable.nouser)
             ), contentDescription = "User Avatar", modifier = Modifier
                 .size(40.dp)
                 .clip(CircleShape)

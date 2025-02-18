@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.amap.api.maps.model.Marker
+import com.efbsm5.easyway.data.UserManager
 import com.efbsm5.easyway.data.models.Comment
 import com.efbsm5.easyway.data.models.EasyPoint
 import com.efbsm5.easyway.data.ViewModelRepository.DataRepository
@@ -24,6 +25,7 @@ class CommentAndHistoryCardViewModel(context: Context) : ViewModel() {
     val showComment: StateFlow<Boolean> = _showComment
     val pointComments: StateFlow<List<Comment>?> = _pointComments
     val newComment: StateFlow<Comment> = _newComment
+    val userManager = UserManager(context = context)
 
     fun getPoint(marker: Marker) {
         viewModelScope.launch(Dispatchers.IO) {

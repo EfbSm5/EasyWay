@@ -46,7 +46,8 @@ fun NewDynamicPostPage(navigate: () -> Unit) {
     val context = LocalContext.current
     val newPostPageViewModel = viewModel<NewPostPageViewModel>(factory = ViewModelFactory(context))
     val newPost = newPostPageViewModel.newPost.collectAsState().value
-    DynamicPostScreen(dynamicPost = newPost,
+    DynamicPostScreen(
+        dynamicPost = newPost,
         selectedButton = newPostPageViewModel.selectedButton.collectAsState().value,
         onSelected = { newPostPageViewModel.changeSelectedButton(it) },
         onTitleChanged = { newPostPageViewModel.editPost(newPost.copy(title = it)) },
@@ -61,7 +62,9 @@ fun NewDynamicPostPage(navigate: () -> Unit) {
                 )
             }))
         },
-        publish = { newPostPageViewModel.push() })
+        publish = { newPostPageViewModel.push() },
+        back = { navigate() }
+    )
 }
 
 @Composable
@@ -73,14 +76,15 @@ fun DynamicPostScreen(
     onTitleChanged: (String) -> Unit,
     onContentChanged: (String) -> Unit,
     onSelectedPhoto: (Uri?) -> Unit,
-    publish: () -> Unit
+    publish: () -> Unit,
+    back: () -> Unit
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        `Top-bar`()
+        TopBar(back = { back() })
         PublishToSection(selectedButton = selectedButton, onSelected = { onSelected(it) })
         Spacer(modifier = Modifier.height(16.dp))
         AddTitleAndContentSection(dynamicPost = dynamicPost,
@@ -99,10 +103,10 @@ fun DynamicPostScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun `Top-bar`() {
+private fun TopBar(back: () -> Unit) {
     TopAppBar(
         navigationIcon = {
-            IconButton(onClick = { /*TODO*/ }) {
+            IconButton(onClick = { back() }) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "back")
             }
         },

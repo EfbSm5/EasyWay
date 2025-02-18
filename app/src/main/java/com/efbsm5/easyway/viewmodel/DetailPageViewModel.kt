@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class DetailPageViewModel(context: Context, private val dynamicPost: DynamicPost = DynamicPost()) :
+class DetailPageViewModel(context: Context, private val dynamicPost: DynamicPost? = null) :
     ViewModel() {
     private val repository = DataRepository(context)
     private val _dynamicPost = MutableStateFlow(dynamicPost)
@@ -20,12 +20,12 @@ class DetailPageViewModel(context: Context, private val dynamicPost: DynamicPost
     private var _users = MutableStateFlow(emptyList<User>().toMutableList())
     private var _newCommentText = MutableStateFlow("")
     private var _showTextField = MutableStateFlow(false)
-    private var _postUser = MutableStateFlow(User())
+    private var _postUser = MutableStateFlow<User?>(null)
     val users: StateFlow<MutableList<User>> = _users
     val comments: StateFlow<List<Comment>?> = _comments
     val newCommentText: StateFlow<String> = _newCommentText
     val showTextField: StateFlow<Boolean> = _showTextField
-    val postUser: StateFlow<User> = _postUser
+    val postUser: StateFlow<User?> = _postUser
 
     init {
         getComment()
@@ -33,9 +33,9 @@ class DetailPageViewModel(context: Context, private val dynamicPost: DynamicPost
 
     private fun getComment() {
         viewModelScope.launch(Dispatchers.IO) {
-            _postUser.value = repository.getUserById(dynamicPost.userId)
+            _postUser.value = repository.getUserById(dynamicPost!!.userId)
             _comments.value =
-                repository.getAllCommentsById(commentId = _dynamicPost.value.commentId)
+                repository.getAllCommentsById(commentId = _dynamicPost.value!!.commentId)
             _comments.value?.forEach {
                 _users.value.add(repository.getUserById(it.userId))
             }

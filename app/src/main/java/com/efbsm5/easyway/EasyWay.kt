@@ -17,6 +17,7 @@ import androidx.work.WorkManager
 import com.efbsm5.easyway.ui.theme.EasyWayTheme
 import com.amap.api.maps.MapsInitializer
 import com.amap.apis.utils.core.api.AMapUtilCoreApi
+import com.efbsm5.easyway.data.UserManager
 import com.efbsm5.easyway.data.network.SyncWorker
 import com.efbsm5.easyway.ui.page.EasyWay
 import java.util.concurrent.TimeUnit
@@ -26,8 +27,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         handlePermission()
-        enableEdgeToEdge()
         setupPeriodicSync()
+        setUser()
+        enableEdgeToEdge()
         setContent {
             EasyWayTheme {
                 EasyWay()
@@ -61,5 +63,10 @@ class MainActivity : ComponentActivity() {
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
             "SyncWork", ExistingPeriodicWorkPolicy.KEEP, syncWorkRequest
         )
+    }
+
+    private fun setUser() {
+        val userManager = UserManager(context = this)
+        userManager.userId = 1
     }
 }
