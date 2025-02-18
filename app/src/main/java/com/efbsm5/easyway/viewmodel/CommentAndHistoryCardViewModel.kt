@@ -48,7 +48,7 @@ class CommentAndHistoryCardViewModel(context: Context) : ViewModel() {
 
     fun publish() {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.
+            repository.uploadComment(_newComment.value)
         }
     }
 

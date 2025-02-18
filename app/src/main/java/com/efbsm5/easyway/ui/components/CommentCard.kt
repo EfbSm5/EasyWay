@@ -14,10 +14,6 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,17 +27,13 @@ import com.amap.api.maps.model.Marker
 import com.efbsm5.easyway.R
 import com.efbsm5.easyway.data.Comment
 import com.efbsm5.easyway.data.EasyPoint
-import com.efbsm5.easyway.data.database.AppDataBase
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.efbsm5.easyway.data.User
 import com.efbsm5.easyway.viewmodel.CommentAndHistoryCardViewModel
 import com.efbsm5.easyway.viewmodel.CommentCardScreen
 import com.efbsm5.easyway.viewmodel.ViewModelFactory
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 
 @Composable
@@ -157,14 +149,14 @@ private fun Select(onClick: (CommentCardScreen) -> Unit) {
             fontWeight = FontWeight.Bold,
             fontSize = 16.sp,
             modifier = Modifier.clickable {
-                onClick(Screen.Comment)
+                onClick(CommentCardScreen.Comment)
             })
         Spacer(Modifier.width(50.dp))
         Text(text = "历史版本",
             fontWeight = FontWeight.Bold,
             fontSize = 16.sp,
             modifier = Modifier.clickable {
-                onClick(Screen.History)
+                onClick(CommentCardScreen.History)
             })
     }
 }
@@ -175,7 +167,10 @@ private fun CommentCard(comments: List<Comment>?) {
         Text("暂无")
     } else LazyColumn {
         items(comments) {
-            CommentItem(it)
+            CommentItem(
+                it,
+                user = TODO()
+            )
         }
     }
 }
@@ -203,7 +198,7 @@ private fun CommentItem(comment: Comment, user: User) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = stringResource(
-                        R.string.username, user.name ?: stringResource(R.string.user_not_found)
+                        R.string.username, user.name
                     ), style = MaterialTheme.typography.bodyMedium
                 )
                 Spacer(modifier = Modifier.width(8.dp))

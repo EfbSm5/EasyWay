@@ -48,4 +48,8 @@ class DataRepository(private val context: Context) {
         database.commentDao().insert(comment)
     }
 
+    suspend fun uploadPoint(point: EasyPoint) {
+        database.pointsDao().insert(point)
+    }
+
 }

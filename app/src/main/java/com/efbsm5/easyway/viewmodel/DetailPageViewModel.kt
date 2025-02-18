@@ -49,15 +49,6 @@ class DetailPageViewModel(context: Context, private val dynamicPost: DynamicPost
         }
     }
 
-    fun toUser(userId: Int) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.getUserById(userId = userId)
-        }
-    }
-
-    fun getUser(userId: Int) {
-
-    }
 
     fun changeText(text: String) {
         _newCommentText.value = text

@@ -28,7 +28,7 @@ class NewPostPageViewModel(context: Context) : ViewModel() {
 
     fun push() {
         viewModelScope.launch(Dispatchers.IO) {
-
+            repository.uploadPost(_newPost.value)
         }
     }
 }

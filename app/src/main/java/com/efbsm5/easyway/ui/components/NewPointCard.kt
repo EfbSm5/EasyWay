@@ -21,34 +21,30 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.amap.api.maps.model.BitmapDescriptorFactory
 import com.amap.api.maps.model.LatLng
 import com.amap.api.maps.model.MarkerOptions
 import com.efbsm5.easyway.data.EasyPoint
 import com.efbsm5.easyway.data.database.AppDataBase
+import com.efbsm5.easyway.viewmodel.NewPointCardViewModel
+import com.efbsm5.easyway.viewmodel.ViewModelFactory
 import java.io.File
 import java.io.FileOutputStream
 
 @Composable
 fun NewPointCard(location: LatLng?, back: () -> Unit) {
     val context = LocalContext.current
-    val tempPoint = remember {
-        mutableStateOf(
-            if (location != null) {
-                EasyPoint(lat = location.latitude, lng = location.longitude)
-            } else {
-                EasyPoint()
-            }
-        )
-    }
+    val newPointCardViewModel =
+        viewModel<NewPointCardViewModel>(factory = ViewModelFactory(context))
+    val newPoint = newPointCardViewModel.tempPoint.collectAsState().value
     var expanded by remember { mutableStateOf(false) }
-    var onUpload by remember { mutableStateOf(false) }
     var selectedOption by remember { mutableStateOf("") }
     NewPointCardSurface(
-        point = tempPoint.value,
-        onInfoValueChange = { tempPoint.value = tempPoint.value.copy(info = it) },
-        onLocationValueChange = { tempPoint.value = tempPoint.value.copy(location = it) },
+        point = newPoint,
+        onInfoValueChange = { newPointCardViewModel.changeTempPoint(newPoint.copy(info = it)) },
+        onLocationValueChange = { newPointCardViewModel.changeTempPoint(newPoint.copy(location = it)) },
         onUploadImage = { uri ->
             uri?.let { uri1 ->
                 val inputStream = context.contentResolver.openInputStream(uri1)
@@ -58,7 +54,7 @@ fun NewPointCard(location: LatLng?, back: () -> Unit) {
                     it.copyTo(outputStream)
                     outputStream.close()
                     it.close()
-                    tempPoint.value = tempPoint.value.copy(photo = file.toUri())
+                    newPointCardViewModel.changeTempPoint(newPoint.copy(photo = file.toUri()))
                 }
             }
         },
@@ -67,20 +63,15 @@ fun NewPointCard(location: LatLng?, back: () -> Unit) {
         onSelectType = { selectedOption = it },
         onExpanded = { expanded = it },
         confirm = {
-            onUpload = true
+            newPointCardViewModel.publishPoint()
         },
         cancel = {},
-        onNameValueChange = { tempPoint.value = tempPoint.value.copy(name = it) },
+        onNameValueChange = { newPointCardViewModel.changeTempPoint(newPoint.copy(name = it)) },
     )
-    if (onUpload) {
-        val pointDao = AppDataBase.getDatabase(context).pointsDao()
-        pointDao.insert(tempPoint.value)
-
-    }
 }
 
 @Composable
-fun NewPointCardSurface(
+private fun NewPointCardSurface(
     point: EasyPoint,
     menuExpanded: Boolean,
     selectedOption: String,
@@ -147,7 +138,7 @@ fun NewPointCardSurface(
 }
 
 @Composable
-fun DropdownField(
+private fun DropdownField(
     label: String,
     expanded: Boolean,
     selectedOption: String,
@@ -184,7 +175,7 @@ fun DropdownField(
 }
 
 @Composable
-fun TextFieldWithText(label: String, text: String, onValueChange: (String) -> Unit) {
+private fun TextFieldWithText(label: String, text: String, onValueChange: (String) -> Unit) {
     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Text(
             text = label,
@@ -202,7 +193,7 @@ fun TextFieldWithText(label: String, text: String, onValueChange: (String) -> Un
 }
 
 @Composable
-fun UploadImageSection(onChoosePicture: (Uri?) -> Unit) {
+private fun UploadImageSection(onChoosePicture: (Uri?) -> Unit) {
     var selectedImageUri: Uri? by remember { mutableStateOf(null) }
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
