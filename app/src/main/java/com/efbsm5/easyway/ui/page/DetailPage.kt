@@ -28,8 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
-import com.efbsm5.easyway.R
-import com.efbsm5.easyway.data.models.Comment
+import com.efbsm5.easyway.data.models.CommentAndUser
 import com.efbsm5.easyway.data.models.DynamicPost
 import com.efbsm5.easyway.data.models.User
 import com.efbsm5.easyway.viewmodel.DetailPageViewModel
@@ -41,18 +40,15 @@ fun DetailPage(post: DynamicPost, onBack: () -> Unit) {
     val context = LocalContext.current
     val detailPageViewModel =
         viewModel<DetailPageViewModel>(factory = ViewModelFactory(context, post))
-    DetailPageScreen(
-        post = post,
+    DetailPageScreen(post = post,
         newCommentText = detailPageViewModel.newCommentText.collectAsState().value,
         onAddComment = { detailPageViewModel.changeText(it) },
         changeIfShowTextField = { detailPageViewModel.ifShowTextField(it) },
         showTextField = detailPageViewModel.showTextField.collectAsState().value,
-        postUser = detailPageViewModel.postUser.collectAsState().value,
-        comments = detailPageViewModel.comments.collectAsState().value,
+        postUser = detailPageViewModel.postUser.collectAsState().value!!,
         onBack = { onBack() },
-        viewModel = detailPageViewModel,
-        users = detailPageViewModel.users.collectAsState().value
-    )
+        commentAndUser = detailPageViewModel.commentAndUser.collectAsState().value,
+        onLikeComment = { detailPageViewModel.addLike(it) })
     BackHandler(enabled = detailPageViewModel.showTextField.collectAsState().value) {
         detailPageViewModel.ifShowTextField(
             false
@@ -62,16 +58,15 @@ fun DetailPage(post: DynamicPost, onBack: () -> Unit) {
 
 @Composable
 private fun DetailPageScreen(
-    viewModel: DetailPageViewModel,
     onBack: () -> Unit,
     post: DynamicPost,
     newCommentText: String,
     showTextField: Boolean,
     onAddComment: (String) -> Unit,
     changeIfShowTextField: (Boolean) -> Unit,
-    postUser: User?,
-    comments: List<Comment>?,
-    users: List<User>
+    postUser: User,
+    commentAndUser: List<CommentAndUser>,
+    onLikeComment: (Int) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -84,7 +79,7 @@ private fun DetailPageScreen(
             post = post, user = postUser
         )
         HorizontalDivider(thickness = 1.dp, color = Color.Gray)
-        Comments(comments = comments, users = users, viewModel = viewModel)
+        Comments(list = commentAndUser, onLike = { onLikeComment(it) })
         HorizontalDivider(thickness = 1.dp, color = Color.Gray)
         CommentSection(comment = { changeIfShowTextField(true) })
         if (showTextField) {
@@ -106,12 +101,12 @@ private fun TopBar(back: () -> Unit) {
 }
 
 @Composable
-private fun DetailsContent(post: DynamicPost, user: User?) {
+private fun DetailsContent(post: DynamicPost, user: User) {
     Row(
         modifier = Modifier.padding(bottom = 16.dp), verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
-            painter = rememberAsyncImagePainter(user.avatar ?: R.drawable.nouser),
+            painter = rememberAsyncImagePainter(user.avatar),
             contentDescription = "User Avatar",
             modifier = Modifier
                 .size(40.dp)
@@ -146,30 +141,28 @@ private fun DetailsContent(post: DynamicPost, user: User?) {
 }
 
 @Composable
-private fun Comments(comments: List<Comment>?, users: List<User>, viewModel: DetailPageViewModel) {
-    if (!comments.isNullOrEmpty()) {
-        LazyColumn(modifier = Modifier.padding(vertical = 16.dp)) {
-            items(comments) { comment ->
-                val user = users.find { it.id == comment.userId }
-                CommentItems(comment, user) {
-                    viewModel.addLike(commentId = comment.index)
-                }
+private fun Comments(list: List<CommentAndUser>, onLike: (Int) -> Unit) {
+    LazyColumn(modifier = Modifier.padding(vertical = 16.dp)) {
+        items(list) { commentAndUser ->
+            CommentItems(commentAndUser) {
+                onLike(commentAndUser.comment.comment_id)
             }
         }
     }
 }
 
+
 @Composable
-private fun CommentItems(comment: Comment, user: User?, like: () -> Unit) {
+private fun CommentItems(commentAndUser: CommentAndUser, like: () -> Unit) {
     var isLiked by remember { mutableStateOf(false) }
+    val user = commentAndUser.user
+    val comment = commentAndUser.comment
     Row(
         modifier = Modifier.padding(bottom = 16.dp), verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
             painter = rememberAsyncImagePainter(
-                (if ((user != null)) {
-                    user.avatar
-                } else R.drawable.nouser)
+                user.avatar
             ), contentDescription = "User Avatar", modifier = Modifier
                 .size(40.dp)
                 .clip(CircleShape)

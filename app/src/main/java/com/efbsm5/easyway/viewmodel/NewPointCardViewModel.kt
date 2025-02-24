@@ -13,11 +13,8 @@ import kotlinx.coroutines.launch
 
 class NewPointCardViewModel(context: Context) : ViewModel() {
     private val repository = DataRepository(context)
-    private var _tempPoint = MutableStateFlow<EasyPoint?>(null)
-    val tempPoint: StateFlow<EasyPoint?> = _tempPoint
-
-    init {
-        _tempPoint.value = EasyPoint(
+    private var _tempPoint = MutableStateFlow(
+        EasyPoint(
             commentId = 0,
             userId = 0,
             name = "",
@@ -32,7 +29,8 @@ class NewPointCardViewModel(context: Context) : ViewModel() {
             lng = -122.4194,
             pointId = 0
         )
-    }
+    )
+    val tempPoint: StateFlow<EasyPoint> = _tempPoint
 
 
     fun changeTempPoint(easyPoint: EasyPoint) {
@@ -41,7 +39,7 @@ class NewPointCardViewModel(context: Context) : ViewModel() {
 
     fun publishPoint() {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.uploadPoint(_tempPoint.value!!)
+            repository.uploadPoint(_tempPoint.value)
         }
     }
 }

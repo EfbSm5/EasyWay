@@ -12,13 +12,8 @@ import kotlinx.coroutines.launch
 
 class NewPostPageViewModel(context: Context) : ViewModel() {
     private val repository = DataRepository(context)
-    private var _newPost = MutableStateFlow<DynamicPost?>(null)
-    private var _selectedButton = MutableStateFlow("")
-    val newPost: StateFlow<DynamicPost?> = _newPost
-    val selectedButton: StateFlow<String> = _selectedButton
-
-    init {
-        _newPost.value = DynamicPost(
+    private var _newPost = MutableStateFlow(
+        DynamicPost(
             title = "DynamicPost 1",
             date = "2024-12-29",
             like = 20,
@@ -31,7 +26,10 @@ class NewPostPageViewModel(context: Context) : ViewModel() {
             id = 1,
             photos = emptyList()
         )
-    }
+    )
+    private var _selectedButton = MutableStateFlow("")
+    val newPost: StateFlow<DynamicPost> = _newPost
+    val selectedButton: StateFlow<String> = _selectedButton
 
     fun changeSelectedButton(string: String) {
         _selectedButton.value = string
@@ -43,7 +41,7 @@ class NewPostPageViewModel(context: Context) : ViewModel() {
 
     fun push() {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.uploadPost(_newPost.value!!)
+            repository.uploadPost(_newPost.value)
         }
     }
 }

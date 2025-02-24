@@ -34,11 +34,10 @@ fun MapPage() {
     val content by mapPageViewModel.content.collectAsState()
     val boxHeight by mapPageViewModel.boxHeight.collectAsState()
     val mapView by mapPageViewModel.mapView.collectAsState()
-    val mapController = mapPageViewModel.mapController
-    mapController?.InitMapLifeAndLocation(mapView!!, context)
+    val location by mapPageViewModel.location.collectAsState()
     MapScreen(
-        onAdd = { mapPageViewModel.changeScreen(Screen.NewPoint(mapController?.getLastKnownLocation())) },
-        onLocate = { mapController?.onLocate(mapView!!) },
+        onAdd = { mapPageViewModel.changeScreen(Screen.NewPoint(location)) },
+        onLocate = { mapPageViewModel.moveMapToLocation() },
         content = {
             Surface(
                 modifier = Modifier
@@ -59,7 +58,7 @@ fun MapPage() {
 
                     is Screen.Places -> {
                         NewPlaceCard(
-                            mapController?.getLastKnownLocation()!!,
+                            location,
                             (content as Screen.Places).name,
                         )
                     }
@@ -69,7 +68,7 @@ fun MapPage() {
         },
         boxHeight = boxHeight,
         onChangeHeight = { mapPageViewModel.changeBoxHeight(it) },
-        mapView = mapView!!,
+        mapView = mapView,
     )
     BackHandler(enabled = content != Screen.IconCard,
         onBack = { mapPageViewModel.changeScreen(Screen.IconCard) })

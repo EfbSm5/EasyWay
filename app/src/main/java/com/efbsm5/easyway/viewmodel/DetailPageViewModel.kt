@@ -3,10 +3,10 @@ package com.efbsm5.easyway.viewmodel
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.efbsm5.easyway.data.models.Comment
 import com.efbsm5.easyway.data.models.DynamicPost
 import com.efbsm5.easyway.data.models.User
 import com.efbsm5.easyway.data.ViewModelRepository.DataRepository
+import com.efbsm5.easyway.data.models.CommentAndUser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,16 +16,14 @@ class DetailPageViewModel(context: Context, private val dynamicPost: DynamicPost
     ViewModel() {
     private val repository = DataRepository(context)
     private val _dynamicPost = MutableStateFlow(dynamicPost)
-    private var _comments = MutableStateFlow<List<Comment>?>(null)
-    private var _users = MutableStateFlow(emptyList<User>().toMutableList())
     private var _newCommentText = MutableStateFlow("")
     private var _showTextField = MutableStateFlow(false)
     private var _postUser = MutableStateFlow<User?>(null)
-    val users: StateFlow<MutableList<User>> = _users
-    val comments: StateFlow<List<Comment>?> = _comments
+    private val _commentAndUsers = MutableStateFlow(emptyList<CommentAndUser>().toMutableList())
     val newCommentText: StateFlow<String> = _newCommentText
     val showTextField: StateFlow<Boolean> = _showTextField
     val postUser: StateFlow<User?> = _postUser
+    val commentAndUser: StateFlow<List<CommentAndUser>> = _commentAndUsers
 
     init {
         getComment()
@@ -34,10 +32,9 @@ class DetailPageViewModel(context: Context, private val dynamicPost: DynamicPost
     private fun getComment() {
         viewModelScope.launch(Dispatchers.IO) {
             _postUser.value = repository.getUserById(dynamicPost!!.userId)
-            _comments.value =
-                repository.getAllCommentsById(commentId = _dynamicPost.value!!.commentId)
-            _comments.value?.forEach {
-                _users.value.add(repository.getUserById(it.userId))
+            val comments = repository.getAllCommentsById(commentId = _dynamicPost.value!!.commentId)
+            comments.forEach {
+                _commentAndUsers.value.add(CommentAndUser(repository.getUserById(it.userId), it))
             }
 
         }

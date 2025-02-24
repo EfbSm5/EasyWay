@@ -20,26 +20,27 @@ import kotlinx.coroutines.launch
 
 class MapPageViewModel(context: Context) : ViewModel() {
     private val repository = DataRepository(context)
-    private var _mapView = MutableStateFlow<MapView?>(null)
+    private var _mapView = MutableStateFlow(MapView(context, AMapOptions().compassEnabled(true)))
     private var _content = MutableStateFlow<Screen>(Screen.IconCard)
     private var _boxHeight = MutableStateFlow(100.dp)
-    var mapController: MapController? = null
-    val mapView: StateFlow<MapView?> = _mapView
+    private val mapController = MapController(onPoiClick = {}, onMapClick = {}, onMarkerClick = {})
+    private val _location = MutableStateFlow<LatLng?>(null)
+    val mapView: StateFlow<MapView> = _mapView
     val content: StateFlow<Screen> = _content
     val boxHeight: StateFlow<Dp> = _boxHeight
+    val location: StateFlow<LatLng?> = _location
 
 
     init {
-        _mapView.value = MapView(context, AMapOptions().compassEnabled(true))
-        mapController = MapController(onPoiClick = {}, onMapClick = {}, onMarkerClick = {})
         fetchPoints()
+        getLocation()
     }
 
     private fun fetchPoints() {
         viewModelScope.launch(Dispatchers.IO) {
             val points = repository.getAllPoints()
             points.forEach { point ->
-                _mapView.value!!.map.addMarker(
+                _mapView.value.map.addMarker(
                     MarkerOptions().title(
                         point.name
                     ).position(LatLng(point.lat, point.lng))
@@ -55,6 +56,15 @@ class MapPageViewModel(context: Context) : ViewModel() {
 
     fun changeBoxHeight(height: Dp) {
         _boxHeight.value = height
+    }
+
+    private fun getLocation() {
+        _location.value = mapController.getLastKnownLocation()
+    }
+    //似乎应该加一个定时更新location
+
+    fun moveMapToLocation() {
+        mapController.onLocate(_mapView.value)
     }
 }
 

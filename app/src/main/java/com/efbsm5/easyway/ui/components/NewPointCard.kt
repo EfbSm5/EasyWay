@@ -60,9 +60,15 @@ fun NewPointCard(location: LatLng?, back: () -> Unit) {
         onSelectType = { selectedOption = it },
         onExpanded = { expanded = it },
         confirm = {
+            newPointCardViewModel.changeTempPoint(
+                newPoint.copy(
+                    lat = location!!.latitude,
+                    lng = location.longitude
+                )
+            )
             newPointCardViewModel.publishPoint()
         },
-        cancel = {},
+        cancel = { back() },
         onNameValueChange = { newPointCardViewModel.changeTempPoint(newPoint.copy(name = it)) },
     )
 }

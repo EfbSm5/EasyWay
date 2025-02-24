@@ -25,12 +25,11 @@ import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.amap.api.maps.model.Marker
 import com.efbsm5.easyway.R
-import com.efbsm5.easyway.data.models.Comment
 import com.efbsm5.easyway.data.models.EasyPoint
 import androidx.compose.runtime.*
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.efbsm5.easyway.data.models.User
+import com.efbsm5.easyway.data.models.CommentAndUser
 import com.efbsm5.easyway.viewmodel.CommentAndHistoryCardViewModel
 import com.efbsm5.easyway.viewmodel.CommentCardScreen
 import com.efbsm5.easyway.viewmodel.ViewModelFactory
@@ -51,16 +50,12 @@ fun CommentAndHistoryCard(marker: Marker) {
                 CommentCardScreen.History -> HistoryCard()
             }
             if (commentAndHistoryCardViewModel.showComment.collectAsState().value) {
-                ShowTextField(
-                    text = newComment.content,
-                    changeText = {
-                        commentAndHistoryCardViewModel.editComment(it)
-                    },
-                    publish = {
-                        commentAndHistoryCardViewModel.showComment(false)
-                        commentAndHistoryCardViewModel.publish()
-                    },
-                    cancel = { commentAndHistoryCardViewModel.showComment(false) })
+                ShowTextField(text = newComment, changeText = {
+                    commentAndHistoryCardViewModel.editComment(it)
+                }, publish = {
+                    commentAndHistoryCardViewModel.showComment(false)
+                    commentAndHistoryCardViewModel.publish()
+                }, cancel = { commentAndHistoryCardViewModel.showComment(false) })
             }
         },
         comment = {
@@ -162,22 +157,22 @@ private fun Select(onClick: (CommentCardScreen) -> Unit) {
 }
 
 @Composable
-private fun CommentCard(comments: List<Comment>?) {
+private fun CommentCard(comments: List<CommentAndUser>?) {
     if (comments.isNullOrEmpty()) {
         Text("暂无")
     } else LazyColumn {
         items(comments) {
             CommentItem(
-                it,
-                user = TODO()
+                commentAndUser = it
             )
         }
     }
 }
 
 @Composable
-private fun CommentItem(comment: Comment, user: User) {
-
+private fun CommentItem(commentAndUser: CommentAndUser) {
+    val user = commentAndUser.user
+    val comment = commentAndUser.comment
     Row(
         modifier = Modifier
             .fillMaxWidth()
