@@ -67,6 +67,6 @@ class MainActivity : ComponentActivity() {
 
     private fun setUser() {
         val userManager = UserManager(context = this)
-        userManager.userId = 1
+        userManager.userId = 100
     }
 }

@@ -23,7 +23,7 @@ class MapPageViewModel(context: Context) : ViewModel() {
     private var _mapView = MutableStateFlow(MapView(context, AMapOptions().compassEnabled(true)))
     private var _content = MutableStateFlow<Screen>(Screen.IconCard)
     private var _boxHeight = MutableStateFlow(100.dp)
-    private val mapController = MapController(onPoiClick = {}, onMapClick = {}, onMarkerClick = {})
+    val mapController = MapController(onPoiClick = {}, onMapClick = {}, onMarkerClick = {})
     private val _location = MutableStateFlow<LatLng?>(null)
     val mapView: StateFlow<MapView> = _mapView
     val content: StateFlow<Screen> = _content
@@ -33,6 +33,7 @@ class MapPageViewModel(context: Context) : ViewModel() {
 
     init {
         fetchPoints()
+        mapController.mapLocationInit(context)
         getLocation()
     }
 

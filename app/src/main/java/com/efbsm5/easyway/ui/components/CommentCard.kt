@@ -29,7 +29,7 @@ import com.efbsm5.easyway.data.models.EasyPoint
 import androidx.compose.runtime.*
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.efbsm5.easyway.data.models.CommentAndUser
+import com.efbsm5.easyway.data.models.assistModel.CommentAndUser
 import com.efbsm5.easyway.viewmodel.CommentAndHistoryCardViewModel
 import com.efbsm5.easyway.viewmodel.CommentCardScreen
 import com.efbsm5.easyway.viewmodel.ViewModelFactory

@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.efbsm5.easyway.data.database.AppDataBase
 
-class IntentRepository(context: Context) {
+class IntentRepository(val context: Context) {
     private val db = Room.databaseBuilder(
         context.applicationContext, AppDataBase::class.java, "app_database"
     ).build()
@@ -12,7 +12,7 @@ class IntentRepository(context: Context) {
     private val userDao = db.userDao()
     private val dynamicPostDao = db.dynamicPostDao()
     private val pointsDao = db.pointsDao()
-    private val httpClient = HttpClient("https://f35b-2001-df0-a640-1-00-4.ngrok-free.app")
+    private val httpClient = HttpClient(UrlForDatabase.BASE_URL)
 
     fun syncData() {
         syncUsers()
@@ -26,7 +26,7 @@ class IntentRepository(context: Context) {
             if (networkComments != null) {
                 val localComments = commentDao.getAllComments()
                 val toInsert = networkComments.filter { it !in localComments }
-                val toDelete = localComments.filter { it !in networkComments }.map { it.comment_id }
+                val toDelete = localComments.filter { it !in networkComments }.map { it.commentId }
                 db.runInTransaction {
                     commentDao.deleteAll(toDelete)
                     commentDao.insertAll(toInsert)
@@ -68,7 +68,7 @@ class IntentRepository(context: Context) {
             if (networkPoints != null) {
                 val localPoints = pointsDao.loadAllPoints()
                 val toInsert =
-                    networkPoints.filter { networkPoint -> localPoints.none { it.pointId  == networkPoint.pointId } }
+                    networkPoints.filter { networkPoint -> localPoints.none { it.pointId == networkPoint.pointId } }
                 val toDelete =
                     localPoints.filter { localPoint -> networkPoints.none { it.pointId == localPoint.pointId } }
                         .map { it.pointId }
@@ -79,4 +79,5 @@ class IntentRepository(context: Context) {
             }
         }
     }
+
 }

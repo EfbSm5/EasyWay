@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.amap.api.maps.model.LatLng
 import com.amap.api.services.core.PoiItemV2
-import com.efbsm5.easyway.data.models.EasyPointSimplify
+import com.efbsm5.easyway.data.models.assistModel.EasyPointSimplify
 import com.efbsm5.easyway.map.MapSearchController
 import com.efbsm5.easyway.map.MapUtil
 import com.efbsm5.easyway.map.MapUtil.formatDistance

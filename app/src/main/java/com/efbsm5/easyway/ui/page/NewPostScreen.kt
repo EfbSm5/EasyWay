@@ -32,11 +32,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.net.toUri
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.efbsm5.easyway.data.models.DynamicPost
-import com.efbsm5.easyway.data.models.Photo
 import com.efbsm5.easyway.viewmodel.NewPostPageViewModel
 import com.efbsm5.easyway.viewmodel.ViewModelFactory
 
@@ -46,32 +44,26 @@ fun NewDynamicPostPage(navigate: () -> Unit) {
     val context = LocalContext.current
     val newPostPageViewModel = viewModel<NewPostPageViewModel>(factory = ViewModelFactory(context))
     val newPost = newPostPageViewModel.newPost.collectAsState().value
-    DynamicPostScreen(
-        dynamicPost = newPost,
+    DynamicPostScreen(dynamicPost = newPost,
         selectedButton = newPostPageViewModel.selectedButton.collectAsState().value,
         onSelected = { newPostPageViewModel.changeSelectedButton(it) },
         onTitleChanged = { newPostPageViewModel.editPost(newPost.copy(title = it)) },
         onContentChanged = { newPostPageViewModel.editPost(newPost.copy(content = it)) },
-        photos = newPost.photos,
+        photos = newPostPageViewModel.choosedPhotos.collectAsState().value,
         onSelectedPhoto = {
-            newPostPageViewModel.editPost(newPost.copy(photos = ArrayList(newPost.photos).apply {
-                add(
-                    Photo(
-                        id = 1, url = it!!.toString(), dynamicpostId = newPost.id
-                    )
-                )
-            }))
+            it?.let {
+                newPostPageViewModel.getPicture(it)
+            }
         },
         publish = { newPostPageViewModel.push() },
-        back = { navigate() }
-    )
+        back = { navigate() })
 }
 
 @Composable
 fun DynamicPostScreen(
     dynamicPost: DynamicPost,
     selectedButton: String,
-    photos: List<Photo>,
+    photos: List<Uri>,
     onSelected: (String) -> Unit,
     onTitleChanged: (String) -> Unit,
     onContentChanged: (String) -> Unit,
@@ -169,7 +161,7 @@ private fun AddTitleAndContentSection(
 
 @Composable
 private fun AddLocationAndImagesSection(
-    selectedPhotos: List<Photo>, onSelectedPhoto: (Uri?) -> Unit
+    selectedPhotos: List<Uri>, onSelectedPhoto: (Uri?) -> Unit
 ) {
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
@@ -181,7 +173,10 @@ private fun AddLocationAndImagesSection(
     var showDialog by remember { mutableStateOf<Uri?>(null) }
     Column {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = { /*TODO*/ }) {
+            IconButton(onClick = { /*TODO*/
+
+
+            }) {
                 Icon(
                     Icons.Default.LocationOn, contentDescription = "添加地点"
                 )
@@ -193,14 +188,14 @@ private fun AddLocationAndImagesSection(
             columns = GridCells.Fixed(4), modifier = Modifier.height(200.dp)
         ) {
             items(selectedPhotos.size) { index ->
-                val photoUri = selectedPhotos[index].url
+                val photoUri = selectedPhotos[index]
                 Image(painter = rememberAsyncImagePainter(photoUri),
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .size(100.dp)
                         .padding(4.dp)
-                        .clickable { showDialog = photoUri.toUri() })
+                        .clickable { showDialog = photoUri })
             }
             item {
                 Box(

@@ -67,20 +67,15 @@ class MapController(
     }
 
 
-    private fun mapLocationInit(context: Context) {
+    fun mapLocationInit(context: Context) {
         initializeVariables(context)
         mLocationClient.setLocationOption(mLocationOption)
         mLocationClient.setLocationListener(this@MapController)
     }
 
-    @Composable
-    fun InitMapLifeAndLocation(mapView: MapView, context: Context) {
-        mapLocationInit(context)
-        MapLifecycle(mapView, context)
-    }
 
     @Composable
-    private fun MapLifecycle(mapView: MapView, context: Context) {
+    fun MapLifecycle(mapView: MapView, context: Context) {
         val lifecycle = androidx.lifecycle.compose.LocalLifecycleOwner.current.lifecycle
         DisposableEffect(context, lifecycle, this) {
             val mapLifecycleObserver = lifecycleObserver(mapView)

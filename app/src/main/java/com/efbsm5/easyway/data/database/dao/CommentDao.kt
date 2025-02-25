@@ -1,4 +1,4 @@
-package com.efbsm5.easyway.data.database
+package com.efbsm5.easyway.data.database.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
@@ -11,7 +11,7 @@ interface CommentDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(comment: Comment)
 
-    @Query("SELECT * FROM comments WHERE comment_id = :id")
+    @Query("SELECT * FROM comments WHERE commentId = :id")
     fun getCommentByCommentId(id: Int): List<Comment>
 
     @Query("SELECT * FROM comments")
@@ -23,21 +23,27 @@ interface CommentDao {
     @Query("UPDATE comments SET `like` = `like` + 1 WHERE `index` = :id")
     fun increaseLikes(id: Int)
 
+    @Query("UPDATE comments SET `like` = `like` - 1 WHERE `index` = :id")
+    fun decreaseLikes(id: Int)
+
     @Query("UPDATE comments SET dislike = dislike + 1 WHERE `index` = :id")
     fun increaseDislikes(id: Int)
+
+    @Query("UPDATE comments SET dislike = dislike - 1 WHERE `index` = :id")
+    fun decreaseDislikes(id: Int)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(posts: List<Comment>)
 
-    @Query("DELETE FROM comments WHERE comment_id IN (:ids)")
+    @Query("DELETE FROM comments WHERE commentId IN (:ids)")
     fun deleteAll(ids: List<Int>)
 
     @Query("SELECT COUNT(*) FROM comments")
     fun getCount(): Int
 
-//    @Query("SELECT COUNT(*) FROM comments WHERE comment_id = :commentId ")
-//    fun getCountById(commentId: Int): Int
+    @Query("SELECT COUNT(*) FROM comments WHERE commentId = :commentId ")
+    fun getCountById(commentId: Int): Int
 
-    @Query("SELECT MAX(comment_id) FROM comments")
+    @Query("SELECT MAX(commentId) FROM comments")
     fun getMaxCommentId(): Int
 }

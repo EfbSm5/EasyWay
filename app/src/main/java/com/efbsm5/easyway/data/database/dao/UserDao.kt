@@ -1,4 +1,4 @@
-package com.efbsm5.easyway.data.database
+package com.efbsm5.easyway.data.database.dao
 
 import androidx.room.Dao
 import androidx.room.Insert

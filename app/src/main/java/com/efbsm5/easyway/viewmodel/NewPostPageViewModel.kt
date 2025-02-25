@@ -1,6 +1,7 @@
 package com.efbsm5.easyway.viewmodel
 
 import android.content.Context
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.efbsm5.easyway.data.models.DynamicPost
@@ -14,22 +15,24 @@ class NewPostPageViewModel(context: Context) : ViewModel() {
     private val repository = DataRepository(context)
     private var _newPost = MutableStateFlow(
         DynamicPost(
-            title = "DynamicPost 1",
-            date = "2024-12-29",
-            like = 20,
-            content = "Content 1",
+            title = "",
+            date = "",
+            like = 0,
+            content = "",
             lat = 30.5155,
             lng = 114.4268,
-            position = "Position 1",
+            position = "",
             userId = 1,
             commentId = 1,
             id = 1,
-            photos = emptyList()
+            photoId = 1
         )
     )
     private var _selectedButton = MutableStateFlow("")
+    private val _choosedPhotos = MutableStateFlow(emptyList<Uri>().toMutableList())
     val newPost: StateFlow<DynamicPost> = _newPost
     val selectedButton: StateFlow<String> = _selectedButton
+    val choosedPhotos: StateFlow<List<Uri>> = _choosedPhotos
 
     fun changeSelectedButton(string: String) {
         _selectedButton.value = string
@@ -39,9 +42,13 @@ class NewPostPageViewModel(context: Context) : ViewModel() {
         _newPost.value = dynamicPost
     }
 
+    fun getPicture(uri: Uri) {
+        _choosedPhotos.value.add(uri)
+    }
+
     fun push() {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.uploadPost(_newPost.value)
+            repository.uploadPost(_newPost.value, _choosedPhotos.value)
         }
     }
 }

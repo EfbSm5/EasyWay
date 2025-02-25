@@ -2,22 +2,13 @@ package com.efbsm5.easyway.data.models
 
 
 import androidx.room.Entity
-import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 
-
-@Entity(
-    tableName = "comments", foreignKeys = [ForeignKey(
-        entity = User::class,
-        parentColumns = arrayOf("id"),
-        childColumns = arrayOf("userId"),
-        onDelete = ForeignKey.CASCADE
-    )]
-)
+@Entity(tableName = "comments")
 data class Comment(
     @SerializedName("index") @PrimaryKey val index: Int,
-    @SerializedName("comment_id") val comment_id: Int,
+    @SerializedName("comment_id") val commentId: Int,
     @SerializedName("user_id") val userId: Int,
     @SerializedName("content") var content: String,
     @SerializedName("like") var like: Int,

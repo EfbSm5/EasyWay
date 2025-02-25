@@ -1,4 +1,4 @@
-package com.efbsm5.easyway.data.models
+package com.efbsm5.easyway.data.models.assistModel
 
 import com.google.gson.annotations.SerializedName
 

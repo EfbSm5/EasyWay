@@ -1,5 +1,6 @@
 package com.efbsm5.easyway.ui.page
 
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -30,7 +31,6 @@ import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -48,8 +48,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.efbsm5.easyway.R
 import com.efbsm5.easyway.data.models.DynamicPost
-import com.efbsm5.easyway.data.models.User
-import com.efbsm5.easyway.data.ViewModelRepository.DataRepository
+import com.efbsm5.easyway.data.models.assistModel.DynamicPostAndUser
 import com.efbsm5.easyway.viewmodel.ShowPageViewModel
 import com.efbsm5.easyway.viewmodel.ViewModelFactory
 
@@ -63,32 +62,34 @@ fun ShowPage(
     var text by remember { mutableStateOf("") }
     val tabs = listOf("全部", "活动", "互助", "分享")
     var selectedTabIndex by remember { mutableIntStateOf(0) }
-    ShowPageScreen(posts = postList,
+    ShowPageScreen(
+        posts = postList,
         onChangeState = { onChangeState(it) },
         text = text,
         onChangeText = { text = it },
         selectedTabIndex = selectedTabIndex,
         tabs = tabs,
-        viewModel = showPageViewModel,
         onSelect = { selectedTabIndex = it },
         titleText = "心无距离，共享每一刻",
         onClick = {
-            onSelectedPost(it)
-        })
+            onSelectedPost(it.dynamicPost)
+        },
+        photos = showPageViewModel.photos.collectAsState().value
+    )
 }
 
 @Composable
 fun ShowPageScreen(
-    posts: List<DynamicPost>?,
+    posts: List<DynamicPostAndUser>,
     selectedTabIndex: Int,
     text: String,
     tabs: List<String>,
     titleText: String,
-    viewModel: ShowPageViewModel,
     onChangeText: (String) -> Unit,
     onChangeState: (State) -> Unit,
     onSelect: (Int) -> Unit,
-    onClick: (DynamicPost) -> Unit
+    photos: List<Uri>,
+    onClick: (DynamicPostAndUser) -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -101,6 +102,7 @@ fun ShowPageScreen(
         TabSection(selectedTabIndex = selectedTabIndex, tabs = tabs, onSelect = { onSelect(it) })
         DynamicPostList(
             posts = posts, onClick = { onClick(it) },
+            photos =,
         )
     }
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomEnd) {
@@ -170,14 +172,17 @@ fun TabSection(selectedTabIndex: Int, tabs: List<String>, onSelect: (Int) -> Uni
 
 @Composable
 private fun DynamicPostList(
-    posts: List<DynamicPost>?, onClick: (DynamicPost) -> Unit
+    posts: List<DynamicPostAndUser>, photos: List<Uri>, onClick: (DynamicPostAndUser) -> Unit
 ) {
-    if (posts.isNullOrEmpty()) {
+    if (posts.isEmpty()) {
         Text("没有数据")
     } else {
         LazyColumn {
             items(posts) {
-                PostsItem(it) { onClick(it) }
+                PostsItem(
+                    it,
+                    photo = photos[posts.indexOf(it)],
+                ) { onClick(it) }
             }
         }
     }
@@ -185,24 +190,16 @@ private fun DynamicPostList(
 
 
 @Composable
-private fun PostsItem(dynamicPost: DynamicPost, onClick: () -> Unit) {
-    val context = LocalContext.current
-    val repository = DataRepository(context)
-    var user by remember { mutableStateOf<User?>(null) }
-    LaunchedEffect(dynamicPost.userId) {
-        user = repository.getUserById(dynamicPost.userId)
-    }
-    var commentsCount by remember { mutableIntStateOf(0) }
-    LaunchedEffect(dynamicPost.commentId) {
-        val comments = repository.getAllCommentsById(dynamicPost.commentId)
-        commentsCount = comments.size
-    }
+private fun PostsItem(dynamicPostAndUser: DynamicPostAndUser, photo: Uri, onClick: () -> Unit) {
+    val user = dynamicPostAndUser.user
+    val commentsCount = dynamicPostAndUser.commentCount
+    val dynamicPost = dynamicPostAndUser.dynamicPost
     Row(modifier = Modifier
         .fillMaxWidth()
         .padding(16.dp)
         .clickable { onClick() }) {
         Image(
-            rememberAsyncImagePainter(user?.avatar ?: R.drawable.nouser),
+            rememberAsyncImagePainter(user),
             contentDescription = "头像",
             modifier = Modifier
                 .size(40.dp)
@@ -213,7 +210,7 @@ private fun PostsItem(dynamicPost: DynamicPost, onClick: () -> Unit) {
         Column {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = user?.name ?: "此用户不存在", style = MaterialTheme.typography.bodyLarge
+                    text = user.name, style = MaterialTheme.typography.bodyLarge
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
@@ -229,7 +226,7 @@ private fun PostsItem(dynamicPost: DynamicPost, onClick: () -> Unit) {
             )
             Image(
                 rememberAsyncImagePainter(
-                    dynamicPost.photos.first().url
+                    photo
                 ),
                 contentDescription = "评论图片",
                 modifier = Modifier

@@ -7,7 +7,7 @@ import com.amap.api.maps.model.Marker
 import com.efbsm5.easyway.data.models.Comment
 import com.efbsm5.easyway.data.models.EasyPoint
 import com.efbsm5.easyway.data.ViewModelRepository.DataRepository
-import com.efbsm5.easyway.data.models.CommentAndUser
+import com.efbsm5.easyway.data.models.assistModel.CommentAndUser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

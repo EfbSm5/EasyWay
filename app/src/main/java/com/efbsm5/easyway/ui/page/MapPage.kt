@@ -35,6 +35,7 @@ fun MapPage() {
     val boxHeight by mapPageViewModel.boxHeight.collectAsState()
     val mapView by mapPageViewModel.mapView.collectAsState()
     val location by mapPageViewModel.location.collectAsState()
+    mapPageViewModel.mapController.MapLifecycle(mapView, context)
     MapScreen(
         onAdd = { mapPageViewModel.changeScreen(Screen.NewPoint(location)) },
         onLocate = { mapPageViewModel.moveMapToLocation() },

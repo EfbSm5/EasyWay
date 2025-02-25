@@ -5,6 +5,11 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import com.efbsm5.easyway.data.database.dao.CommentDao
+import com.efbsm5.easyway.data.database.dao.DynamicPostDao
+import com.efbsm5.easyway.data.database.dao.PhotoDao
+import com.efbsm5.easyway.data.database.dao.PointsDao
+import com.efbsm5.easyway.data.database.dao.UserDao
 import com.efbsm5.easyway.data.models.Comment
 import com.efbsm5.easyway.data.models.DynamicPost
 import com.efbsm5.easyway.data.models.EasyPoint
@@ -21,6 +26,7 @@ abstract class AppDataBase : RoomDatabase() {
     abstract fun commentDao(): CommentDao
     abstract fun dynamicPostDao(): DynamicPostDao
     abstract fun userDao(): UserDao
+    abstract fun photoDao(): PhotoDao
 
     companion object {
         private var instance: AppDataBase? = null

@@ -27,13 +27,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.efbsm5.easyway.data.network.IntentRepository
 import com.efbsm5.easyway.map.MapUtil
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Composable
 fun HomePage() {
     val context = LocalContext.current
     HomePageScreen(context, onUpdate = {
-
+        CoroutineScope(Dispatchers.IO).launch {
+            val repo = IntentRepository(context)
+            repo.syncData()
+        }
     })
 }
 
