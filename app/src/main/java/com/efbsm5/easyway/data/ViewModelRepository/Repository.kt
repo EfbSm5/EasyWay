@@ -3,6 +3,7 @@ package com.efbsm5.easyway.data.ViewModelRepository
 
 import android.content.Context
 import android.net.Uri
+import androidx.core.net.toUri
 import com.amap.api.maps.model.Marker
 import com.efbsm5.easyway.data.UserManager
 import com.efbsm5.easyway.data.models.Comment
@@ -65,7 +66,9 @@ class DataRepository(private val context: Context) {
                     if (it != null) {
                         database.photoDao().insert(
                             Photo(
-                                uri = it, photoId = photoId, id = database.photoDao().getCount() + 1
+                                uri = it.toUri(),
+                                photoId = photoId,
+                                id = database.photoDao().getCount() + 1
                             )
                         )
                     }

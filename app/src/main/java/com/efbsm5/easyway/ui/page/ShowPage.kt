@@ -102,7 +102,7 @@ fun ShowPageScreen(
         TabSection(selectedTabIndex = selectedTabIndex, tabs = tabs, onSelect = { onSelect(it) })
         DynamicPostList(
             posts = posts, onClick = { onClick(it) },
-            photos =,
+            photos = photos,
         )
     }
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomEnd) {

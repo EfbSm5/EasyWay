@@ -43,16 +43,18 @@ import androidx.navigation.compose.rememberNavController
 @Composable
 fun EasyWay() {
     val navControl = rememberNavController()
-    Surface(modifier = Modifier.fillMaxSize()) {
+    Surface(
+        modifier = Modifier
+            .fillMaxSize()
+            .imePadding()
+    ) {
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .imePadding()
+                modifier = Modifier.weight(1f)
             ) {
                 NavHost(navController = navControl, startDestination = "MapPage") {
                     composable("MapPage") {

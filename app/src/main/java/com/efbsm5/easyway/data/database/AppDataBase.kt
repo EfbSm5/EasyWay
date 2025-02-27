@@ -13,11 +13,12 @@ import com.efbsm5.easyway.data.database.dao.UserDao
 import com.efbsm5.easyway.data.models.Comment
 import com.efbsm5.easyway.data.models.DynamicPost
 import com.efbsm5.easyway.data.models.EasyPoint
+import com.efbsm5.easyway.data.models.Photo
 import com.efbsm5.easyway.data.models.User
 
 @Database(
     version = 1,
-    entities = [EasyPoint::class, User::class, Comment::class, DynamicPost::class],
+    entities = [EasyPoint::class, User::class, Comment::class, DynamicPost::class, Photo::class],
     exportSchema = false
 )
 @TypeConverters(Converters::class)

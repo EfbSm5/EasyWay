@@ -23,7 +23,6 @@ class ShowPageViewModel(context: Context) : ViewModel() {
         fetchPosts()
     }
 
-    // TODO:  
     private fun fetchPosts() {
         viewModelScope.launch(Dispatchers.IO) {
             val postList = repository.getAllDynamicPosts()

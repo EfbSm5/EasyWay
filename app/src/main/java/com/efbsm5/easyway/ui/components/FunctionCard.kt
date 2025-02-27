@@ -34,33 +34,46 @@ import androidx.compose.ui.unit.sp
 import com.efbsm5.easyway.R
 
 @Composable
-fun FunctionCard(onclick: (String) -> Unit) {
+fun FunctionCard(onclick: (String) -> Unit, onChangePage: () -> Unit) {
     var text by remember { mutableStateOf("") }
-    FunctionCardScreen(text = text, onTextChange = { text = it }, onclick = { onclick(it) })
+    FunctionCardScreen(text = text,
+        onTextChange = { text = it },
+        onclick = { onclick(it) },
+        onClickSearchBar = { onChangePage() })
 }
 
 @Composable
-private fun FunctionCardScreen(text: String, onTextChange: (String) -> Unit, onclick: (String) -> Unit) {
+private fun FunctionCardScreen(
+    text: String,
+    onTextChange: (String) -> Unit,
+    onclick: (String) -> Unit,
+    onClickSearchBar: () -> Unit
+) {
     Column(
         Modifier
             .fillMaxWidth()
             .padding(16.dp)
     ) {
-        SearchBar(text = text) { onTextChange(it) }
+        SearchBar(text = text,
+            onTextChange = { onTextChange(it) },
+            onClickSearchBar = { onClickSearchBar() })
         Spacer(Modifier.height(10.dp))
         IconGrid { onclick(it) }
     }
 }
 
 @Composable
-private fun SearchBar(text: String, onTextChange: (String) -> Unit) {
+private fun SearchBar(text: String, onTextChange: (String) -> Unit, onClickSearchBar: () -> Unit) {
     TextField(
         value = text,
         onValueChange = { onTextChange(it) },
         label = { Text("搜索") },
         modifier = Modifier
             .fillMaxWidth()
-            .padding(5.dp),
+            .padding(5.dp)
+            .clickable {
+                onClickSearchBar()
+            },
         leadingIcon = { Icon(Icons.Default.Search, "search") },
     )
 }

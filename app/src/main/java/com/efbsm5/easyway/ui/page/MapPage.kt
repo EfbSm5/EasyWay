@@ -22,6 +22,7 @@ import com.efbsm5.easyway.ui.components.DraggableBox
 import com.efbsm5.easyway.ui.components.FunctionCard
 import com.efbsm5.easyway.ui.components.NewPlaceCard
 import com.efbsm5.easyway.ui.components.NewPointCard
+import com.efbsm5.easyway.ui.components.ShowSearchScreen
 import com.efbsm5.easyway.viewmodel.MapPageViewModel
 import com.efbsm5.easyway.viewmodel.Screen
 import com.efbsm5.easyway.viewmodel.ViewModelFactory
@@ -52,7 +53,7 @@ fun MapPage() {
 
                     Screen.IconCard -> FunctionCard(onclick = {
                         mapPageViewModel.changeScreen(Screen.Places(it))
-                    })
+                    }, onChangePage = {})
 
                     is Screen.NewPoint -> NewPointCard((content as Screen.NewPoint).location,
                         back = { mapPageViewModel.changeScreen(Screen.IconCard) })
@@ -64,6 +65,11 @@ fun MapPage() {
                         )
                     }
 
+                    Screen.Search -> ShowSearchScreen(markerList =,
+                        searchForPoi = { mapPageViewModel.getPoint() },
+                        onSelected = {
+                            mapPageViewModel.changeScreen(Screen.Comment())
+                        })
                 }
             }
         },
