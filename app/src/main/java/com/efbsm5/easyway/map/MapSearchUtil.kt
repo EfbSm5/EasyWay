@@ -16,16 +16,14 @@ import com.amap.api.services.route.RideRouteResult
 import com.amap.api.services.route.RouteSearch
 import com.amap.api.services.route.WalkRouteResult
 import com.efbsm5.easyway.R
-import com.efbsm5.easyway.data.models.assistModel.Markers
 import com.efbsm5.easyway.map.overlay.AMapServicesUtil.convertToLatLng
 import com.efbsm5.easyway.map.overlay.WalkRouteOverlay
 
 class MapSearchUtil(
     private val context: Context,
     private val mapView: MapView,
-    val onPoiSearched: (ArrayList<Markers>) -> Unit,
-    val returnMsg: (String) -> Unit,
-    val returnPosition: (point: LatLon) -> Unit
+    val onPoiSearched: (ArrayList<PoiItemV2>) -> Unit,
+    val returnMsg: (String) -> Unit
 ) : PoiSearchV2.OnPoiSearchListener, RouteSearch.OnRouteSearchListener {
     private var routeSearch: RouteSearch? = null
 
@@ -47,9 +45,7 @@ class MapSearchUtil(
     }
 
     override fun onPoiSearched(p0: PoiResultV2?, p1: Int) {
-        val arrayList =
-            p0!!.pois.map { poi -> Markers(poi.title, convertToLatLng(poi.latLonPoint)) }
-        onPoiSearched(ArrayList(arrayList))
+        p0?.pois?.let { onPoiSearched(it) }
     }
 
     override fun onPoiItemSearched(p0: PoiItemV2?, p1: Int) {
@@ -82,7 +78,8 @@ class MapSearchUtil(
 
     override fun onBusRouteSearched(p0: BusRouteResult?, p1: Int) {}
 
-    override fun onDriveRouteSearched(p0: DriveRouteResult?, p1: Int) {}
+    override fun onDriveRouteSearched(p0: DriveRouteResult?, p1: Int) {
+    }
 
     override fun onWalkRouteSearched(walkRouteResult: WalkRouteResult?, p1: Int) {
         mapView.map.clear() // 清理地图上的所有覆盖物
@@ -108,11 +105,5 @@ class MapSearchUtil(
     }
 
     override fun onRideRouteSearched(p0: RideRouteResult?, p1: Int) {}
-
-//    fun onSelected(markers: Marker) {
-//        val point = markers.latLng
-//        mapView.map.animateCamera(CameraUpdateFactory.newLatLngZoom(point, 18f))
-//        returnPoint(convertToLatLonPoint(point))
-//    }
 }
 

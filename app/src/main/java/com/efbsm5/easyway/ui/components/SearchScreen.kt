@@ -29,13 +29,13 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.efbsm5.easyway.data.models.assistModel.Markers
+import com.amap.api.services.core.PoiItemV2
 
 @Composable
 fun ShowSearchScreen(
-    markerList: List<Markers>?,
+    markerList: List<PoiItemV2>,
     searchForPoi: (keyword: String) -> Unit,
-    onSelected: (marker: Markers) -> Unit
+    onSelected: (poiItemV2: PoiItemV2) -> Unit
 ) {
     var keyword by remember { mutableStateOf("") }
     if (keyword.isNotEmpty()) {
@@ -43,7 +43,7 @@ fun ShowSearchScreen(
     }
     SearchScreenSurface(
         keyword = keyword,
-        poiList = markerList,
+        poiItemV2s = markerList,
         onChangeKeyWord = { keyword = it },
         searchForPoi = { searchForPoi(keyword) },
         onSelected = { onSelected(it) },
@@ -53,10 +53,10 @@ fun ShowSearchScreen(
 @Composable
 fun SearchScreenSurface(
     keyword: String,
-    poiList: List<Markers>?,
+    poiItemV2s: List<PoiItemV2>,
     onChangeKeyWord: (String) -> Unit,
     searchForPoi: (keyword: String) -> Unit,
-    onSelected: (marker: Markers) -> Unit
+    onSelected: (poiItem: PoiItemV2) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally
@@ -85,27 +85,27 @@ fun SearchScreenSurface(
         }
 
         item { Spacer(modifier = Modifier.height(50.dp)) }
-        poiList?.let {
-            items(it) { poiItem ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(40.dp)
-                        .clickable {
-                            onSelected(poiItem)
-                        },
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        text = poiItem.name,
-                        style = TextStyle(fontSize = 20.sp),
-                        overflow = TextOverflow.Ellipsis,
-                        color = MaterialTheme.colorScheme.outline
-                    )
-                }
-                DividerDefaults
+
+        items(poiItemV2s) { poiItem ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(40.dp)
+                    .clickable {
+                        onSelected(poiItem)
+                    },
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = poiItem.title,
+                    style = TextStyle(fontSize = 20.sp),
+                    overflow = TextOverflow.Ellipsis,
+                    color = MaterialTheme.colorScheme.outline
+                )
             }
+            DividerDefaults
         }
     }
 }
+

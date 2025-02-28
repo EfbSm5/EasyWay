@@ -1,16 +1,8 @@
 package com.efbsm5.easyway.map
 
 import android.annotation.SuppressLint
-import android.content.ComponentCallbacks
 import android.content.Context
 import android.content.SharedPreferences
-import android.content.res.Configuration
-import android.os.Bundle
-import android.util.Log
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import com.amap.api.location.AMapLocation
 import com.amap.api.location.AMapLocationClient
 import com.amap.api.location.AMapLocationClientOption
@@ -74,20 +66,7 @@ class MapController(
     }
 
 
-    @Composable
-    fun MapLifecycle(mapView: MapView, context: Context) {
-        val lifecycle = androidx.lifecycle.compose.LocalLifecycleOwner.current.lifecycle
-        DisposableEffect(context, lifecycle, this) {
-            val mapLifecycleObserver = lifecycleObserver(mapView)
-            val callbacks = mapView.componentCallbacks()
-            lifecycle.addObserver(mapLifecycleObserver)
-            context.registerComponentCallbacks(callbacks)
-            onDispose {
-                lifecycle.removeObserver(mapLifecycleObserver)
-                context.unregisterComponentCallbacks(callbacks)
-            }
-        }
-    }
+
 
     fun onLocate(mapView: MapView) {
         mLocation?.let {
@@ -95,42 +74,9 @@ class MapController(
         }
     }
 
-    private fun lifecycleObserver(mapView: MapView): LifecycleEventObserver =
-        LifecycleEventObserver { _, event ->
-            when (event) {
-                Lifecycle.Event.ON_CREATE -> {
-                    mapView.onCreate(Bundle())
-                    initMap(mapView)
-                    Log.e(TAG, "lifecycleObserver:     oncreate view")
-                }
 
-                Lifecycle.Event.ON_RESUME -> {
-                    mapView.onResume()
-                    Log.e(TAG, "lifecycleObserver:           onresume view")
-                }
 
-                Lifecycle.Event.ON_PAUSE -> {
-                    mapView.onPause()
-                    Log.e(TAG, "lifecycleObserver:                on pause view")
-                }  // 暂停地图的绘制
-                Lifecycle.Event.ON_DESTROY -> {
-                    mapView.onDestroy()
-                    Log.e(TAG, "lifecycleObserver:            on destory view")
-                } // 销毁地图
-                else -> {}
-            }
-        }
-
-    private fun MapView.componentCallbacks(): ComponentCallbacks = object : ComponentCallbacks {
-        override fun onConfigurationChanged(config: Configuration) {}
-
-        @Deprecated("Deprecated in Java", ReplaceWith("this@componentCallbacks.onLowMemory()"))
-        override fun onLowMemory() {
-            this@componentCallbacks.onLowMemory()
-        }
-    }
-
-    private fun initMap(mapView: MapView) {
+    fun initMap(mapView: MapView) {
         val map = mapView.map
         map.mapType = if (isDarkTheme!!) MAP_TYPE_NIGHT else MAP_TYPE_NORMAL
         map.setLocationSource(this@MapController)

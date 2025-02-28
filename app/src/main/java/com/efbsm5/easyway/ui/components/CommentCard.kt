@@ -29,6 +29,7 @@ import com.efbsm5.easyway.data.models.EasyPoint
 import androidx.compose.runtime.*
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.amap.api.services.core.PoiItemV2
 import com.efbsm5.easyway.data.models.assistModel.CommentAndUser
 import com.efbsm5.easyway.viewmodel.CommentAndHistoryCardViewModel
 import com.efbsm5.easyway.viewmodel.CommentCardScreen
@@ -36,11 +37,13 @@ import com.efbsm5.easyway.viewmodel.ViewModelFactory
 
 
 @Composable
-fun CommentAndHistoryCard(marker: Marker) {
+fun CommentAndHistoryCard(marker: Marker?, poiItemV2: PoiItemV2?) {
     val context = LocalContext.current
     val commentAndHistoryCardViewModel =
         viewModel<CommentAndHistoryCardViewModel>(factory = ViewModelFactory(context))
-    commentAndHistoryCardViewModel.getPoint(marker)
+    if (marker != null) {
+        commentAndHistoryCardViewModel.getPoint(marker)
+    }
     val newComment = commentAndHistoryCardViewModel.newComment.collectAsState().value
     CommentAndHistoryCardScreen(point = commentAndHistoryCardViewModel.point.collectAsState().value,
         onChangeScreen = { commentAndHistoryCardViewModel.changeState(it) },

@@ -8,11 +8,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.amap.api.maps.MapView
@@ -32,50 +30,11 @@ import com.efbsm5.easyway.viewmodel.ViewModelFactory
 fun MapPage() {
     val context = LocalContext.current
     val mapPageViewModel = viewModel<MapPageViewModel>(factory = ViewModelFactory(context))
-    val content by mapPageViewModel.content.collectAsState()
-    val boxHeight by mapPageViewModel.boxHeight.collectAsState()
-    val mapView by mapPageViewModel.mapView.collectAsState()
-    val location by mapPageViewModel.location.collectAsState()
-    mapPageViewModel.mapController.MapLifecycle(mapView, context)
+    mapPageViewModel.MapLifecycle(context)
+    val content = mapPageViewModel.content.collectAsState().value
     MapScreen(
-        onAdd = { mapPageViewModel.changeScreen(Screen.NewPoint(location)) },
-        onLocate = { mapPageViewModel.moveMapToLocation() },
-        content = {
-            Surface(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(color = MaterialTheme.colorScheme.surfaceContainer)
-            ) {
-                when (content) {
-                    is Screen.Comment -> {
-                        CommentAndHistoryCard(marker = (content as Screen.Comment).marker)
-                    }
-
-                    Screen.IconCard -> FunctionCard(onclick = {
-                        mapPageViewModel.changeScreen(Screen.Places(it))
-                    }, onChangePage = {})
-
-                    is Screen.NewPoint -> NewPointCard((content as Screen.NewPoint).location,
-                        back = { mapPageViewModel.changeScreen(Screen.IconCard) })
-
-                    is Screen.Places -> {
-                        NewPlaceCard(
-                            location,
-                            (content as Screen.Places).name,
-                        )
-                    }
-
-                    Screen.Search -> ShowSearchScreen(markerList =,
-                        searchForPoi = { mapPageViewModel.getPoint() },
-                        onSelected = {
-                            mapPageViewModel.changeScreen(Screen.Comment())
-                        })
-                }
-            }
-        },
-        boxHeight = boxHeight,
-        onChangeHeight = { mapPageViewModel.changeBoxHeight(it) },
-        mapView = mapView,
+        mapPageViewModel = mapPageViewModel,
+        mapView = mapPageViewModel.mapView.collectAsState().value,
     )
     BackHandler(enabled = content != Screen.IconCard,
         onBack = { mapPageViewModel.changeScreen(Screen.IconCard) })
@@ -83,25 +42,73 @@ fun MapPage() {
 
 @Composable
 private fun MapScreen(
-    onAdd: () -> Unit,
-    onLocate: () -> Unit,
-    mapView: MapView,
-    boxHeight: Dp,
-    onChangeHeight: (Dp) -> Unit,
-    content: @Composable () -> Unit
+    mapPageViewModel: MapPageViewModel, mapView: MapView
 ) {
+    val content = mapPageViewModel.content.collectAsState().value
     AndroidView(modifier = Modifier.fillMaxSize(), factory = { mapView })
     AddAndLocateButton(onAdd = {
-        onAdd()
-    }, onLocate = { onLocate() }, bottomHeight = boxHeight
+        mapPageViewModel.changeScreen(
+            Screen.NewPoint(
+                location = mapPageViewModel.location.value
+            )
+        )
+    },
+        onLocate = { mapPageViewModel.moveMapToLocation() },
+        bottomHeight = mapPageViewModel.boxHeight.collectAsState().value
     )
+
     Box(
         modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter
     ) {
         DraggableBox(
-            boxHeight = boxHeight, onChangeHeight = { onChangeHeight(it) }, content = content
+            boxHeight = mapPageViewModel.boxHeight.collectAsState().value,
+            onChangeHeight = { mapPageViewModel.changeBoxHeight(it) },
+            content = {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(color = MaterialTheme.colorScheme.surfaceContainer)
+                ) {
+                    when (content) {
+                        is Screen.Comment -> {
+                            CommentAndHistoryCard(
+                                marker = content.marker, mapPageViewModel.selectedPoi
+                            )
+                        }
+
+                        Screen.IconCard -> FunctionCard(onclick = {
+                            mapPageViewModel.changeScreen(Screen.Places(it))
+                        }, onChangePage = { mapPageViewModel.changeScreen(Screen.Search) })
+
+                        is Screen.NewPoint -> NewPointCard(content.location,
+                            back = { mapPageViewModel.changeScreen(Screen.IconCard) })
+
+                        is Screen.Places -> {
+                            NewPlaceCard(
+                                mapPageViewModel.location.collectAsState().value,
+                                content.name,
+                            )
+                        }
+
+                        Screen.Search -> ShowSearchScreen(markerList = mapPageViewModel.markers.collectAsState().value,
+                            searchForPoi = {
+                                mapPageViewModel.getPoint(
+                                    title = it
+                                )
+                            },
+                            onSelected = {
+                                mapPageViewModel.changeScreen(
+                                    Screen.Comment(
+                                        marker = null
+                                    )
+                                )
+                            })
+                    }
+                }
+            },
         )
     }
+
 }
 
 
