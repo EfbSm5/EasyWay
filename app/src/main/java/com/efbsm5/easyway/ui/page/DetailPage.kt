@@ -32,7 +32,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.efbsm5.easyway.data.models.assistModel.CommentAndUser
 import com.efbsm5.easyway.data.models.DynamicPost
 import com.efbsm5.easyway.data.models.User
-import com.efbsm5.easyway.viewmodel.DetailPageViewModel
+import com.efbsm5.easyway.viewmodel.pageViewmodel.DetailPageViewModel
 import com.efbsm5.easyway.viewmodel.ViewModelFactory
 
 

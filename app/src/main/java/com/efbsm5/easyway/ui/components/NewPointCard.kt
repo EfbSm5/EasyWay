@@ -25,7 +25,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.amap.api.maps.model.LatLng
 import com.efbsm5.easyway.data.models.EasyPoint
-import com.efbsm5.easyway.viewmodel.NewPointCardViewModel
+import com.efbsm5.easyway.viewmodel.componentsViewmodel.NewPointCardViewModel
 import com.efbsm5.easyway.viewmodel.ViewModelFactory
 import java.io.File
 import java.io.FileOutputStream

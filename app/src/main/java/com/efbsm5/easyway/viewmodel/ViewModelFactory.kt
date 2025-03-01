@@ -5,6 +5,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.efbsm5.easyway.data.models.DynamicPost
+import com.efbsm5.easyway.viewmodel.componentsViewmodel.CommentAndHistoryCardViewModel
+import com.efbsm5.easyway.viewmodel.componentsViewmodel.NewPlaceCardViewModel
+import com.efbsm5.easyway.viewmodel.componentsViewmodel.NewPointCardViewModel
+import com.efbsm5.easyway.viewmodel.pageViewmodel.DetailPageViewModel
+import com.efbsm5.easyway.viewmodel.pageViewmodel.MapPageViewModel
+import com.efbsm5.easyway.viewmodel.pageViewmodel.NewPostPageViewModel
+import com.efbsm5.easyway.viewmodel.pageViewmodel.ShowPageViewModel
 
 class ViewModelFactory(
     private val context: Context, private val dynamicPost: DynamicPost? = null
@@ -27,6 +34,9 @@ class ViewModelFactory(
         }
         if (modelClass.isAssignableFrom(ShowPageViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST") return ShowPageViewModel(context) as T
+        }
+        if (modelClass.isAssignableFrom(NewPlaceCardViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST") return NewPlaceCardViewModel(context) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

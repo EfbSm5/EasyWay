@@ -1,6 +1,5 @@
 package com.efbsm5.easyway.ui.page
 
-import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -49,7 +48,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.efbsm5.easyway.R
 import com.efbsm5.easyway.data.models.DynamicPost
 import com.efbsm5.easyway.data.models.assistModel.DynamicPostAndUser
-import com.efbsm5.easyway.viewmodel.ShowPageViewModel
+import com.efbsm5.easyway.viewmodel.pageViewmodel.ShowPageViewModel
 import com.efbsm5.easyway.viewmodel.ViewModelFactory
 
 @Composable
@@ -62,8 +61,7 @@ fun ShowPage(
     var text by remember { mutableStateOf("") }
     val tabs = listOf("全部", "活动", "互助", "分享")
     var selectedTabIndex by remember { mutableIntStateOf(0) }
-    ShowPageScreen(
-        posts = postList,
+    ShowPageScreen(posts = postList,
         onChangeState = { onChangeState(it) },
         text = text,
         onChangeText = { text = it },
@@ -73,9 +71,7 @@ fun ShowPage(
         titleText = "心无距离，共享每一刻",
         onClick = {
             onSelectedPost(it.dynamicPost)
-        },
-        photos = showPageViewModel.photos.collectAsState().value
-    )
+        })
 }
 
 @Composable
@@ -88,7 +84,6 @@ fun ShowPageScreen(
     onChangeText: (String) -> Unit,
     onChangeState: (State) -> Unit,
     onSelect: (Int) -> Unit,
-    photos: List<Uri>,
     onClick: (DynamicPostAndUser) -> Unit
 ) {
     Column(
@@ -100,10 +95,7 @@ fun ShowPageScreen(
         BannerSection()
         SearchBar(text = text, onChangeText = { onChangeText(it) })
         TabSection(selectedTabIndex = selectedTabIndex, tabs = tabs, onSelect = { onSelect(it) })
-        DynamicPostList(
-            posts = posts, onClick = { onClick(it) },
-            photos = photos,
-        )
+        DynamicPostList(posts = posts, onClick = { onClick(it) })
     }
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomEnd) {
         FloatingActionButton(
@@ -172,7 +164,7 @@ fun TabSection(selectedTabIndex: Int, tabs: List<String>, onSelect: (Int) -> Uni
 
 @Composable
 private fun DynamicPostList(
-    posts: List<DynamicPostAndUser>, photos: List<Uri>, onClick: (DynamicPostAndUser) -> Unit
+    posts: List<DynamicPostAndUser>, onClick: (DynamicPostAndUser) -> Unit
 ) {
     if (posts.isEmpty()) {
         Text("没有数据")
@@ -180,8 +172,7 @@ private fun DynamicPostList(
         LazyColumn {
             items(posts) {
                 PostsItem(
-                    it,
-                    photo = photos[posts.indexOf(it)],
+                    it
                 ) { onClick(it) }
             }
         }
@@ -190,10 +181,11 @@ private fun DynamicPostList(
 
 
 @Composable
-private fun PostsItem(dynamicPostAndUser: DynamicPostAndUser, photo: Uri, onClick: () -> Unit) {
+private fun PostsItem(dynamicPostAndUser: DynamicPostAndUser, onClick: () -> Unit) {
     val user = dynamicPostAndUser.user
     val commentsCount = dynamicPostAndUser.commentCount
     val dynamicPost = dynamicPostAndUser.dynamicPost
+    val photoList = dynamicPostAndUser.photo
     Row(modifier = Modifier
         .fillMaxWidth()
         .padding(16.dp)
@@ -224,17 +216,27 @@ private fun PostsItem(dynamicPostAndUser: DynamicPostAndUser, photo: Uri, onClic
                 text = if (dynamicPost.content.length > 15) dynamicPost.content.take(15) + "..." else dynamicPost.content,
                 modifier = Modifier.padding(vertical = 8.dp)
             )
-            Image(
-                rememberAsyncImagePainter(
-                    photo
-                ),
-                contentDescription = "评论图片",
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(100.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
-            )
+                    .padding(top = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                photoList.forEach {
+                    Image(
+                        rememberAsyncImagePainter(
+                            it.uri
+                        ),
+                        contentDescription = "评论图片",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(100.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                    )
+                }
+
+            }
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

@@ -7,7 +7,6 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -19,17 +18,16 @@ import com.amap.api.maps.MapsInitializer
 import com.amap.apis.utils.core.api.AMapUtilCoreApi
 import com.efbsm5.easyway.data.UserManager
 import com.efbsm5.easyway.data.network.SyncWorker
-import com.efbsm5.easyway.ui.page.EasyWay
+import com.efbsm5.easyway.ui.EasyWay
 import java.util.concurrent.TimeUnit
 
 class MainActivity : ComponentActivity() {
-    private val TAG = "MainActivity"
+    private val tag = "MainActivity"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         handlePermission()
         setupPeriodicSync()
         setUser()
-        enableEdgeToEdge()
         setContent {
             EasyWayTheme {
                 EasyWay()
@@ -44,7 +42,7 @@ class MainActivity : ComponentActivity() {
         val requestPermission = registerForActivityResult(
             ActivityResultContracts.RequestPermission()
         ) { result: Boolean ->
-            Log.d(TAG, "onCreate: $result")
+            Log.d(tag, "onCreate: $result")
             if (!result) {
                 Toast.makeText(this, "请授予权限", Toast.LENGTH_LONG).show()
             }

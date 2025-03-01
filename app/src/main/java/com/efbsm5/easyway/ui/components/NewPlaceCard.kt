@@ -1,8 +1,7 @@
 package com.efbsm5.easyway.ui.components
 
-import android.content.Context
+import android.net.Uri
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -19,73 +18,64 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.amap.api.maps.model.LatLng
-import com.amap.api.services.core.PoiItemV2
-import com.efbsm5.easyway.data.models.assistModel.EasyPointSimplify
-import com.efbsm5.easyway.map.MapSearchController
 import com.efbsm5.easyway.map.MapUtil
+import com.efbsm5.easyway.map.MapUtil.convertToLatLng
 import com.efbsm5.easyway.map.MapUtil.formatDistance
-import com.efbsm5.easyway.map.MapUtil.onNavigate
+import com.efbsm5.easyway.viewmodel.componentsViewmodel.NewPlaceCardViewModel
+import com.efbsm5.easyway.viewmodel.ViewModelFactory
 
 
 @Composable
 fun NewPlaceCard(latLng: LatLng?, text: String) {
-    var selectedTab by remember { mutableIntStateOf(0) }
     val context = LocalContext.current
-    var poi = ArrayList<PoiItemV2>()
-    val mapSearch = MapSearchController(onPoiSearched = { poi = it })
-    val pointForText = emptyList<EasyPointSimplify>()
-//        points.filter { it.name.contains(text) }
-    mapSearch.searchForPoi(
-        keyword = text, context = context, pageSize = 5, pageNum = 1
-    )
-    NewPlaceCardScreen(
-        selectedTab = selectedTab,
-        onChangeSelected = { selectedTab = it },
-        location = latLng!!,
-        context = context,
-        easyPoints = pointForText,
-        poi = poi
-    )
+    val viewModel = viewModel<NewPlaceCardViewModel>(factory = ViewModelFactory(context = context))
+    latLng?.let {
+        viewModel.getLatlng(latLng)
+    }
+    NewPlaceCardScreen(viewModel, onClick = {
+
+    })
 }
 
 @Composable
 private fun NewPlaceCardScreen(
-    poi: ArrayList<PoiItemV2>,
-    easyPoints: List<EasyPointSimplify>,
-    location: LatLng,
-    selectedTab: Int,
-    context: Context,
-    onChangeSelected: (Int) -> Unit,
+    viewModel: NewPlaceCardViewModel, onClick: () -> Unit
 ) {
+    if (viewModel.showDialog.collectAsState().value) {
+        ShowDialog(onConfirm = { viewModel.confirmDialog() },
+            onCancel = { viewModel.cancelDialog() })
+    }
     Column(modifier = Modifier.fillMaxSize()) {
         Tabs(titles = listOf("无障碍地点", "全部地点"),
-            selectedTabIndex = selectedTab,
-            onTabSelected = { onChangeSelected(it) })
+            selectedTabIndex = viewModel.selectedTab.collectAsState().value,
+            onTabSelected = { viewModel.changeTab(it) })
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 8.dp, vertical = 8.dp)
         ) {
-            items(easyPoints) { easyPoint ->
-                AccessiblePlaceItem(
-                    imageRes = "", title = easyPoint.name, distance = MapUtil.calculateDistance(
-                        location, LatLng(easyPoint.lat, easyPoint.lng)
-                    ), latLng = LatLng(easyPoint.lat, easyPoint.lng), context = context
-                )
+            items(viewModel.points.value) { easyPoint ->
+                AccessiblePlaceItem(imageRes = Uri.EMPTY,
+                    title = easyPoint.name,
+                    distance = easyPoint.getLatlng().let {
+                        MapUtil.calculateDistance(
+                            viewModel.latLng!!, it
+                        )
+                    },
+                    onClick = { onClick() })
                 Spacer(modifier = Modifier.height(8.dp))
             }
-            items(poi) { poi ->
-                AccessiblePlaceItem(
-                    imageRes = poi.photos[1].url,
+            items(viewModel.poiList.value) { poi ->
+                AccessiblePlaceItem(imageRes = poi.photos.first().url.toUri(),
                     title = poi.title,
                     distance = MapUtil.calculateDistance(
-                        location, MapUtil.convertToLatLng(poi.latLonPoint)
+                        viewModel.latLng!!, convertToLatLng(poi.latLonPoint)
                     ),
-                    latLng = MapUtil.convertToLatLng(poi.latLonPoint),
-                    context = context
-                )
+                    onClick = { onClick() })
                 Spacer(modifier = Modifier.height(8.dp))
             }
         }
@@ -93,7 +83,7 @@ private fun NewPlaceCardScreen(
 }
 
 @Composable
-fun Tabs(
+private fun Tabs(
     titles: List<String>, selectedTabIndex: Int, onTabSelected: (Int) -> Unit
 ) {
     Row(
@@ -114,17 +104,15 @@ fun Tabs(
 }
 
 @Composable
-fun AccessiblePlaceItem(
-    imageRes: String, title: String, distance: Float, latLng: LatLng, context: Context
+private fun AccessiblePlaceItem(
+    imageRes: Uri?, title: String, distance: Float, onClick: () -> Unit
 ) {
     Card(shape = RoundedCornerShape(8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         modifier = Modifier
             .fillMaxWidth()
             .clickable {
-                onNavigate(
-                    context = context, latLng = latLng
-                )
+                onClick()
             }) {
         Row(
             modifier = Modifier
@@ -152,7 +140,7 @@ fun AccessiblePlaceItem(
                 )
             }
             Button(
-                onClick = { onNavigate(context = context, latLng = latLng) },
+                onClick = { onClick() },
                 shape = RoundedCornerShape(50),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
                 modifier = Modifier.size(40.dp)
@@ -163,3 +151,19 @@ fun AccessiblePlaceItem(
     }
 }
 
+@Composable
+private fun ShowDialog(onConfirm: () -> Unit, onCancel: () -> Unit) {
+    AlertDialog(onDismissRequest = { onCancel() },
+        title = { Text(text = "注意") },
+        text = { Text("提供两种导航方式,确认则使用本软件进行导航,否则使用手机自带的app进行导航") },
+        confirmButton = {
+            TextButton(onClick = { onConfirm() }) {
+                Text("确认")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = { onCancel() }) {
+                Text("取消")
+            }
+        })
+}

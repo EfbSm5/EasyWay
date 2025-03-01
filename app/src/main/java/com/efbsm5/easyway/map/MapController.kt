@@ -20,7 +20,6 @@ import com.amap.api.maps.model.MyLocationStyle
 import com.amap.api.maps.model.Poi
 import com.efbsm5.easyway.ui.theme.isDarkTheme
 
-private const val TAG = "MapController"
 
 class MapController(
     onPoiClick: (Poi?) -> Unit, onMapClick: (LatLng?) -> Unit, onMarkerClick: (Marker?) -> Unit
@@ -65,16 +64,15 @@ class MapController(
         mLocationClient.setLocationListener(this@MapController)
     }
 
-
-
-
     fun onLocate(mapView: MapView) {
         mLocation?.let {
-            mapView.map.animateCamera(CameraUpdateFactory.newLatLng(it))
+            moveMap(it, mapView)
         }
     }
 
-
+    private fun moveMap(latLng: LatLng, mapView: MapView) {
+        mapView.map.animateCamera(CameraUpdateFactory.newLatLng(latLng))
+    }
 
     fun initMap(mapView: MapView) {
         val map = mapView.map

@@ -2,6 +2,7 @@ package com.efbsm5.easyway.data.models
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.amap.api.maps.model.LatLng
 import com.google.gson.annotations.SerializedName
 
 @Entity(tableName = "dynamicposts")
@@ -17,5 +18,9 @@ data class DynamicPost(
     @SerializedName("user_id") var userId: Int,
     @SerializedName("comment_id") var commentId: Int,
     @SerializedName("photo_id") var photoId: Int
-)
+) {
+    fun getLatlng(): LatLng {
+        return LatLng(lat, lng)
+    }
+}
 
