@@ -18,6 +18,7 @@ class NewPlaceCardViewModel(context: Context) : ViewModel() {
     val points: StateFlow<List<EasyPointSimplify>> = _points
     val selectedTab: StateFlow<Int> = _selectedTab
     var latLng: LatLng? = null
+    var destination: LatLng? = null
     val poiList: StateFlow<List<PoiItemV2>> = _poiList
     val showDialog: StateFlow<Boolean> = _showDialog
 
@@ -26,7 +27,7 @@ class NewPlaceCardViewModel(context: Context) : ViewModel() {
         _selectedTab.value = int
     }
 
-    fun getLatlng(latLng: LatLng) {
+    fun getLatlng(latLng: LatLng?) {
         this.latLng = latLng
     }
 
@@ -37,15 +38,20 @@ class NewPlaceCardViewModel(context: Context) : ViewModel() {
         mapPoiSearchUtil.searchForPoi(string)
     }
 
-    fun changgeShowDialog() {
-
+    fun showDialog(destination: LatLng) {
+        this.destination = destination
+        _showDialog.value = true
     }
 
     fun confirmDialog() {
-
+        _showDialog.value = false
     }
 
-    fun cancelDialog() {
-
+    fun cancelDialog(context: Context) {
+        _showDialog.value = false
+        MapUtil.onNavigate(
+            context = context,
+            latLng = destination!!,
+        )
     }
 }

@@ -20,7 +20,7 @@ class MapRouteSearchUtil(
 ) : RouteSearch.OnRouteSearchListener {
 
     fun startRouteSearch(
-        mStartPoint: LatLng, mEndPoint: LatLng, mapView: MapView
+        mStartPoint: LatLng, mEndPoint: LatLng
     ) {
         Thread {
             try {

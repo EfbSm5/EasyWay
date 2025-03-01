@@ -46,19 +46,17 @@ private fun MapScreen(
     mapPageViewModel: MapPageViewModel, mapView: MapView
 ) {
     val content = mapPageViewModel.content.collectAsState().value
-    AndroidView(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(bottom = mapPageViewModel.boxHeight.collectAsState().value),
+    AndroidView(modifier = Modifier
+        .fillMaxSize()
+        .padding(bottom = mapPageViewModel.boxHeight.collectAsState().value),
         factory = { mapView })
-    AddAndLocateButton(
-        onAdd = {
-            mapPageViewModel.changeScreen(
-                Screen.NewPoint(
-                    location = mapPageViewModel.location.value
-                )
+    AddAndLocateButton(onAdd = {
+        mapPageViewModel.changeScreen(
+            Screen.NewPoint(
+                location = mapPageViewModel.location.value
             )
-        },
+        )
+    },
         onLocate = { mapPageViewModel.moveMapToLocation() },
         bottomHeight = mapPageViewModel.boxHeight.collectAsState().value
     )
@@ -90,10 +88,11 @@ private fun MapScreen(
                             back = { mapPageViewModel.changeScreen(Screen.IconCard) })
 
                         is Screen.Places -> {
-                            NewPlaceCard(
-                                mapPageViewModel.location.collectAsState().value,
+                            NewPlaceCard(mapPageViewModel.location.collectAsState().value,
                                 content.name,
-                            )
+                                onNavigate = {
+                                    mapPageViewModel.navigate(it)
+                                })
                         }
 
                         Screen.Search -> ShowSearchScreen(markerList = mapPageViewModel.markers.collectAsState().value,

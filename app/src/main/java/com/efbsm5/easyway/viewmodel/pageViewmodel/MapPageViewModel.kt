@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewModelScope
 import com.amap.api.maps.AMapOptions
 import com.amap.api.maps.CameraUpdateFactory
@@ -24,6 +25,7 @@ import com.amap.api.services.core.PoiItemV2
 import com.efbsm5.easyway.data.ViewModelRepository.DataRepository
 import com.efbsm5.easyway.map.MapController
 import com.efbsm5.easyway.map.MapPoiSearchUtil
+import com.efbsm5.easyway.map.MapRouteSearchUtil
 import com.efbsm5.easyway.map.MapUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -39,7 +41,7 @@ class MapPageViewModel(context: Context) : ViewModel() {
     private var _boxHeight = MutableStateFlow(100.dp)
     private val mapController = MapController(onPoiClick = {
         _content.value = Screen.Comment(null)
-        _mapView.value.map.animateCamera(CameraUpdateFactory.newLatLng(it?.position)
+        _mapView.value.map.animateCamera(CameraUpdateFactory.newLatLng(it!!.coordinate))
     }, onMapClick = {
         _mapView.value.map.animateCamera(CameraUpdateFactory.newLatLng(it!!))
     }, onMarkerClick = {
@@ -47,16 +49,18 @@ class MapPageViewModel(context: Context) : ViewModel() {
         _mapView.value.map.animateCamera(CameraUpdateFactory.newLatLng(it?.position))
     })
     private val _location = MutableStateFlow<LatLng>(LatLng(30.513197, 114.413301))
-    private val poiItem = MutableStateFlow<List<PoiItemV2>>(emptyList())
+    private val _poiItem = MutableStateFlow<List<PoiItemV2>>(emptyList())
     val mapView: StateFlow<MapView> = _mapView
     val content: StateFlow<Screen> = _content
     val boxHeight: StateFlow<Dp> = _boxHeight
     val location: StateFlow<LatLng> = _location
-    val markers: StateFlow<List<PoiItemV2>> = poiItem
+    val markers: StateFlow<List<PoiItemV2>> = _poiItem
     val selectedPoi: PoiItemV2? = null
     private val mapSearch = MapPoiSearchUtil(context = context,
-        mapView = _mapView.value,
-        onPoiSearched = { poiItem.value = it },
+        onPoiSearched = { _poiItem.value = it },
+        returnMsg = { MapUtil.showMsg(it, context) })
+    private val routeSearch = MapRouteSearchUtil(mapView = _mapView.value,
+        context = context,
         returnMsg = { MapUtil.showMsg(it, context) })
 
 
@@ -102,7 +106,7 @@ class MapPageViewModel(context: Context) : ViewModel() {
 
     @Composable
     fun MapLifecycle(context: Context) {
-        val lifecycle = androidx.lifecycle.compose.LocalLifecycleOwner.current.lifecycle
+        val lifecycle = LocalLifecycleOwner.current.lifecycle
         DisposableEffect(context, lifecycle, this) {
             val mapLifecycleObserver = lifecycleObserver(_mapView.value)
             val callbacks = _mapView.value.componentCallbacks()
@@ -149,12 +153,18 @@ class MapPageViewModel(context: Context) : ViewModel() {
             this@componentCallbacks.onLowMemory()
         }
     }
+
+    fun navigate(destination: LatLng) {
+        routeSearch.startRouteSearch(
+            mStartPoint = _location.value, mEndPoint = destination
+        )
+    }
 }
 
 sealed interface Screen {
     data object IconCard : Screen
     data class NewPoint(val location: LatLng?) : Screen
     data class Places(val name: String) : Screen
-    data class Comment(val marker: Marker?, val poiItemV2: PoiItemV2?) : Screen
+    data class Comment(val marker: Marker?) : Screen
     data object Search : Screen
 }

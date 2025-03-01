@@ -45,10 +45,10 @@ class MapController(
         mLocation = getLastKnownLocation()
     }
 
-    fun getLastKnownLocation(): LatLng? {
+    fun getLastKnownLocation(): LatLng {
         val lat = sharedPreferences.getFloat("last_lat", Float.NaN)
         val lng = sharedPreferences.getFloat("last_lng", Float.NaN)
-        return if (!lat.isNaN() && !lng.isNaN()) LatLng(lat.toDouble(), lng.toDouble()) else null
+        return LatLng(lat.toDouble(), lng.toDouble())
     }
 
     private fun saveLastKnownLocation(location: LatLng, cityCode: String) {
@@ -85,7 +85,7 @@ class MapController(
         map.setOnPOIClickListener(this@MapController)
         map.setOnMarkerClickListener(this@MapController)
         map.showMapText(true)
-        getLastKnownLocation()?.let { map.animateCamera(CameraUpdateFactory.newLatLng(it)) }
+        getLastKnownLocation().let { map.animateCamera(CameraUpdateFactory.newLatLng(it)) }
     }
 
     override fun activate(p0: OnLocationChangedListener?) {

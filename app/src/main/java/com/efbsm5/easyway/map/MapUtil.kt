@@ -48,7 +48,7 @@ object MapUtil {
         if (intent.resolveActivity(context.packageManager) != null) {
             context.startActivity(intent)
         } else {
-            Toast.makeText(context, "未找到地图应用", Toast.LENGTH_SHORT).show()
+            showMsg("未找到地图应用", context)
         }
     }
 

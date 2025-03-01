@@ -30,25 +30,26 @@ import com.efbsm5.easyway.viewmodel.ViewModelFactory
 
 
 @Composable
-fun NewPlaceCard(latLng: LatLng?, text: String) {
+fun NewPlaceCard(latLng: LatLng?, text: String, onNavigate: (LatLng) -> Unit) {
     val context = LocalContext.current
     val viewModel = viewModel<NewPlaceCardViewModel>(factory = ViewModelFactory(context = context))
-    latLng?.let {
-        viewModel.getLatlng(latLng)
-    }
-    NewPlaceCardScreen(viewModel, onClick = {
-
-    })
+    viewModel.getLatlng(latLng = latLng)
+    viewModel.search(string = text, context = context)
+    NewPlaceCardScreen(viewModel)
+    ShowDialog(
+        showDialog = viewModel.showDialog.collectAsState().value,
+        onConfirm = {
+            viewModel.confirmDialog()
+            onNavigate(viewModel.destination!!)
+        },
+        onCancel = { viewModel.cancelDialog(context) },
+    )
 }
 
 @Composable
 private fun NewPlaceCardScreen(
-    viewModel: NewPlaceCardViewModel, onClick: () -> Unit
+    viewModel: NewPlaceCardViewModel
 ) {
-    if (viewModel.showDialog.collectAsState().value) {
-        ShowDialog(onConfirm = { viewModel.confirmDialog() },
-            onCancel = { viewModel.cancelDialog() })
-    }
     Column(modifier = Modifier.fillMaxSize()) {
         Tabs(titles = listOf("无障碍地点", "全部地点"),
             selectedTabIndex = viewModel.selectedTab.collectAsState().value,
@@ -66,7 +67,7 @@ private fun NewPlaceCardScreen(
                             viewModel.latLng!!, it
                         )
                     },
-                    onClick = { onClick() })
+                    navigate = { viewModel.showDialog(easyPoint.getLatlng()) })
                 Spacer(modifier = Modifier.height(8.dp))
             }
             items(viewModel.poiList.value) { poi ->
@@ -75,7 +76,7 @@ private fun NewPlaceCardScreen(
                     distance = MapUtil.calculateDistance(
                         viewModel.latLng!!, convertToLatLng(poi.latLonPoint)
                     ),
-                    onClick = { onClick() })
+                    navigate = { viewModel.showDialog(convertToLatLng(poi.latLonPoint)) })
                 Spacer(modifier = Modifier.height(8.dp))
             }
         }
@@ -105,14 +106,14 @@ private fun Tabs(
 
 @Composable
 private fun AccessiblePlaceItem(
-    imageRes: Uri?, title: String, distance: Float, onClick: () -> Unit
+    imageRes: Uri?, title: String, distance: Float, navigate: () -> Unit
 ) {
     Card(shape = RoundedCornerShape(8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         modifier = Modifier
             .fillMaxWidth()
             .clickable {
-                onClick()
+                navigate()
             }) {
         Row(
             modifier = Modifier
@@ -140,7 +141,7 @@ private fun AccessiblePlaceItem(
                 )
             }
             Button(
-                onClick = { onClick() },
+                onClick = { navigate() },
                 shape = RoundedCornerShape(50),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray),
                 modifier = Modifier.size(40.dp)
@@ -152,18 +153,20 @@ private fun AccessiblePlaceItem(
 }
 
 @Composable
-private fun ShowDialog(onConfirm: () -> Unit, onCancel: () -> Unit) {
-    AlertDialog(onDismissRequest = { onCancel() },
-        title = { Text(text = "注意") },
-        text = { Text("提供两种导航方式,确认则使用本软件进行导航,否则使用手机自带的app进行导航") },
-        confirmButton = {
-            TextButton(onClick = { onConfirm() }) {
-                Text("确认")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = { onCancel() }) {
-                Text("取消")
-            }
-        })
+private fun ShowDialog(showDialog: Boolean, onConfirm: () -> Unit, onCancel: () -> Unit) {
+    if (showDialog) {
+        AlertDialog(onDismissRequest = { onCancel() },
+            title = { Text(text = "注意") },
+            text = { Text("提供两种导航方式,确认则使用本软件进行导航,否则使用手机自带的app进行导航") },
+            confirmButton = {
+                TextButton(onClick = { onConfirm() }) {
+                    Text("确认")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { onCancel() }) {
+                    Text("取消")
+                }
+            })
+    }
 }
