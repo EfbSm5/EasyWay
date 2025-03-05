@@ -9,8 +9,7 @@ import com.amap.api.services.poisearch.PoiSearchV2
 
 class MapPoiSearchUtil(
     private val context: Context,
-    val onPoiSearched: (ArrayList<PoiItemV2>) -> Unit,
-    val returnMsg: (String) -> Unit
+    val onPoiSearched: (ArrayList<PoiItemV2>) -> Unit
 ) : PoiSearchV2.OnPoiSearchListener {
     private var cityCode = "027"
 
@@ -33,7 +32,7 @@ class MapPoiSearchUtil(
 
     override fun onPoiSearched(p0: PoiResultV2?, p1: Int) {
         if (p1 != 1000) {
-            returnMsg("搜索出错")
+            MapUtil.showMsg("搜索出错", context)
         } else {
             p0?.pois?.let { onPoiSearched(it) }
         }

@@ -136,7 +136,7 @@ class DataRepository(private val context: Context) {
         return database.photoDao().getPhotoById(id = photoId)
     }
 
-    fun getPointByUserId(userId: Int) {
-        return database.dynamicPostDao().
+    fun getPointByUserId(userId: Int): List<DynamicPost> {
+        return database.dynamicPostDao().getAllDynamicPostsByUserId(userId)
     }
 }

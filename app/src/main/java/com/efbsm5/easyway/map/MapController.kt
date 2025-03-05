@@ -1,7 +1,16 @@
 package com.efbsm5.easyway.map
 
+import android.content.ComponentCallbacks
 import android.content.Context
 import android.content.SharedPreferences
+import android.content.res.Configuration
+import android.os.Bundle
+import android.util.Log
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.amap.api.location.AMapLocationClient
 import com.amap.api.location.AMapLocationClientOption
 import com.amap.api.maps.AMap.MAP_TYPE_NIGHT
@@ -16,9 +25,12 @@ import com.amap.api.maps.model.MyLocationStyle
 import com.amap.api.maps.model.Poi
 import com.efbsm5.easyway.ui.theme.isDarkTheme
 
+private const val TAG = "MapController"
 
 class MapController(
-    onPoiClick: (Poi) -> Unit, onMapClick: (LatLng) -> Unit, onMarkerClick: (Marker) -> Unit
+    val onPoiClick: (Poi) -> Unit,
+    val onMapClick: (LatLng) -> Unit,
+    val onMarkerClick: (Marker) -> Unit
 ) : LocationSource {
     private lateinit var mLocationClient: AMapLocationClient
     private lateinit var sharedPreferences: SharedPreferences
@@ -27,11 +39,8 @@ class MapController(
             .setOnceLocation(true).setOnceLocationLatest(true).setNeedAddress(true)
             .setHttpTimeOut(6000)
     private var mListener: OnLocationChangedListener? = null
-    val monMapClick: (LatLng) -> Unit = onMapClick
-    val monPoiClick: (Poi) -> Unit = onPoiClick
-    val monMarkerClick: (Marker) -> Unit = onMarkerClick
-    private var mLocation: LatLng? = null
-    private var isDarkTheme: Boolean? = null
+    private var mLocation = LatLng(30.507950, 114.413514)
+    private var isDarkTheme = false
 
     private fun initializeVariables(context: Context) {
         isDarkTheme = isDarkTheme(context)
@@ -40,7 +49,7 @@ class MapController(
         mLocation = getLastKnownLocation()
     }
 
-    fun getLastKnownLocation(): LatLng {
+    private fun getLastKnownLocation(): LatLng {
         val lat = sharedPreferences.getFloat("last_lat", Float.NaN)
         val lng = sharedPreferences.getFloat("last_lng", Float.NaN)
         return LatLng(lat.toDouble(), lng.toDouble())
@@ -62,36 +71,43 @@ class MapController(
                 val latitude = aMapLocation.latitude
                 val longitude = aMapLocation.longitude
                 mLocation = LatLng(latitude, longitude)
-                saveLastKnownLocation(mLocation!!, aMapLocation.cityCode)
+                saveLastKnownLocation(mLocation, aMapLocation.cityCode)
             }
         }
     }
 
-    fun onLocate(mapView: MapView) {
-        mLocation?.let {
-            moveMap(it, mapView)
-        }
+    fun moveToLocation(mapView: MapView) {
+        moveMap(mLocation, mapView)
+    }
+
+    fun navigate(destination: LatLng, context: Context, mapView: MapView) {
+        MapRouteSearchUtil(
+            mapView = mapView,
+            context = context,
+            returnMsg = { MapUtil.showMsg(it, context) }).startRouteSearch(
+            mStartPoint = mLocation, mEndPoint = destination
+        )
     }
 
     private fun moveMap(latLng: LatLng, mapView: MapView) {
         mapView.map.animateCamera(CameraUpdateFactory.newLatLng(latLng))
     }
 
-    fun initMap(mapView: MapView) {
+    private fun initMap(mapView: MapView) {
         mapView.map.apply {
-            mapType = if (isDarkTheme!!) MAP_TYPE_NIGHT else MAP_TYPE_NORMAL
+            mapType = if (isDarkTheme) MAP_TYPE_NIGHT else MAP_TYPE_NORMAL
             setLocationSource(this@MapController)
             isMyLocationEnabled = true
             myLocationStyle = MyLocationStyle().interval(2000)
                 .myLocationType(MyLocationStyle.LOCATION_TYPE_FOLLOW)
             setOnMapClickListener {
-                monMapClick(it)
+                onMapClick
             }
             setOnPOIClickListener {
-                monPoiClick(it)
+                onPoiClick(it)
             }
             setOnMarkerClickListener {
-                monMarkerClick(it)
+                onMarkerClick
                 true
             }
             showMapText(true)
@@ -110,5 +126,55 @@ class MapController(
         mListener = null
         mLocationClient.stopLocation()
         mLocationClient.onDestroy()
+    }
+
+    @Composable
+    fun MapLifecycle(context: Context, mapView: MapView) {
+        val lifecycle = LocalLifecycleOwner.current.lifecycle
+        DisposableEffect(context, lifecycle, this) {
+            val mapLifecycleObserver = lifecycleObserver(mapView)
+            val callbacks = mapView.componentCallbacks()
+            lifecycle.addObserver(mapLifecycleObserver)
+            context.registerComponentCallbacks(callbacks)
+            onDispose {
+                lifecycle.removeObserver(mapLifecycleObserver)
+                context.unregisterComponentCallbacks(callbacks)
+            }
+        }
+    }
+
+    private fun lifecycleObserver(mapView: MapView): LifecycleEventObserver =
+        LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_CREATE -> {
+                    mapView.onCreate(Bundle())
+                    initMap(mapView)
+                    Log.e(TAG, "lifecycleObserver:     oncreate view")
+                }
+
+                Lifecycle.Event.ON_RESUME -> {
+                    mapView.onResume()
+                    Log.e(TAG, "lifecycleObserver:           onresume view")
+                }
+
+                Lifecycle.Event.ON_PAUSE -> {
+                    mapView.onPause()
+                    Log.e(TAG, "lifecycleObserver:                on pause view")
+                }  // 暂停地图的绘制
+                Lifecycle.Event.ON_DESTROY -> {
+                    mapView.onDestroy()
+                    Log.e(TAG, "lifecycleObserver:            on destory view")
+                } // 销毁地图
+                else -> {}
+            }
+        }
+
+    private fun MapView.componentCallbacks(): ComponentCallbacks = object : ComponentCallbacks {
+        override fun onConfigurationChanged(config: Configuration) {}
+
+        @Deprecated("Deprecated in Java", ReplaceWith("this@componentCallbacks.onLowMemory()"))
+        override fun onLowMemory() {
+            this@componentCallbacks.onLowMemory()
+        }
     }
 }

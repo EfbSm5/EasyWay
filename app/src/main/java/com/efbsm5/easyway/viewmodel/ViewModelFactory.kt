@@ -12,6 +12,7 @@ import com.efbsm5.easyway.viewmodel.pageViewmodel.DetailPageViewModel
 import com.efbsm5.easyway.viewmodel.pageViewmodel.HomePageViewModel
 import com.efbsm5.easyway.viewmodel.pageViewmodel.MapPageViewModel
 import com.efbsm5.easyway.viewmodel.pageViewmodel.NewPostPageViewModel
+import com.efbsm5.easyway.viewmodel.pageViewmodel.SearchPageViewModel
 import com.efbsm5.easyway.viewmodel.pageViewmodel.ShowPageViewModel
 
 class ViewModelFactory(
@@ -41,6 +42,9 @@ class ViewModelFactory(
         }
         if (modelClass.isAssignableFrom(HomePageViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST") return HomePageViewModel(context) as T
+        }
+        if (modelClass.isAssignableFrom(SearchPageViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST") return SearchPageViewModel(context) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

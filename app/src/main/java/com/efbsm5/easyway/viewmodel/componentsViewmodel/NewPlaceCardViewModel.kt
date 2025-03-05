@@ -6,7 +6,6 @@ import com.amap.api.maps.model.LatLng
 import com.amap.api.services.core.PoiItemV2
 import com.efbsm5.easyway.data.models.assistModel.EasyPointSimplify
 import com.efbsm5.easyway.map.MapPoiSearchUtil
-import com.efbsm5.easyway.map.MapUtil
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -27,14 +26,13 @@ class NewPlaceCardViewModel : ViewModel() {
         _selectedTab.value = int
     }
 
-    fun getLocation(latLng: LatLng?) {
+    fun getLocation(latLng: LatLng) {
         this.latLng = latLng
     }
 
     fun search(string: String, context: Context) {
         val mapPoiSearchUtil = MapPoiSearchUtil(context = context,
-            onPoiSearched = { _poiList.value = it.toList() },
-            returnMsg = { MapUtil.showMsg(it, context) })
+            onPoiSearched = { _poiList.value = it.toList() })
         mapPoiSearchUtil.searchForPoi(string)
     }
 

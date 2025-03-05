@@ -38,11 +38,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.amap.api.maps.AMapOptions
 import com.amap.api.maps.MapView
+import com.efbsm5.easyway.map.MapController
 import com.efbsm5.easyway.ui.page.CommunityPage
 import com.efbsm5.easyway.ui.page.HomePage
 import com.efbsm5.easyway.ui.page.MapPage
@@ -54,9 +57,30 @@ import com.efbsm5.easyway.viewmodel.pageViewmodel.MapPageViewModel
 fun EasyWay() {
     val navControl = rememberNavController()
     val context = LocalContext.current
+    val mapView = MapView(context, AMapOptions().compassEnabled(true))
     val mapPageViewModel = viewModel<MapPageViewModel>(factory = ViewModelFactory(context))
-    val HomePageViewModel = viewModel<HomePageViewModel>(factory = ViewModelFactory(context))
-    val mapView=MapView()
+    val homePageViewModel = viewModel<HomePageViewModel>(factory = ViewModelFactory(context))
+    val mapController = MapController(onPoiClick = {}, onMapClick = {}, onMarkerClick = {})
+    mapController.mapLocationInit(context)
+    mapController.MapLifecycle(context, mapView)
+    mapPageViewModel.fetchPoints(mapView)
+    AppSurface(
+        navController = navControl,
+        mapController = mapController,
+        mapView = mapView,
+        mapPageViewModel = mapPageViewModel,
+        homePageViewModel = homePageViewModel
+    )
+}
+
+@Composable
+fun AppSurface(
+    navController: NavHostController,
+    mapController: MapController,
+    mapView: MapView,
+    mapPageViewModel: MapPageViewModel,
+    homePageViewModel: HomePageViewModel,
+) {
     Surface(
         modifier = Modifier
             .fillMaxSize()
@@ -71,19 +95,23 @@ fun EasyWay() {
             Box(
                 modifier = Modifier.weight(1f)
             ) {
-                NavHost(navController = navControl, startDestination = "MapPage") {
+                NavHost(navController = navController, startDestination = "MapPage") {
                     composable("MapPage") {
-                        MapPage(mapPageViewModel)
+                        MapPage(
+                            viewModel = mapPageViewModel,
+                            mapView = mapView,
+                            mapController = mapController
+                        )
                     }
                     composable("Community") {
                         CommunityPage()
                     }
                     composable("home") {
-                        HomePage(HomePageViewModel)
+                        HomePage(homePageViewModel)
                     }
                 }
             }
-            HighlightButton(navController = navControl)
+            HighlightButton(navController = navController)
         }
     }
 }

@@ -51,7 +51,7 @@ fun DetailPage(onBack: () -> Unit, viewModel: DetailPageViewModel) {
         commentAndUser = commentAndUser,
         onLikeComment = { viewModel.addLike(it) },
         photos = photos,
-        post = post!!
+        post = post
     )
 }
 

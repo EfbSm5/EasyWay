@@ -34,19 +34,19 @@ import androidx.compose.ui.unit.sp
 import com.efbsm5.easyway.R
 
 @Composable
-fun FunctionCard(onclick: (String) -> Unit, onChangePage: () -> Unit) {
+fun FunctionCard(onclick: (String) -> Unit, onChangeSearchPage: () -> Unit) {
     var text by remember { mutableStateOf("") }
     FunctionCardScreen(text = text,
         onTextChange = { text = it },
         onclick = { onclick(it) },
-        onClickSearchBar = { onChangePage() })
+        onClickSearchBar = { onChangeSearchPage() })
 }
 
 @Composable
 private fun FunctionCardScreen(
     text: String = "",
     onTextChange: (String) -> Unit = {},
-    onclick: (String) -> Unit = {  },
+    onclick: (String) -> Unit = { },
     onClickSearchBar: () -> Unit = {}
 ) {
     Column(

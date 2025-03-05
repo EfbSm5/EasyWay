@@ -12,6 +12,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.amap.api.maps.MapView
@@ -19,18 +20,14 @@ import com.amap.api.maps.model.LatLng
 import com.amap.api.services.core.PoiItemV2
 import com.efbsm5.easyway.map.MapController
 import com.efbsm5.easyway.ui.components.AddAndLocateButton
-import com.efbsm5.easyway.ui.components.CommentAndHistoryCard
 import com.efbsm5.easyway.ui.components.DraggableBox
-import com.efbsm5.easyway.ui.components.FunctionCard
 import com.efbsm5.easyway.ui.components.MapPageCard
-import com.efbsm5.easyway.ui.components.NewPlaceCard
-import com.efbsm5.easyway.ui.components.NewPointCard
-import com.efbsm5.easyway.ui.components.ShowSearchScreen
 import com.efbsm5.easyway.viewmodel.pageViewmodel.MapPageViewModel
 import com.efbsm5.easyway.viewmodel.pageViewmodel.Screen
 
 @Composable
 fun MapPage(viewModel: MapPageViewModel, mapView: MapView, mapController: MapController) {
+    val context = LocalContext.current
     val content by viewModel.content.collectAsState()
     val boxHeight by viewModel.boxHeight.collectAsState()
     val location by viewModel.location.collectAsState()
@@ -41,17 +38,13 @@ fun MapPage(viewModel: MapPageViewModel, mapView: MapView, mapController: MapCon
         onChangeScreen = { viewModel.changeScreen(it) },
         location = location,
         onLocate = {
-            viewModel.moveMapToLocation(
-                mapView = mapView, mapController = mapController
-            )
+            mapController.moveToLocation(mapView)
         },
         onChangeHeight = { viewModel.changeBoxHeight(it) },
         selectedPoi = selectedPoi,
         navigate = {
-            viewModel.navigate(
-                it,
-                context = TODO(),
-                mapView = mapView,
+            mapController.navigate(
+                destination = it, context = context, mapView = mapView
             )
         },
         markerList = viewModel.markers.collectAsState().value,

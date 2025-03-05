@@ -1,4 +1,4 @@
-package com.efbsm5.easyway.ui.components
+package com.efbsm5.easyway.ui.page
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,10 +19,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
@@ -30,28 +28,25 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.amap.api.services.core.PoiItemV2
+import com.efbsm5.easyway.viewmodel.pageViewmodel.SearchPageViewModel
 
 @Composable
-fun ShowSearchScreen(
-    markerList: List<PoiItemV2>,
-    searchForPoi: (keyword: String) -> Unit,
-    onSelected: (poiItemV2: PoiItemV2) -> Unit
+fun SearchPage(
+    viewModel: SearchPageViewModel, onSelected: (poiItemV2: PoiItemV2) -> Unit
 ) {
-    var keyword by remember { mutableStateOf("") }
-    if (keyword.isNotEmpty()) {
-        searchForPoi(keyword)
-    }
-    SearchScreenSurface(
+    val keyword by viewModel.text.collectAsState()
+    val poiList by viewModel.poiList.collectAsState()
+    SearchPageScreen(
         keyword = keyword,
-        poiItemV2s = markerList,
-        onChangeKeyWord = { keyword = it },
-        searchForPoi = { searchForPoi(keyword) },
+        poiItemV2s = poiList,
+        onChangeKeyWord = { viewModel.changeText(it) },
+        searchForPoi = { viewModel.searchForPoi() },
         onSelected = { onSelected(it) },
     )
 }
 
 @Composable
-fun SearchScreenSurface(
+fun SearchPageScreen(
     keyword: String,
     poiItemV2s: List<PoiItemV2>,
     onChangeKeyWord: (String) -> Unit,

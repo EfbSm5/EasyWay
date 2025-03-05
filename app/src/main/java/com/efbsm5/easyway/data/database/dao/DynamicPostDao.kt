@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.efbsm5.easyway.data.models.DynamicPost
+import com.efbsm5.easyway.data.models.User
 
 @Dao
 interface DynamicPostDao {
@@ -28,4 +29,7 @@ interface DynamicPostDao {
 
     @Query("SELECT COUNT(*) FROM dynamicposts")
     fun getCount(): Int
+
+    @Query("SELECT * FROM dynamicposts WHERE userId = :userId")
+    fun getAllDynamicPostsByUserId(userId: Int): List<DynamicPost>
 }
