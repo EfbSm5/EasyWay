@@ -10,6 +10,5 @@ class HomePageViewModel(context: Context) : ViewModel() {
     private val repository = DataRepository(context)
 
     fun getUserPoint() {
-//repository.
     }
 }

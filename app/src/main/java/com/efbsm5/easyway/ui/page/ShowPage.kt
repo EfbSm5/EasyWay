@@ -246,7 +246,7 @@ private fun PostsItem(dynamicPostAndUser: DynamicPostAndUser, onClick: () -> Uni
                     modifier = Modifier.padding(horizontal = 4.dp)
                 )
                 Spacer(modifier = Modifier.width(16.dp))
-                Text(text = "评论 ${commentsCount.toString()}")
+                Text(text = "评论 $commentsCount")
             }
         }
     }

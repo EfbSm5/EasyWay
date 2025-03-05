@@ -94,10 +94,24 @@ class DataRepository(private val context: Context) {
     }
 
 
-    fun getPointFromMarker(marker: Marker): EasyPoint? {
-        val point = database.pointsDao()
+    fun getPointFromMarker(marker: Marker): EasyPoint {
+        return database.pointsDao()
             .getPointByLatLng(marker.position.latitude, marker.position.longitude)
-        return point
+            ?: EasyPoint(
+                pointId = 0,
+                name = "未找到的标点",
+                type = "",
+                info = "",
+                location = "",
+                photo = null,
+                refreshTime = "",
+                likes = 0,
+                dislikes = 0,
+                lat = marker.position.latitude,
+                lng = marker.position.longitude,
+                userId = 0,
+                commentId = 0
+            )
     }
 
     fun uploadComment(commentContent: String, commentId: Int) {

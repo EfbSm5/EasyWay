@@ -15,10 +15,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.viewinterop.AndroidView
+import com.amap.api.maps.AMapOptions
 import com.amap.api.maps.MapView
 import com.amap.api.maps.model.LatLng
-import com.amap.api.services.core.PoiItemV2
 import com.efbsm5.easyway.map.MapController
+import com.efbsm5.easyway.map.MapUtil
 import com.efbsm5.easyway.ui.components.AddAndLocateButton
 import com.efbsm5.easyway.ui.components.DraggableBox
 import com.efbsm5.easyway.ui.components.MapPageCard
@@ -26,12 +27,16 @@ import com.efbsm5.easyway.viewmodel.pageViewmodel.MapPageViewModel
 import com.efbsm5.easyway.viewmodel.pageViewmodel.Screen
 
 @Composable
-fun MapPage(viewModel: MapPageViewModel, mapView: MapView, mapController: MapController) {
+fun MapPage(viewModel: MapPageViewModel) {
     val context = LocalContext.current
+    val mapView = MapView(context, AMapOptions().compassEnabled(true))
+    val mapController = MapController(onPoiClick = {}, onMapClick = {}, onMarkerClick = {})
+    mapController.mapLocationInit(context)
+    mapController.MapLifecycle(context, mapView)
+    viewModel.fetchPoints(mapView)
     val content by viewModel.content.collectAsState()
     val boxHeight by viewModel.boxHeight.collectAsState()
     val location by viewModel.location.collectAsState()
-    val selectedPoi = viewModel.selectedPoi
     MapScreen(mapView = mapView,
         content = content,
         boxHeight = boxHeight,
@@ -41,14 +46,13 @@ fun MapPage(viewModel: MapPageViewModel, mapView: MapView, mapController: MapCon
             mapController.moveToLocation(mapView)
         },
         onChangeHeight = { viewModel.changeBoxHeight(it) },
-        selectedPoi = selectedPoi,
-        navigate = {
-            mapController.navigate(
-                destination = it, context = context, mapView = mapView
-            )
-        },
-        markerList = viewModel.markers.collectAsState().value,
-        getPoint = { viewModel.getPoint(it) })
+        navigate = { latLng, isNavigate ->
+            if (isNavigate) {
+                mapController.navigate(latLng, context, mapView)
+            } else {
+                MapUtil.onNavigate(context, latLng)
+            }
+        })
 }
 
 @Composable
@@ -60,10 +64,7 @@ private fun MapScreen(
     location: LatLng,
     onLocate: () -> Unit,
     onChangeHeight: (Dp) -> Unit,
-    selectedPoi: PoiItemV2?,
-    navigate: (LatLng) -> Unit,
-    markerList: List<PoiItemV2>,
-    getPoint: (String) -> Unit
+    navigate: (LatLng, Boolean) -> Unit,
 ) {
     AndroidView(
         modifier = Modifier
@@ -91,7 +92,12 @@ private fun MapScreen(
                         .fillMaxSize()
                         .background(color = MaterialTheme.colorScheme.surfaceContainer)
                 ) {
-                    MapPageCard()
+                    MapPageCard(
+                        content = content,
+                        onChangeScreen = { onChangeScreen(it) },
+                        location = location,
+                        onNavigate = navigate
+                    )
                 }
             },
         )

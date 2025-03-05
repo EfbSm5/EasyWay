@@ -12,7 +12,6 @@ import com.amap.api.maps.model.Marker
 import com.amap.api.maps.model.MarkerOptions
 import com.amap.api.services.core.PoiItemV2
 import com.efbsm5.easyway.data.ViewModelRepository.DataRepository
-import com.efbsm5.easyway.map.MapPoiSearchUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,15 +23,9 @@ class MapPageViewModel(context: Context) : ViewModel() {
     private var _content = MutableStateFlow<Screen>(Screen.IconCard)
     private var _boxHeight = MutableStateFlow(100.dp)
     private val _location = MutableStateFlow(LatLng(30.513197, 114.413301))
-    private val _poiItem = MutableStateFlow<List<PoiItemV2>>(emptyList())
     val content: StateFlow<Screen> = _content
     val boxHeight: StateFlow<Dp> = _boxHeight
     val location: StateFlow<LatLng> = _location
-    val markers: StateFlow<List<PoiItemV2>> = _poiItem
-    val selectedPoi: PoiItemV2? = null
-    private val mapSearch =
-        MapPoiSearchUtil(context = context, onPoiSearched = { _poiItem.value = it })
-
     fun fetchPoints(mapView: MapView) {
         viewModelScope.launch(Dispatchers.IO) {
             val points = repository.getAllPoints()
@@ -55,17 +48,12 @@ class MapPageViewModel(context: Context) : ViewModel() {
         _boxHeight.value = height
     }
 
-
-    fun getPoint(title: String) {
-        mapSearch.searchForPoi(title)
-    }
 }
 
 sealed interface Screen {
     data object IconCard : Screen
     data class NewPoint(val location: LatLng?) : Screen
     data class Places(val name: String) : Screen
-    data class Comment(val marker: Marker?) : Screen
+    data class Comment(val marker: Marker?, val poiItemV2: PoiItemV2?) : Screen
     data object Search : Screen
-
 }

@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.amap.api.maps.model.LatLng
-import com.amap.api.services.core.PoiItemV2
 import com.efbsm5.easyway.ui.page.SearchPage
 import com.efbsm5.easyway.viewmodel.ViewModelFactory
 import com.efbsm5.easyway.viewmodel.componentsViewmodel.CommentAndHistoryCardViewModel
@@ -17,7 +16,6 @@ import com.efbsm5.easyway.viewmodel.pageViewmodel.SearchPageViewModel
 fun MapPageCard(
     content: Screen,
     onChangeScreen: (Screen) -> Unit,
-    poiItemV2: PoiItemV2?,
     location: LatLng,
     onNavigate: (LatLng, Boolean) -> Unit
 ) {
@@ -31,10 +29,13 @@ fun MapPageCard(
     val searchPageViewModel = viewModel<SearchPageViewModel>(factory = ViewModelFactory(context))
     when (content) {
         is Screen.Comment -> {
+            if (content.marker != null) {
+                commentAndHistoryCardViewModel.getPoint(content.marker)
+            } else if (content.poiItemV2 != null) {
+                commentAndHistoryCardViewModel.addPoi(content.poiItemV2)
+            }
             CommentAndHistoryCard(
-                marker = content.marker,
                 viewModel = commentAndHistoryCardViewModel,
-                poiItemV2 = poiItemV2
             )
         }
 
@@ -58,16 +59,13 @@ fun MapPageCard(
         }
 
         Screen.Search -> {
-            SearchPage(
-                viewModel = searchPageViewModel,
-                onSelected = {
-                    onChangeScreen(
-                        Screen.Comment(
-                            marker = null
-                        )
+            SearchPage(viewModel = searchPageViewModel, onSelected = {
+                onChangeScreen(
+                    Screen.Comment(
+                        marker = null, poiItemV2 = it
                     )
-                }
-            )
+                )
+            })
         }
     }
 }

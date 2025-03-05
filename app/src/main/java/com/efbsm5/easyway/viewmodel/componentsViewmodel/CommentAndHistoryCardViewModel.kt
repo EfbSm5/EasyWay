@@ -6,7 +6,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.amap.api.maps.model.Marker
 import com.amap.api.services.core.PoiItemV2
-import com.efbsm5.easyway.data.models.Comment
 import com.efbsm5.easyway.data.models.EasyPoint
 import com.efbsm5.easyway.data.ViewModelRepository.DataRepository
 import com.efbsm5.easyway.data.models.assistModel.CommentAndUser
@@ -18,11 +17,11 @@ import kotlinx.coroutines.launch
 class CommentAndHistoryCardViewModel(context: Context) : ViewModel() {
     private val repository = DataRepository(context)
     private var _state = MutableStateFlow<CommentCardScreen>(CommentCardScreen.Comment)
-    private var _point = MutableStateFlow<EasyPoint?>(null)
+    private lateinit var _point: MutableStateFlow<EasyPoint>
     private var _showComment = MutableStateFlow(false)
     private var _pointComments = MutableStateFlow<List<CommentAndUser>?>(null)
     private var _newComment = MutableStateFlow("")
-    val point: StateFlow<EasyPoint?> = _point
+    val point: StateFlow<EasyPoint> = _point
     val state: StateFlow<CommentCardScreen> = _state
     val showComment: StateFlow<Boolean> = _showComment
     val pointComments: StateFlow<List<CommentAndUser>?> = _pointComments
@@ -30,18 +29,15 @@ class CommentAndHistoryCardViewModel(context: Context) : ViewModel() {
 
     fun getPoint(marker: Marker) {
         viewModelScope.launch(Dispatchers.IO) {
-            var comments = emptyList<Comment>()
             val commentsAndUser = emptyList<CommentAndUser>().toMutableList()
-            _point.value = repository.getPointFromMarker(marker)
-            _point.value?.let {
-                comments = repository.getAllCommentsById(it.commentId)
-            }
-            comments.forEach {
-                commentsAndUser.add(
-                    CommentAndUser(
-                        repository.getUserById(it.userId), it
+            _point.value = repository.getPointFromMarker(marker).also { easyPoint ->
+                repository.getAllCommentsById(easyPoint.commentId).forEach {
+                    commentsAndUser.add(
+                        CommentAndUser(
+                            repository.getUserById(it.userId), it
+                        )
                     )
-                )
+                }
             }
         }
     }
@@ -61,7 +57,7 @@ class CommentAndHistoryCardViewModel(context: Context) : ViewModel() {
     fun publish() {
         viewModelScope.launch(Dispatchers.IO) {
             repository.uploadComment(
-                _newComment.value, commentId = _point.value!!.commentId
+                _newComment.value, commentId = _point.value.commentId
             )
         }
     }
@@ -86,12 +82,8 @@ class CommentAndHistoryCardViewModel(context: Context) : ViewModel() {
 
     fun refresh() {
         viewModelScope.launch(Dispatchers.IO) {
-            var comments = emptyList<Comment>()
             val commentsAndUser = emptyList<CommentAndUser>().toMutableList()
-            _point.value?.let {
-                comments = repository.getAllCommentsById(it.commentId)
-            }
-            comments.forEach {
+            repository.getAllCommentsById(_point.value.commentId).forEach {
                 commentsAndUser.add(
                     CommentAndUser(
                         repository.getUserById(it.userId), it

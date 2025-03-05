@@ -35,20 +35,15 @@ import com.efbsm5.easyway.viewmodel.componentsViewmodel.CommentCardScreen
 
 @Composable
 fun CommentAndHistoryCard(
-    marker: Marker?, poiItemV2: PoiItemV2?, viewModel: CommentAndHistoryCardViewModel
+    viewModel: CommentAndHistoryCardViewModel
 ) {
     val state by viewModel.state.collectAsState()
     val pointComment by viewModel.pointComments.collectAsState()
     val showComment by viewModel.showComment.collectAsState()
     val newComment by viewModel.newComment.collectAsState()
     val point by viewModel.point.collectAsState()
-    if (marker != null) {
-        commentAndHistoryCardViewModel.getPoint(marker)
-    } else if (poiItemV2 != null) {
-        commentAndHistoryCardViewModel.addPoi(poiItemV2)
-    }
-    CommentAndHistoryCardScreen(
-        point = point,
+
+    CommentAndHistoryCardScreen(point = point,
         onSelect = { viewModel.changeState(it) },
         state = state,
         pointComments = pointComment,
@@ -57,8 +52,7 @@ fun CommentAndHistoryCard(
         onChangeComment = { viewModel.editComment(it) },
         changeShowComment = { viewModel.showComment(it) },
         publish = { viewModel.publish() },
-        refresh = { viewModel.refresh() }
-    )
+        refresh = { viewModel.refresh() })
 }
 
 @Composable
@@ -87,15 +81,12 @@ private fun CommentAndHistoryCardScreen(
             CommentCardScreen.History -> HistoryCard()
         }
         if (showComment) {
-            ShowTextField(text = newComment,
-                changeText = {
-                    onChangeComment(it)
-                },
-                publish = {
-                    changeShowComment(false)
-                    publish()
-                },
-                cancel = { changeShowComment(false) })
+            ShowTextField(text = newComment, changeText = {
+                onChangeComment(it)
+            }, publish = {
+                changeShowComment(false)
+                publish()
+            }, cancel = { changeShowComment(false) })
         }
         BottomActionBar(refresh = { refresh() }, comment = {
             changeShowComment(true)

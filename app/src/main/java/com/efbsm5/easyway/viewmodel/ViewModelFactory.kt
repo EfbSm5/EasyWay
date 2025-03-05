@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.CreationExtras
-import com.efbsm5.easyway.data.models.DynamicPost
 import com.efbsm5.easyway.viewmodel.componentsViewmodel.CommentAndHistoryCardViewModel
 import com.efbsm5.easyway.viewmodel.componentsViewmodel.NewPlaceCardViewModel
 import com.efbsm5.easyway.viewmodel.componentsViewmodel.NewPointCardViewModel

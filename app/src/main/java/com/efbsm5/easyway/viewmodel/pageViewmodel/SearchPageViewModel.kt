@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import com.amap.api.services.core.PoiItemV2
 import com.efbsm5.easyway.map.MapPoiSearchUtil
-import com.efbsm5.easyway.map.MapUtil
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
