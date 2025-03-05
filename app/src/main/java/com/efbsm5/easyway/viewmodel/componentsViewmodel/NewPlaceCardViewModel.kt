@@ -10,7 +10,7 @@ import com.efbsm5.easyway.map.MapUtil
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-class NewPlaceCardViewModel(context: Context) : ViewModel() {
+class NewPlaceCardViewModel : ViewModel() {
     private val _selectedTab = MutableStateFlow(0)
     private val _points = MutableStateFlow(emptyList<EasyPointSimplify>())
     private val _poiList = MutableStateFlow(emptyList<PoiItemV2>())
@@ -27,13 +27,13 @@ class NewPlaceCardViewModel(context: Context) : ViewModel() {
         _selectedTab.value = int
     }
 
-    fun getLatlng(latLng: LatLng?) {
+    fun getLocation(latLng: LatLng?) {
         this.latLng = latLng
     }
 
     fun search(string: String, context: Context) {
         val mapPoiSearchUtil = MapPoiSearchUtil(context = context,
-            onPoiSearched = {},
+            onPoiSearched = { _poiList.value = it.toList() },
             returnMsg = { MapUtil.showMsg(it, context) })
         mapPoiSearchUtil.searchForPoi(string)
     }
@@ -47,11 +47,7 @@ class NewPlaceCardViewModel(context: Context) : ViewModel() {
         _showDialog.value = false
     }
 
-    fun cancelDialog(context: Context) {
+    fun cancelDialog() {
         _showDialog.value = false
-        MapUtil.onNavigate(
-            context = context,
-            latLng = destination!!,
-        )
     }
 }

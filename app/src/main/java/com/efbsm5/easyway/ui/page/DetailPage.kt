@@ -24,54 +24,49 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.efbsm5.easyway.data.models.assistModel.CommentAndUser
 import com.efbsm5.easyway.data.models.DynamicPost
 import com.efbsm5.easyway.data.models.User
 import com.efbsm5.easyway.viewmodel.pageViewmodel.DetailPageViewModel
-import com.efbsm5.easyway.viewmodel.ViewModelFactory
 
 
 @Composable
-fun DetailPage(post: DynamicPost, onBack: () -> Unit) {
-    val context = LocalContext.current
-    val detailPageViewModel =
-        viewModel<DetailPageViewModel>(factory = ViewModelFactory(context, post))
+fun DetailPage(onBack: () -> Unit, viewModel: DetailPageViewModel) {
+    val newCommentText by viewModel.newCommentText.collectAsState()
+    val showTextField by viewModel.showTextField.collectAsState()
+    val postUser by viewModel.postUser.collectAsState()
+    val commentAndUser by viewModel.commentAndUser.collectAsState()
+    val photos by viewModel.photos.collectAsState()
+    val post by viewModel.post.collectAsState()
     DetailPageScreen(
-        post = post,
-        newCommentText = detailPageViewModel.newCommentText.collectAsState().value,
-        onAddComment = { detailPageViewModel.changeText(it) },
-        changeIfShowTextField = { detailPageViewModel.ifShowTextField(it) },
-        showTextField = detailPageViewModel.showTextField.collectAsState().value,
-        postUser = detailPageViewModel.postUser.collectAsState().value,
+        newCommentText = newCommentText,
+        onAddComment = { viewModel.changeText(it) },
+        changeIfShowTextField = { viewModel.ifShowTextField(it) },
+        showTextField = showTextField,
+        postUser = postUser,
         onBack = { onBack() },
-        commentAndUser = detailPageViewModel.commentAndUser.collectAsState().value,
-        onLikeComment = { detailPageViewModel.addLike(it) },
-        photos = detailPageViewModel.photos.collectAsState().value
+        commentAndUser = commentAndUser,
+        onLikeComment = { viewModel.addLike(it) },
+        photos = photos,
+        post = post!!
     )
-    BackHandler(enabled = detailPageViewModel.showTextField.collectAsState().value) {
-        detailPageViewModel.ifShowTextField(
-            false
-        )
-    }
 }
 
 @Composable
 private fun DetailPageScreen(
-    onBack: () -> Unit,
+    onBack: () -> Unit = {},
     post: DynamicPost,
-    newCommentText: String,
-    showTextField: Boolean,
-    onAddComment: (String) -> Unit,
-    changeIfShowTextField: (Boolean) -> Unit,
+    newCommentText: String = "",
+    showTextField: Boolean = true,
+    onAddComment: (String) -> Unit = {},
+    changeIfShowTextField: (Boolean) -> Unit = {},
     postUser: User,
-    commentAndUser: List<CommentAndUser>,
-    onLikeComment: (Int) -> Unit,
-    photos: List<Uri>
+    commentAndUser: List<CommentAndUser> = emptyList(),
+    onLikeComment: (Int) -> Unit = {},
+    photos: List<Uri> = emptyList(),
 ) {
     Column(
         modifier = Modifier
@@ -92,6 +87,9 @@ private fun DetailPageScreen(
                 onAddComment = { onAddComment(it) },
                 onClickButton = { changeIfShowTextField(false) })
         }
+    }
+    BackHandler(enabled = showTextField) {
+        changeIfShowTextField(false)
     }
 }
 

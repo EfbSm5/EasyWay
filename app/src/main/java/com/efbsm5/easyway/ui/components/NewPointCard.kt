@@ -31,17 +31,15 @@ import java.io.File
 import java.io.FileOutputStream
 
 @Composable
-fun NewPointCard(location: LatLng?, back: () -> Unit) {
+fun NewPointCard(location: LatLng?, back: () -> Unit, viewModel: NewPointCardViewModel) {
     val context = LocalContext.current
-    val newPointCardViewModel =
-        viewModel<NewPointCardViewModel>(factory = ViewModelFactory(context))
-    val newPoint = newPointCardViewModel.tempPoint.collectAsState().value
-    var expanded by remember { mutableStateOf(false) }
-    var selectedOption by remember { mutableStateOf("") }
+    val newPoint by viewModel.tempPoint.collectAsState()
+    val expanded by viewModel.expanded.collectAsState()
+    val selectedOption by viewModel.selectedOption.collectAsState()
     NewPointCardSurface(
         point = newPoint,
-        onInfoValueChange = { newPointCardViewModel.changeTempPoint(newPoint.copy(info = it)) },
-        onLocationValueChange = { newPointCardViewModel.changeTempPoint(newPoint.copy(location = it)) },
+        onInfoValueChange = { viewModel.changeTempPoint(newPoint.copy(info = it)) },
+        onLocationValueChange = { viewModel.changeTempPoint(newPoint.copy(location = it)) },
         onUploadImage = { uri ->
             uri?.let { uri1 ->
                 val inputStream = context.contentResolver.openInputStream(uri1)
@@ -51,25 +49,24 @@ fun NewPointCard(location: LatLng?, back: () -> Unit) {
                     it.copyTo(outputStream)
                     outputStream.close()
                     it.close()
-                    newPointCardViewModel.changeTempPoint(newPoint.copy(photo = file.toUri()))
+                    viewModel.changeTempPoint(newPoint.copy(photo = file.toUri()))
                 }
             }
         },
         menuExpanded = expanded,
         selectedOption = selectedOption,
-        onSelectType = { selectedOption = it },
-        onExpanded = { expanded = it },
+        onSelectType = { viewModel.changeType(it) },
+        onExpanded = { viewModel.changeExpanded(it) },
         confirm = {
-            newPointCardViewModel.changeTempPoint(
+            viewModel.changeTempPoint(
                 newPoint.copy(
-                    lat = location!!.latitude,
-                    lng = location.longitude
+                    lat = location!!.latitude, lng = location.longitude
                 )
             )
-            newPointCardViewModel.publishPoint()
+            viewModel.publishPoint()
         },
         cancel = { back() },
-        onNameValueChange = { newPointCardViewModel.changeTempPoint(newPoint.copy(name = it)) },
+        onNameValueChange = { viewModel.changeTempPoint(newPoint.copy(name = it)) },
     )
 }
 

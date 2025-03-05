@@ -29,14 +29,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.efbsm5.easyway.data.network.IntentRepository
 import com.efbsm5.easyway.map.MapUtil
+import com.efbsm5.easyway.viewmodel.pageViewmodel.HomePageViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Composable
-fun HomePage() {
+fun HomePage(viewModel: HomePageViewModel) {
     val context = LocalContext.current
-    HomePageScreen(context, onUpdate = {
+    HomePageScreen(onUpdate = {
         CoroutineScope(Dispatchers.IO).launch {
             val repo = IntentRepository(context)
             repo.syncData()
@@ -45,7 +46,8 @@ fun HomePage() {
 }
 
 @Composable
-private fun HomePageScreen(context: Context, onUpdate: () -> Unit) {
+private fun HomePageScreen(onUpdate: () -> Unit) {
+    val context = LocalContext.current
     Column(
         Modifier
             .fillMaxSize()

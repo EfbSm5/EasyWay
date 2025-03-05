@@ -9,113 +9,100 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.amap.api.maps.MapView
+import com.amap.api.maps.model.LatLng
+import com.amap.api.services.core.PoiItemV2
+import com.efbsm5.easyway.map.MapController
 import com.efbsm5.easyway.ui.components.AddAndLocateButton
 import com.efbsm5.easyway.ui.components.CommentAndHistoryCard
 import com.efbsm5.easyway.ui.components.DraggableBox
 import com.efbsm5.easyway.ui.components.FunctionCard
+import com.efbsm5.easyway.ui.components.MapPageCard
 import com.efbsm5.easyway.ui.components.NewPlaceCard
 import com.efbsm5.easyway.ui.components.NewPointCard
 import com.efbsm5.easyway.ui.components.ShowSearchScreen
 import com.efbsm5.easyway.viewmodel.pageViewmodel.MapPageViewModel
 import com.efbsm5.easyway.viewmodel.pageViewmodel.Screen
-import com.efbsm5.easyway.viewmodel.ViewModelFactory
-
 
 @Composable
-fun MapPage() {
-    val context = LocalContext.current
-    val mapPageViewModel = viewModel<MapPageViewModel>(factory = ViewModelFactory(context))
-    mapPageViewModel.MapLifecycle(context)
-    val content = mapPageViewModel.content.collectAsState().value
-    MapScreen(
-        mapPageViewModel = mapPageViewModel,
-        mapView = mapPageViewModel.mapView.collectAsState().value,
-    )
-    BackHandler(enabled = content != Screen.IconCard,
-        onBack = { mapPageViewModel.changeScreen(Screen.IconCard) })
+fun MapPage(viewModel: MapPageViewModel, mapView: MapView, mapController: MapController) {
+    val content by viewModel.content.collectAsState()
+    val boxHeight by viewModel.boxHeight.collectAsState()
+    val location by viewModel.location.collectAsState()
+    val selectedPoi = viewModel.selectedPoi
+    MapScreen(mapView = mapView,
+        content = content,
+        boxHeight = boxHeight,
+        onChangeScreen = { viewModel.changeScreen(it) },
+        location = location,
+        onLocate = {
+            viewModel.moveMapToLocation(
+                mapView = mapView, mapController = mapController
+            )
+        },
+        onChangeHeight = { viewModel.changeBoxHeight(it) },
+        selectedPoi = selectedPoi,
+        navigate = {
+            viewModel.navigate(
+                it,
+                context = TODO(),
+                mapView = mapView,
+            )
+        },
+        markerList = viewModel.markers.collectAsState().value,
+        getPoint = { viewModel.getPoint(it) })
 }
 
 @Composable
 private fun MapScreen(
-    mapPageViewModel: MapPageViewModel, mapView: MapView
+    mapView: MapView,
+    content: Screen,
+    boxHeight: Dp,
+    onChangeScreen: (Screen) -> Unit,
+    location: LatLng,
+    onLocate: () -> Unit,
+    onChangeHeight: (Dp) -> Unit,
+    selectedPoi: PoiItemV2?,
+    navigate: (LatLng) -> Unit,
+    markerList: List<PoiItemV2>,
+    getPoint: (String) -> Unit
 ) {
-    val content = mapPageViewModel.content.collectAsState().value
-    AndroidView(modifier = Modifier
-        .fillMaxSize()
-        .padding(bottom = mapPageViewModel.boxHeight.collectAsState().value),
+    AndroidView(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(bottom = boxHeight),
         factory = { mapView })
     AddAndLocateButton(onAdd = {
-        mapPageViewModel.changeScreen(
+        onChangeScreen(
             Screen.NewPoint(
-                location = mapPageViewModel.location.value
+                location = location
             )
         )
-    },
-        onLocate = { mapPageViewModel.moveMapToLocation() },
-        bottomHeight = mapPageViewModel.boxHeight.collectAsState().value
+    }, onLocate = { onLocate() }, bottomHeight = boxHeight
     )
 
     Box(
         modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter
     ) {
         DraggableBox(
-            boxHeight = mapPageViewModel.boxHeight.collectAsState().value,
-            onChangeHeight = { mapPageViewModel.changeBoxHeight(it) },
+            boxHeight = boxHeight,
+            onChangeHeight = { onChangeHeight(it) },
             content = {
                 Surface(
                     modifier = Modifier
                         .fillMaxSize()
                         .background(color = MaterialTheme.colorScheme.surfaceContainer)
                 ) {
-                    when (content) {
-                        is Screen.Comment -> {
-                            CommentAndHistoryCard(
-                                marker = content.marker, mapPageViewModel.selectedPoi
-                            )
-                        }
-
-                        Screen.IconCard -> FunctionCard(onclick = {
-                            mapPageViewModel.changeScreen(Screen.Places(it))
-                        }, onChangePage = { mapPageViewModel.changeScreen(Screen.Search) })
-
-                        is Screen.NewPoint -> NewPointCard(content.location,
-                            back = { mapPageViewModel.changeScreen(Screen.IconCard) })
-
-                        is Screen.Places -> {
-                            NewPlaceCard(mapPageViewModel.location.collectAsState().value,
-                                content.name,
-                                onNavigate = {
-                                    mapPageViewModel.navigate(it)
-                                })
-                        }
-
-                        Screen.Search -> ShowSearchScreen(markerList = mapPageViewModel.markers.collectAsState().value,
-                            searchForPoi = {
-                                mapPageViewModel.getPoint(
-                                    title = it
-                                )
-                            },
-                            onSelected = {
-                                mapPageViewModel.changeScreen(
-                                    Screen.Comment(
-                                        marker = null
-                                    )
-                                )
-                            })
-                    }
+                    MapPageCard()
                 }
             },
         )
     }
+    BackHandler(enabled = content != Screen.IconCard, onBack = { onChangeScreen(Screen.IconCard) })
 
 }
-
-
-
-

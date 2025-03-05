@@ -1,13 +1,9 @@
 package com.efbsm5.easyway.map
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
-import com.amap.api.location.AMapLocation
 import com.amap.api.location.AMapLocationClient
 import com.amap.api.location.AMapLocationClientOption
-import com.amap.api.location.AMapLocationListener
-import com.amap.api.maps.AMap
 import com.amap.api.maps.AMap.MAP_TYPE_NIGHT
 import com.amap.api.maps.AMap.MAP_TYPE_NORMAL
 import com.amap.api.maps.CameraUpdateFactory
@@ -22,9 +18,8 @@ import com.efbsm5.easyway.ui.theme.isDarkTheme
 
 
 class MapController(
-    onPoiClick: (Poi?) -> Unit, onMapClick: (LatLng?) -> Unit, onMarkerClick: (Marker?) -> Unit
-) : LocationSource, AMap.OnMapClickListener, AMap.OnPOIClickListener, AMap.OnMarkerClickListener,
-    AMapLocationListener {
+    onPoiClick: (Poi) -> Unit, onMapClick: (LatLng) -> Unit, onMarkerClick: (Marker) -> Unit
+) : LocationSource {
     private lateinit var mLocationClient: AMapLocationClient
     private lateinit var sharedPreferences: SharedPreferences
     private var mLocationOption =
@@ -32,9 +27,9 @@ class MapController(
             .setOnceLocation(true).setOnceLocationLatest(true).setNeedAddress(true)
             .setHttpTimeOut(6000)
     private var mListener: OnLocationChangedListener? = null
-    val monMapClick: (LatLng?) -> Unit = onMapClick
-    val monPoiClick: (Poi?) -> Unit = onPoiClick
-    val monMarkerClick: (Marker?) -> Unit = onMarkerClick
+    val monMapClick: (LatLng) -> Unit = onMapClick
+    val monPoiClick: (Poi) -> Unit = onPoiClick
+    val monMarkerClick: (Marker) -> Unit = onMarkerClick
     private var mLocation: LatLng? = null
     private var isDarkTheme: Boolean? = null
 
@@ -61,7 +56,15 @@ class MapController(
     fun mapLocationInit(context: Context) {
         initializeVariables(context)
         mLocationClient.setLocationOption(mLocationOption)
-        mLocationClient.setLocationListener(this@MapController)
+        mLocationClient.setLocationListener { aMapLocation ->
+            if (aMapLocation!!.errorCode == 0) {
+                mListener!!.onLocationChanged(aMapLocation)
+                val latitude = aMapLocation.latitude
+                val longitude = aMapLocation.longitude
+                mLocation = LatLng(latitude, longitude)
+                saveLastKnownLocation(mLocation!!, aMapLocation.cityCode)
+            }
+        }
     }
 
     fun onLocate(mapView: MapView) {
@@ -75,17 +78,25 @@ class MapController(
     }
 
     fun initMap(mapView: MapView) {
-        val map = mapView.map
-        map.mapType = if (isDarkTheme!!) MAP_TYPE_NIGHT else MAP_TYPE_NORMAL
-        map.setLocationSource(this@MapController)
-        map.isMyLocationEnabled = true
-        map.myLocationStyle =
-            MyLocationStyle().interval(2000).myLocationType(MyLocationStyle.LOCATION_TYPE_FOLLOW)
-        map.setOnMapClickListener(this@MapController)
-        map.setOnPOIClickListener(this@MapController)
-        map.setOnMarkerClickListener(this@MapController)
-        map.showMapText(true)
-        getLastKnownLocation().let { map.animateCamera(CameraUpdateFactory.newLatLng(it)) }
+        mapView.map.apply {
+            mapType = if (isDarkTheme!!) MAP_TYPE_NIGHT else MAP_TYPE_NORMAL
+            setLocationSource(this@MapController)
+            isMyLocationEnabled = true
+            myLocationStyle = MyLocationStyle().interval(2000)
+                .myLocationType(MyLocationStyle.LOCATION_TYPE_FOLLOW)
+            setOnMapClickListener {
+                monMapClick(it)
+            }
+            setOnPOIClickListener {
+                monPoiClick(it)
+            }
+            setOnMarkerClickListener {
+                monMarkerClick(it)
+                true
+            }
+            showMapText(true)
+            animateCamera(CameraUpdateFactory.newLatLng(getLastKnownLocation()))
+        }
     }
 
     override fun activate(p0: OnLocationChangedListener?) {
@@ -99,29 +110,5 @@ class MapController(
         mListener = null
         mLocationClient.stopLocation()
         mLocationClient.onDestroy()
-    }
-
-    override fun onMapClick(p0: LatLng?) {
-        monMapClick(p0)
-    }
-
-    override fun onPOIClick(p0: Poi?) {
-        monPoiClick(p0)
-    }
-
-    @SuppressLint("ResourceType", "InflateParams")
-    override fun onMarkerClick(marker: Marker?): Boolean {
-        monMarkerClick(marker)
-        return true
-    }
-
-    override fun onLocationChanged(aMapLocation: AMapLocation?) {
-        if (aMapLocation!!.errorCode == 0) {
-            mListener!!.onLocationChanged(aMapLocation)
-            val latitude = aMapLocation.latitude
-            val longitude = aMapLocation.longitude
-            mLocation = LatLng(latitude, longitude)
-            saveLastKnownLocation(mLocation!!, aMapLocation.cityCode)
-        }
     }
 }

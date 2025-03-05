@@ -14,73 +14,98 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.amap.api.maps.model.LatLng
+import com.amap.api.services.core.PoiItemV2
+import com.efbsm5.easyway.data.models.assistModel.EasyPointSimplify
 import com.efbsm5.easyway.map.MapUtil
 import com.efbsm5.easyway.map.MapUtil.convertToLatLng
 import com.efbsm5.easyway.map.MapUtil.formatDistance
 import com.efbsm5.easyway.viewmodel.componentsViewmodel.NewPlaceCardViewModel
-import com.efbsm5.easyway.viewmodel.ViewModelFactory
 
 
 @Composable
-fun NewPlaceCard(latLng: LatLng?, text: String, onNavigate: (LatLng) -> Unit) {
-    val context = LocalContext.current
-    val viewModel = viewModel<NewPlaceCardViewModel>(factory = ViewModelFactory(context = context))
-    viewModel.getLatlng(latLng = latLng)
-    viewModel.search(string = text, context = context)
-    NewPlaceCardScreen(viewModel)
-    ShowDialog(
-        showDialog = viewModel.showDialog.collectAsState().value,
-        onConfirm = {
+fun NewPlaceCard(
+    onNavigate: (LatLng, Boolean) -> Unit, viewModel: NewPlaceCardViewModel
+) {
+    val selectedTabIndex by viewModel.selectedTab.collectAsState()
+    val points by viewModel.points.collectAsState()
+    val location = viewModel.latLng
+    val showDialog by viewModel.showDialog.collectAsState()
+    val poiList by viewModel.poiList.collectAsState()
+    val destination = viewModel.destination
+    NewPlaceCardScreen(selectedTabIndex = selectedTabIndex,
+        changeTab = { viewModel.changeTab(it) },
+        points = points,
+        location = location!!,
+        showDialog = { viewModel.showDialog(it) },
+        poiList = poiList,
+        ifShowDialog = showDialog,
+        confirm = {
             viewModel.confirmDialog()
-            onNavigate(viewModel.destination!!)
+            onNavigate(destination!!, true)
         },
-        onCancel = { viewModel.cancelDialog(context) },
-    )
+        cancel = {
+            viewModel.cancelDialog()
+            onNavigate(destination!!, false)
+        })
+
 }
 
 @Composable
 private fun NewPlaceCardScreen(
-    viewModel: NewPlaceCardViewModel
+    selectedTabIndex: Int,
+    changeTab: (Int) -> Unit,
+    points: List<EasyPointSimplify>,
+    location: LatLng,
+    showDialog: (LatLng) -> Unit,
+    poiList: List<PoiItemV2>,
+    ifShowDialog: Boolean,
+    confirm: () -> Unit,
+    cancel: () -> Unit
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         Tabs(titles = listOf("无障碍地点", "全部地点"),
-            selectedTabIndex = viewModel.selectedTab.collectAsState().value,
-            onTabSelected = { viewModel.changeTab(it) })
+            selectedTabIndex = selectedTabIndex,
+            onTabSelected = { changeTab(it) })
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 8.dp, vertical = 8.dp)
         ) {
-            items(viewModel.points.value) { easyPoint ->
+            items(points) { easyPoint ->
                 AccessiblePlaceItem(imageRes = Uri.EMPTY,
                     title = easyPoint.name,
                     distance = easyPoint.getLatlng().let {
                         MapUtil.calculateDistance(
-                            viewModel.latLng!!, it
+                            location, it
                         )
                     },
-                    navigate = { viewModel.showDialog(easyPoint.getLatlng()) })
+                    navigate = { showDialog(easyPoint.getLatlng()) })
                 Spacer(modifier = Modifier.height(8.dp))
             }
-            items(viewModel.poiList.value) { poi ->
+            items(poiList) { poi ->
                 AccessiblePlaceItem(imageRes = poi.photos.first().url.toUri(),
                     title = poi.title,
                     distance = MapUtil.calculateDistance(
-                        viewModel.latLng!!, convertToLatLng(poi.latLonPoint)
+                        location, convertToLatLng(poi.latLonPoint)
                     ),
-                    navigate = { viewModel.showDialog(convertToLatLng(poi.latLonPoint)) })
+                    navigate = { showDialog(convertToLatLng(poi.latLonPoint)) })
                 Spacer(modifier = Modifier.height(8.dp))
             }
         }
     }
+    ShowDialog(
+        showDialog = ifShowDialog,
+        onConfirm = {
+            confirm()
+        },
+        onCancel = { cancel() },
+    )
 }
 
 @Composable

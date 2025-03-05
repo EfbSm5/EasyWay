@@ -13,6 +13,10 @@ import kotlinx.coroutines.launch
 class ShowPageViewModel(context: Context) : ViewModel() {
     private val repository = DataRepository(context)
     private var _posts = MutableStateFlow<List<DynamicPostAndUser>>(emptyList())
+    private val _selectedTab = MutableStateFlow(0)
+    private val _text = MutableStateFlow("")
+    val text: StateFlow<String> = _text
+    val selectedTab: StateFlow<Int> = _selectedTab
     val posts: StateFlow<List<DynamicPostAndUser>> = _posts
 
     init {
@@ -37,5 +41,12 @@ class ShowPageViewModel(context: Context) : ViewModel() {
         }
     }
 
+    fun changeTab(int: Int) {
+        _selectedTab.value = int
+    }
+
+    fun changeText(string: String) {
+        _text.value = string
+    }
 }
 

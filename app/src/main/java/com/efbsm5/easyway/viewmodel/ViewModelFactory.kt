@@ -9,19 +9,20 @@ import com.efbsm5.easyway.viewmodel.componentsViewmodel.CommentAndHistoryCardVie
 import com.efbsm5.easyway.viewmodel.componentsViewmodel.NewPlaceCardViewModel
 import com.efbsm5.easyway.viewmodel.componentsViewmodel.NewPointCardViewModel
 import com.efbsm5.easyway.viewmodel.pageViewmodel.DetailPageViewModel
+import com.efbsm5.easyway.viewmodel.pageViewmodel.HomePageViewModel
 import com.efbsm5.easyway.viewmodel.pageViewmodel.MapPageViewModel
 import com.efbsm5.easyway.viewmodel.pageViewmodel.NewPostPageViewModel
 import com.efbsm5.easyway.viewmodel.pageViewmodel.ShowPageViewModel
 
 class ViewModelFactory(
-    private val context: Context, private val dynamicPost: DynamicPost? = null
+    private val context: Context
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(MapPageViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST") return MapPageViewModel(context) as T
         }
         if (modelClass.isAssignableFrom(DetailPageViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST") return DetailPageViewModel(context, dynamicPost) as T
+            @Suppress("UNCHECKED_CAST") return DetailPageViewModel(context) as T
         }
         if (modelClass.isAssignableFrom(NewPostPageViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST") return NewPostPageViewModel(context) as T
@@ -36,7 +37,10 @@ class ViewModelFactory(
             @Suppress("UNCHECKED_CAST") return ShowPageViewModel(context) as T
         }
         if (modelClass.isAssignableFrom(NewPlaceCardViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST") return NewPlaceCardViewModel(context) as T
+            @Suppress("UNCHECKED_CAST") return NewPlaceCardViewModel() as T
+        }
+        if (modelClass.isAssignableFrom(HomePageViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST") return HomePageViewModel(context) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.amap.api.maps.model.LatLng
 import com.efbsm5.easyway.data.models.EasyPoint
 import com.efbsm5.easyway.data.ViewModelRepository.DataRepository
 import kotlinx.coroutines.Dispatchers
@@ -30,11 +31,23 @@ class NewPointCardViewModel(context: Context) : ViewModel() {
             pointId = 0
         )
     )
+    private var _expanded = MutableStateFlow(false)
+    private var _selectedOption = MutableStateFlow("")
+    val expanded: StateFlow<Boolean> = _expanded
     val tempPoint: StateFlow<EasyPoint> = _tempPoint
+    val selectedOption: StateFlow<String> = _selectedOption
 
 
     fun changeTempPoint(easyPoint: EasyPoint) {
         _tempPoint.value = easyPoint
+    }
+
+    fun changeType(type: String) {
+        _selectedOption.value = type
+    }
+
+    fun changeExpanded(boolean: Boolean) {
+        _expanded.value = boolean
     }
 
     fun publishPoint() {

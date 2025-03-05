@@ -33,24 +33,35 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.amap.api.maps.MapView
 import com.efbsm5.easyway.ui.page.CommunityPage
 import com.efbsm5.easyway.ui.page.HomePage
 import com.efbsm5.easyway.ui.page.MapPage
+import com.efbsm5.easyway.viewmodel.ViewModelFactory
+import com.efbsm5.easyway.viewmodel.pageViewmodel.HomePageViewModel
+import com.efbsm5.easyway.viewmodel.pageViewmodel.MapPageViewModel
 
 @Composable
 fun EasyWay() {
     val navControl = rememberNavController()
+    val context = LocalContext.current
+    val mapPageViewModel = viewModel<MapPageViewModel>(factory = ViewModelFactory(context))
+    val HomePageViewModel = viewModel<HomePageViewModel>(factory = ViewModelFactory(context))
+    val mapView=MapView()
     Surface(
         modifier = Modifier
             .fillMaxSize()
-            .imePadding().statusBarsPadding()
+            .imePadding()
+            .statusBarsPadding()
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -62,13 +73,13 @@ fun EasyWay() {
             ) {
                 NavHost(navController = navControl, startDestination = "MapPage") {
                     composable("MapPage") {
-                        MapPage()
+                        MapPage(mapPageViewModel)
                     }
                     composable("Community") {
                         CommunityPage()
                     }
                     composable("home") {
-                        HomePage()
+                        HomePage(HomePageViewModel)
                     }
                 }
             }

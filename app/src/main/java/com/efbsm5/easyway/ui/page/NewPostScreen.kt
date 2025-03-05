@@ -28,34 +28,31 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.efbsm5.easyway.data.models.DynamicPost
 import com.efbsm5.easyway.viewmodel.pageViewmodel.NewPostPageViewModel
-import com.efbsm5.easyway.viewmodel.ViewModelFactory
 
 
 @Composable
-fun NewDynamicPostPage(navigate: () -> Unit) {
-    val context = LocalContext.current
-    val newPostPageViewModel = viewModel<NewPostPageViewModel>(factory = ViewModelFactory(context))
-    val newPost = newPostPageViewModel.newPost.collectAsState().value
+fun NewDynamicPostPage(navigate: () -> Unit, viewModel: NewPostPageViewModel) {
+    val newPost by viewModel.newPost.collectAsState()
+    val selectedButton by viewModel.selectedButton.collectAsState()
+    val photos by viewModel.choosedPhotos.collectAsState()
     DynamicPostScreen(dynamicPost = newPost,
-        selectedButton = newPostPageViewModel.selectedButton.collectAsState().value,
-        onSelected = { newPostPageViewModel.changeSelectedButton(it) },
-        onTitleChanged = { newPostPageViewModel.editPost(newPost.copy(title = it)) },
-        onContentChanged = { newPostPageViewModel.editPost(newPost.copy(content = it)) },
-        photos = newPostPageViewModel.choosedPhotos.collectAsState().value,
+        selectedButton = selectedButton,
+        onSelected = { viewModel.changeSelectedButton(it) },
+        onTitleChanged = { viewModel.editPost(newPost.copy(title = it)) },
+        onContentChanged = { viewModel.editPost(newPost.copy(content = it)) },
+        photos = photos,
         onSelectedPhoto = {
             it?.let {
-                newPostPageViewModel.getPicture(it)
+                viewModel.getPicture(it)
             }
         },
-        publish = { newPostPageViewModel.push() },
+        publish = { viewModel.push() },
         back = { navigate() })
 }
 
@@ -83,7 +80,6 @@ fun DynamicPostScreen(
             onTitleChanged = { onTitleChanged(it) },
             onContentChanged = { onContentChanged(it) })
         Spacer(modifier = Modifier.height(16.dp))
-//        TagSelectionSection()
         Spacer(modifier = Modifier.height(16.dp))
         AddLocationAndImagesSection(
             selectedPhotos = photos,

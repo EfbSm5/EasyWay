@@ -32,42 +32,35 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.efbsm5.easyway.R
 import com.efbsm5.easyway.data.models.DynamicPost
 import com.efbsm5.easyway.data.models.assistModel.DynamicPostAndUser
 import com.efbsm5.easyway.viewmodel.pageViewmodel.ShowPageViewModel
-import com.efbsm5.easyway.viewmodel.ViewModelFactory
 
 @Composable
 fun ShowPage(
-    onChangeState: (State) -> Unit, onSelectedPost: (DynamicPost) -> Unit
+    onChangeState: () -> Unit,
+    onSelectedPost: (DynamicPost) -> Unit,
+    viewModel: ShowPageViewModel
 ) {
-    val context = LocalContext.current
-    val showPageViewModel = viewModel<ShowPageViewModel>(factory = ViewModelFactory(context))
-    val postList = showPageViewModel.posts.collectAsState().value
-    var text by remember { mutableStateOf("") }
+    val postList = viewModel.posts.collectAsState().value
+    val text by viewModel.text.collectAsState()
     val tabs = listOf("全部", "活动", "互助", "分享")
-    var selectedTabIndex by remember { mutableIntStateOf(0) }
+    val selectedTabIndex by viewModel.selectedTab.collectAsState()
     ShowPageScreen(posts = postList,
-        onChangeState = { onChangeState(it) },
+        onChangeState = { onChangeState() },
         text = text,
-        onChangeText = { text = it },
+        onChangeText = { viewModel.changeText(it) },
         selectedTabIndex = selectedTabIndex,
         tabs = tabs,
-        onSelect = { selectedTabIndex = it },
+        onSelect = { viewModel.changeTab(it) },
         titleText = "心无距离，共享每一刻",
         onClick = {
             onSelectedPost(it.dynamicPost)
@@ -82,7 +75,7 @@ fun ShowPageScreen(
     tabs: List<String>,
     titleText: String,
     onChangeText: (String) -> Unit,
-    onChangeState: (State) -> Unit,
+    onChangeState: () -> Unit,
     onSelect: (Int) -> Unit,
     onClick: (DynamicPostAndUser) -> Unit
 ) {
@@ -99,7 +92,7 @@ fun ShowPageScreen(
     }
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomEnd) {
         FloatingActionButton(
-            onClick = { onChangeState(State.NewPost) },
+            onClick = { onChangeState() },
             modifier = Modifier.padding(bottom = 16.dp, end = 16.dp)
         ) {
             Icon(imageVector = Icons.Default.Add, contentDescription = "添加")

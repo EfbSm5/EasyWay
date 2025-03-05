@@ -13,10 +13,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class DetailPageViewModel(context: Context, private val dynamicPost: DynamicPost? = null) :
-    ViewModel() {
+class DetailPageViewModel(context: Context) : ViewModel() {
     private val repository = DataRepository(context)
-    private val _dynamicPost = MutableStateFlow(dynamicPost)
+    private lateinit var _dynamicPost: MutableStateFlow<DynamicPost>
     private var _newCommentText = MutableStateFlow("")
     private var _showTextField = MutableStateFlow(false)
     private var _postUser = MutableStateFlow(
@@ -31,19 +30,21 @@ class DetailPageViewModel(context: Context, private val dynamicPost: DynamicPost
     val postUser: StateFlow<User> = _postUser
     val commentAndUser: StateFlow<List<CommentAndUser>> = _commentAndUsers
     val photos: StateFlow<List<Uri>> = _photos
+    val post: StateFlow<DynamicPost> = _dynamicPost
 
-    init {
+    fun getPost(dynamicPost: DynamicPost) {
+        _dynamicPost.value = dynamicPost
         getData()
     }
 
     private fun getData() {
         viewModelScope.launch(Dispatchers.IO) {
-            _postUser.value = repository.getUserById(dynamicPost!!.userId)
-            val comments = repository.getAllCommentsById(commentId = _dynamicPost.value!!.commentId)
+            _postUser.value = repository.getUserById(post.value.userId)
+            val comments = repository.getAllCommentsById(commentId = _dynamicPost.value.commentId)
             comments.forEach {
                 _commentAndUsers.value.add(CommentAndUser(repository.getUserById(it.userId), it))
             }
-            val photos = repository.getAllPhotosById(dynamicPost.photoId)
+            val photos = repository.getAllPhotosById(post.value.photoId)
             photos.forEach { _photos.value.add(it.uri) }
         }
     }

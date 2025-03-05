@@ -18,7 +18,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -28,58 +27,78 @@ import com.efbsm5.easyway.R
 import com.efbsm5.easyway.data.models.EasyPoint
 import androidx.compose.runtime.*
 import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.amap.api.services.core.PoiItemV2
 import com.efbsm5.easyway.data.models.assistModel.CommentAndUser
 import com.efbsm5.easyway.viewmodel.componentsViewmodel.CommentAndHistoryCardViewModel
 import com.efbsm5.easyway.viewmodel.componentsViewmodel.CommentCardScreen
-import com.efbsm5.easyway.viewmodel.ViewModelFactory
 
 
 @Composable
-fun CommentAndHistoryCard(marker: Marker?, poiItemV2: PoiItemV2?) {
-    val context = LocalContext.current
-    val commentAndHistoryCardViewModel =
-        viewModel<CommentAndHistoryCardViewModel>(factory = ViewModelFactory(context))
+fun CommentAndHistoryCard(
+    marker: Marker?, poiItemV2: PoiItemV2?, viewModel: CommentAndHistoryCardViewModel
+) {
+    val state by viewModel.state.collectAsState()
+    val pointComment by viewModel.pointComments.collectAsState()
+    val showComment by viewModel.showComment.collectAsState()
+    val newComment by viewModel.newComment.collectAsState()
+    val point by viewModel.point.collectAsState()
     if (marker != null) {
         commentAndHistoryCardViewModel.getPoint(marker)
     } else if (poiItemV2 != null) {
         commentAndHistoryCardViewModel.addPoi(poiItemV2)
     }
     CommentAndHistoryCardScreen(
-        commentAndHistoryCardViewModel
+        point = point,
+        onSelect = { viewModel.changeState(it) },
+        state = state,
+        pointComments = pointComment,
+        showComment = showComment,
+        newComment = newComment,
+        onChangeComment = { viewModel.editComment(it) },
+        changeShowComment = { viewModel.showComment(it) },
+        publish = { viewModel.publish() },
+        refresh = { viewModel.refresh() }
     )
 }
 
 @Composable
 private fun CommentAndHistoryCardScreen(
-    commentAndHistoryCardViewModel: CommentAndHistoryCardViewModel
+    point: EasyPoint,
+    onSelect: (CommentCardScreen) -> Unit,
+    state: CommentCardScreen,
+    pointComments: List<CommentAndUser>?,
+    showComment: Boolean,
+    newComment: String,
+    onChangeComment: (String) -> Unit,
+    changeShowComment: (Boolean) -> Unit,
+    publish: () -> Unit,
+    refresh: () -> Unit
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        PointInfo(commentAndHistoryCardViewModel.point.collectAsState().value)
+        PointInfo(point)
         Spacer(modifier = Modifier.height(16.dp))
-        Select { commentAndHistoryCardViewModel.changeState(it) }
-        when (commentAndHistoryCardViewModel.state.collectAsState().value) {
-            CommentCardScreen.Comment -> CommentCard(commentAndHistoryCardViewModel.pointComments.collectAsState().value)
+        Select { onSelect(it) }
+        when (state) {
+            CommentCardScreen.Comment -> CommentCard(pointComments)
             CommentCardScreen.History -> HistoryCard()
         }
-        if (commentAndHistoryCardViewModel.showComment.collectAsState().value) {
-            ShowTextField(text = commentAndHistoryCardViewModel.newComment.collectAsState().value,
+        if (showComment) {
+            ShowTextField(text = newComment,
                 changeText = {
-                    commentAndHistoryCardViewModel.editComment(it)
+                    onChangeComment(it)
                 },
                 publish = {
-                    commentAndHistoryCardViewModel.showComment(false)
-                    commentAndHistoryCardViewModel.publish()
+                    changeShowComment(false)
+                    publish()
                 },
-                cancel = { commentAndHistoryCardViewModel.showComment(false) })
+                cancel = { changeShowComment(false) })
         }
-        BottomActionBar(refresh = { commentAndHistoryCardViewModel.refresh() }, comment = {
-            commentAndHistoryCardViewModel.showComment(true)
+        BottomActionBar(refresh = { refresh() }, comment = {
+            changeShowComment(true)
         })
     }
 }

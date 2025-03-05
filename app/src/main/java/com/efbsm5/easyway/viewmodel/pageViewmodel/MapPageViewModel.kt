@@ -36,21 +36,10 @@ private const val TAG = "MapPageViewModel"
 
 class MapPageViewModel(context: Context) : ViewModel() {
     private val repository = DataRepository(context)
-    private var _mapView = MutableStateFlow(MapView(context, AMapOptions().compassEnabled(true)))
     private var _content = MutableStateFlow<Screen>(Screen.IconCard)
     private var _boxHeight = MutableStateFlow(100.dp)
-    private val mapController = MapController(onPoiClick = {
-        _content.value = Screen.Comment(null)
-        _mapView.value.map.animateCamera(CameraUpdateFactory.newLatLng(it!!.coordinate))
-    }, onMapClick = {
-        _mapView.value.map.animateCamera(CameraUpdateFactory.newLatLng(it!!))
-    }, onMarkerClick = {
-        _content.value = Screen.Comment(it)
-        _mapView.value.map.animateCamera(CameraUpdateFactory.newLatLng(it?.position))
-    })
-    private val _location = MutableStateFlow<LatLng>(LatLng(30.513197, 114.413301))
+    private val _location = MutableStateFlow(LatLng(30.513197, 114.413301))
     private val _poiItem = MutableStateFlow<List<PoiItemV2>>(emptyList())
-    val mapView: StateFlow<MapView> = _mapView
     val content: StateFlow<Screen> = _content
     val boxHeight: StateFlow<Dp> = _boxHeight
     val location: StateFlow<LatLng> = _location
@@ -59,22 +48,12 @@ class MapPageViewModel(context: Context) : ViewModel() {
     private val mapSearch = MapPoiSearchUtil(context = context,
         onPoiSearched = { _poiItem.value = it },
         returnMsg = { MapUtil.showMsg(it, context) })
-    private val routeSearch = MapRouteSearchUtil(mapView = _mapView.value,
-        context = context,
-        returnMsg = { MapUtil.showMsg(it, context) })
 
-
-    init {
-        fetchPoints()
-        mapController.mapLocationInit(context)
-        getLocation()
-    }
-
-    private fun fetchPoints() {
+    private fun fetchPoints(mapView: MapView) {
         viewModelScope.launch(Dispatchers.IO) {
             val points = repository.getAllPoints()
             points.forEach { point ->
-                _mapView.value.map.addMarker(
+                mapView.map.addMarker(
                     MarkerOptions().title(
                         point.name
                     ).position(LatLng(point.lat, point.lng))
@@ -92,12 +71,12 @@ class MapPageViewModel(context: Context) : ViewModel() {
         _boxHeight.value = height
     }
 
-    private fun getLocation() {
+    private fun getLocation(mapController: MapController) {
         _location.value = mapController.getLastKnownLocation()
     }
 
-    fun moveMapToLocation() {
-        mapController.onLocate(_mapView.value)
+    fun moveMapToLocation(mapView: MapView, mapController: MapController) {
+        mapController.onLocate(mapView)
     }
 
     fun getPoint(title: String) {
@@ -105,11 +84,11 @@ class MapPageViewModel(context: Context) : ViewModel() {
     }
 
     @Composable
-    fun MapLifecycle(context: Context) {
+    fun MapLifecycle(context: Context, mapView: MapView) {
         val lifecycle = LocalLifecycleOwner.current.lifecycle
         DisposableEffect(context, lifecycle, this) {
-            val mapLifecycleObserver = lifecycleObserver(_mapView.value)
-            val callbacks = _mapView.value.componentCallbacks()
+            val mapLifecycleObserver = lifecycleObserver(mapView)
+            val callbacks = mapView.componentCallbacks()
             lifecycle.addObserver(mapLifecycleObserver)
             context.registerComponentCallbacks(callbacks)
             onDispose {
@@ -154,8 +133,11 @@ class MapPageViewModel(context: Context) : ViewModel() {
         }
     }
 
-    fun navigate(destination: LatLng) {
-        routeSearch.startRouteSearch(
+    fun navigate(destination: LatLng, context: Context, mapView: MapView) {
+        MapRouteSearchUtil(
+            mapView = mapView,
+            context = context,
+            returnMsg = { MapUtil.showMsg(it, context) }).startRouteSearch(
             mStartPoint = _location.value, mEndPoint = destination
         )
     }

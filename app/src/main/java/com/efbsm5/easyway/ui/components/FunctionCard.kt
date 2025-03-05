@@ -44,10 +44,10 @@ fun FunctionCard(onclick: (String) -> Unit, onChangePage: () -> Unit) {
 
 @Composable
 private fun FunctionCardScreen(
-    text: String,
-    onTextChange: (String) -> Unit,
-    onclick: (String) -> Unit,
-    onClickSearchBar: () -> Unit
+    text: String = "",
+    onTextChange: (String) -> Unit = {},
+    onclick: (String) -> Unit = {  },
+    onClickSearchBar: () -> Unit = {}
 ) {
     Column(
         Modifier
