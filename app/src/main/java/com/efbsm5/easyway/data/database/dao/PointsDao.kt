@@ -6,6 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.efbsm5.easyway.data.models.EasyPoint
 import com.efbsm5.easyway.data.models.assistModel.EasyPointSimplify
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface PointsDao {
@@ -16,7 +17,10 @@ interface PointsDao {
     fun getCount(): Int
 
     @Query("select pointId,name,lat,lng from points order by pointId desc ")
-    fun loadAllPoints(): List<EasyPointSimplify>
+    fun loadAllPoints(): Flow<List<EasyPointSimplify>>
+
+    @Query("select pointId,name,lat,lng from points order by pointId desc ")
+    fun loadAllPointsByOnce(): List<EasyPointSimplify>
 
     @Query("SELECT * FROM points WHERE pointId = :id")
     fun getPointById(id: Int): EasyPoint?
@@ -32,6 +36,9 @@ interface PointsDao {
 
     @Query("SELECT * FROM points WHERE lat = :lat AND lng = :lng")
     fun getPointByLatLng(lat: Double, lng: Double): EasyPoint?
+
+    @Query("SELECT * FROM points WHERE name=:name")
+    fun getPointByName(name:String): EasyPoint?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(posts: List<EasyPoint>)

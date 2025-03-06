@@ -43,12 +43,15 @@ class NewPostPageViewModel(context: Context) : ViewModel() {
     }
 
     fun getPicture(uri: Uri) {
-        _choosedPhotos.value.add(uri)
+        _choosedPhotos.value = _choosedPhotos.value.apply { add(uri) }.toMutableList()
     }
-
     fun push() {
         viewModelScope.launch(Dispatchers.IO) {
             repository.uploadPost(_newPost.value, _choosedPhotos.value)
         }
+    }
+
+    private fun updatePhotos(newPhotos: List<Uri>) {
+        _choosedPhotos.value = newPhotos.toMutableList()
     }
 }

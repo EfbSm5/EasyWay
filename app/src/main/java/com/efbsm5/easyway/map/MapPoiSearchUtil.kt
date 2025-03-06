@@ -1,11 +1,14 @@
 package com.efbsm5.easyway.map
 
 import android.content.Context
+import android.util.Log
 import com.amap.api.services.core.AMapException
 import com.amap.api.services.core.PoiItemV2
 import com.amap.api.services.core.ServiceSettings
 import com.amap.api.services.poisearch.PoiResultV2
 import com.amap.api.services.poisearch.PoiSearchV2
+
+private const val TAG = "MapPoiSearchUtil"
 
 class MapPoiSearchUtil(
     private val context: Context,
@@ -31,11 +34,9 @@ class MapPoiSearchUtil(
     }
 
     override fun onPoiSearched(p0: PoiResultV2?, p1: Int) {
-        if (p1 != 1000) {
-            MapUtil.showMsg("搜索出错", context)
-        } else {
-            p0?.pois?.let { onPoiSearched(it) }
-        }
+
+        p0?.pois?.let { onPoiSearched(it) }
+        Log.d(TAG, "onPoiSearched: ${p0?.pois.toString()}")
     }
 
     override fun onPoiItemSearched(p0: PoiItemV2?, p1: Int) {

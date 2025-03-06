@@ -10,6 +10,7 @@ import com.amap.api.maps.model.BitmapDescriptorFactory
 import com.amap.api.maps.model.LatLng
 import com.amap.api.maps.model.Marker
 import com.amap.api.maps.model.MarkerOptions
+import com.amap.api.maps.model.Poi
 import com.amap.api.services.core.PoiItemV2
 import com.efbsm5.easyway.data.ViewModelRepository.DataRepository
 import kotlinx.coroutines.Dispatchers
@@ -26,17 +27,21 @@ class MapPageViewModel(context: Context) : ViewModel() {
     val content: StateFlow<Screen> = _content
     val boxHeight: StateFlow<Dp> = _boxHeight
     val location: StateFlow<LatLng> = _location
+
     fun fetchPoints(mapView: MapView) {
         viewModelScope.launch(Dispatchers.IO) {
-            val points = repository.getAllPoints()
-            points.forEach { point ->
-                mapView.map.addMarker(
-                    MarkerOptions().title(
-                        point.name
-                    ).position(LatLng(point.lat, point.lng))
-                        .icon(BitmapDescriptorFactory.defaultMarker())
-                )
+            repository.getAllPoints().collect {
+                mapView.map.clear()
+                it.forEach { point ->
+                    mapView.map.addMarker(
+                        MarkerOptions().title(
+                            point.name
+                        ).position(LatLng(point.lat, point.lng))
+                            .icon(BitmapDescriptorFactory.defaultMarker())
+                    )
+                }
             }
+
         }
     }
 
@@ -54,6 +59,6 @@ sealed interface Screen {
     data object IconCard : Screen
     data class NewPoint(val location: LatLng?) : Screen
     data class Places(val name: String) : Screen
-    data class Comment(val marker: Marker?, val poiItemV2: PoiItemV2?) : Screen
+    data class Comment(val marker: Marker?, val poi: Poi?, val poiItemV2: PoiItemV2?) : Screen
     data object Search : Screen
 }

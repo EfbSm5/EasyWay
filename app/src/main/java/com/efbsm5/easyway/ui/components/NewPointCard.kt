@@ -29,7 +29,7 @@ import java.io.File
 import java.io.FileOutputStream
 
 @Composable
-fun NewPointCard(location: LatLng?, back: () -> Unit, viewModel: NewPointCardViewModel) {
+fun NewPointCard(location: LatLng?, back: (Boolean) -> Unit, viewModel: NewPointCardViewModel) {
     val context = LocalContext.current
     val newPoint by viewModel.tempPoint.collectAsState()
     val expanded by viewModel.expanded.collectAsState()
@@ -62,8 +62,9 @@ fun NewPointCard(location: LatLng?, back: () -> Unit, viewModel: NewPointCardVie
                 )
             )
             viewModel.publishPoint()
+            back(true)
         },
-        cancel = { back() },
+        cancel = { back(false) },
         onNameValueChange = { viewModel.changeTempPoint(newPoint.copy(name = it)) },
     )
 }

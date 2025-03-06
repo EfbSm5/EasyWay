@@ -26,24 +26,28 @@ import com.amap.api.maps.model.Marker
 import com.efbsm5.easyway.R
 import com.efbsm5.easyway.data.models.EasyPoint
 import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import com.amap.api.maps.model.LatLng
 import com.amap.api.services.core.PoiItemV2
 import com.efbsm5.easyway.data.models.assistModel.CommentAndUser
+import com.efbsm5.easyway.map.MapUtil
 import com.efbsm5.easyway.viewmodel.componentsViewmodel.CommentAndHistoryCardViewModel
 import com.efbsm5.easyway.viewmodel.componentsViewmodel.CommentCardScreen
 
 
 @Composable
 fun CommentAndHistoryCard(
-    viewModel: CommentAndHistoryCardViewModel
+    viewModel: CommentAndHistoryCardViewModel, navigate: (LatLng) -> Unit
 ) {
     val state by viewModel.state.collectAsState()
     val pointComment by viewModel.pointComments.collectAsState()
     val showComment by viewModel.showComment.collectAsState()
     val newComment by viewModel.newComment.collectAsState()
     val point by viewModel.point.collectAsState()
-
-    CommentAndHistoryCardScreen(point = point,
+    val context = LocalContext.current
+    CommentAndHistoryCardScreen(
+        point = point,
         onSelect = { viewModel.changeState(it) },
         state = state,
         pointComments = pointComment,
@@ -52,12 +56,19 @@ fun CommentAndHistoryCard(
         onChangeComment = { viewModel.editComment(it) },
         changeShowComment = { viewModel.showComment(it) },
         publish = { viewModel.publish() },
-        refresh = { viewModel.refresh() })
+        refresh = { viewModel.refresh() },
+        navigate = {
+            if (point != null) {
+                navigate(LatLng(point!!.lat, point!!.lng))
+            } else {
+                MapUtil.showMsg("出错了", context = context)
+            }
+        })
 }
 
 @Composable
 private fun CommentAndHistoryCardScreen(
-    point: EasyPoint,
+    point: EasyPoint?,
     onSelect: (CommentCardScreen) -> Unit,
     state: CommentCardScreen,
     pointComments: List<CommentAndUser>?,
@@ -66,7 +77,8 @@ private fun CommentAndHistoryCardScreen(
     onChangeComment: (String) -> Unit,
     changeShowComment: (Boolean) -> Unit,
     publish: () -> Unit,
-    refresh: () -> Unit
+    refresh: () -> Unit,
+    navigate: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -90,7 +102,7 @@ private fun CommentAndHistoryCardScreen(
         }
         BottomActionBar(refresh = { refresh() }, comment = {
             changeShowComment(true)
-        })
+        }, navigate = { navigate() })
     }
 }
 
@@ -149,14 +161,16 @@ private fun Select(onClick: (CommentCardScreen) -> Unit) {
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = "评论次数",
+        Text(
+            text = "评论次数",
             fontWeight = FontWeight.Bold,
             fontSize = 16.sp,
             modifier = Modifier.clickable {
                 onClick(CommentCardScreen.Comment)
             })
         Spacer(Modifier.width(50.dp))
-        Text(text = "历史版本",
+        Text(
+            text = "历史版本",
             fontWeight = FontWeight.Bold,
             fontSize = 16.sp,
             modifier = Modifier.clickable {
@@ -258,7 +272,7 @@ private fun HistoryCard() {
 }
 
 @Composable
-private fun BottomActionBar(refresh: () -> Unit, comment: () -> Unit) {
+private fun BottomActionBar(refresh: () -> Unit, comment: () -> Unit, navigate: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -282,6 +296,9 @@ private fun BottomActionBar(refresh: () -> Unit, comment: () -> Unit) {
         ) {
             Text(text = "发布评论")
         }
+        Button(onClick = { navigate() }) {
+            Text(text = "导航")
+        }
     }
 }
 
@@ -295,9 +312,10 @@ private fun ShowTextField(
             verticalArrangement = Arrangement.Bottom,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            TextField(modifier = Modifier
-                .fillMaxWidth()
-                .height(200.dp),
+            TextField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp),
                 value = text,
                 onValueChange = { changeText(it) })
             Row(modifier = Modifier.fillMaxWidth()) {

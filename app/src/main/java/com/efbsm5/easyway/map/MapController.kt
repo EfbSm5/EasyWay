@@ -24,6 +24,7 @@ import com.amap.api.maps.model.Marker
 import com.amap.api.maps.model.MyLocationStyle
 import com.amap.api.maps.model.Poi
 import com.efbsm5.easyway.ui.theme.isDarkTheme
+import androidx.core.content.edit
 
 private const val TAG = "MapController"
 
@@ -43,6 +44,7 @@ class MapController(
     private var isDarkTheme = false
 
     private fun initializeVariables(context: Context) {
+        Log.e(TAG, "initializeVariables:   ")
         isDarkTheme = isDarkTheme(context)
         sharedPreferences = context.getSharedPreferences("MapPreferences", Context.MODE_PRIVATE)
         mLocationClient = AMapLocationClient(context)
@@ -56,9 +58,12 @@ class MapController(
     }
 
     private fun saveLastKnownLocation(location: LatLng, cityCode: String) {
-        sharedPreferences.edit().putFloat("last_lat", location.latitude.toFloat())
-            .putFloat("last_lng", location.longitude.toFloat()).putString("citycode", cityCode)
-            .apply()
+        sharedPreferences.edit {
+            putFloat("last_lat", location.latitude.toFloat()).putFloat(
+                "last_lng",
+                location.longitude.toFloat()
+            ).putString("citycode", cityCode)
+        }
     }
 
 
@@ -70,6 +75,7 @@ class MapController(
                 mListener!!.onLocationChanged(aMapLocation)
                 val latitude = aMapLocation.latitude
                 val longitude = aMapLocation.longitude
+                Log.e(TAG, "mapLocationInit:       location")
                 mLocation = LatLng(latitude, longitude)
                 saveLastKnownLocation(mLocation, aMapLocation.cityCode)
             }
@@ -101,13 +107,13 @@ class MapController(
             myLocationStyle = MyLocationStyle().interval(2000)
                 .myLocationType(MyLocationStyle.LOCATION_TYPE_FOLLOW)
             setOnMapClickListener {
-                onMapClick
+                onMapClick(it)
             }
             setOnPOIClickListener {
                 onPoiClick(it)
             }
             setOnMarkerClickListener {
-                onMarkerClick
+                onMarkerClick(it)
                 true
             }
             showMapText(true)

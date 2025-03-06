@@ -6,6 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.efbsm5.easyway.data.models.DynamicPost
 import com.efbsm5.easyway.data.models.User
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface DynamicPostDao {
@@ -16,7 +17,10 @@ interface DynamicPostDao {
     fun getDynamicPostById(id: Int): DynamicPost?
 
     @Query("SELECT * FROM dynamicposts")
-    fun getAllDynamicPosts(): List<DynamicPost>
+    fun getAllDynamicPosts(): Flow<List<DynamicPost>>
+
+    @Query("SELECT * FROM dynamicposts")
+    fun getAllDynamicPostsByOnce(): List<DynamicPost>
 
     @Query("DELETE FROM dynamicposts WHERE id = :id")
     fun deleteDynamicPostById(id: Int)
@@ -31,5 +35,5 @@ interface DynamicPostDao {
     fun getCount(): Int
 
     @Query("SELECT * FROM dynamicposts WHERE userId = :userId")
-    fun getAllDynamicPostsByUserId(userId: Int): List<DynamicPost>
+    fun getAllDynamicPostsByUserId(userId: Int): Flow<List<DynamicPost>>
 }

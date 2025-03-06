@@ -52,7 +52,7 @@ class IntentRepository(val context: Context) {
     private fun syncDynamicPosts() {
         httpClient.getAllDynamicPosts { networkPosts ->
             if (networkPosts != null) {
-                val localPosts = dynamicPostDao.getAllDynamicPosts()
+                val localPosts = dynamicPostDao.getAllDynamicPostsByOnce()
                 val toInsert = networkPosts.filter { it !in localPosts }
                 val toDelete = localPosts.filter { it !in networkPosts }.map { it.id }
                 db.runInTransaction {
@@ -66,7 +66,7 @@ class IntentRepository(val context: Context) {
     private fun syncEasyPoints() {
         httpClient.getAllEasyPoints { networkPoints ->
             if (networkPoints != null) {
-                val localPoints = pointsDao.loadAllPoints()
+                val localPoints = pointsDao.loadAllPointsByOnce()
                 val toInsert =
                     networkPoints.filter { networkPoint -> localPoints.none { it.pointId == networkPoint.pointId } }
                 val toDelete =

@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 
 class DetailPageViewModel(context: Context) : ViewModel() {
     private val repository = DataRepository(context)
-    private lateinit var _dynamicPost: MutableStateFlow<DynamicPost>
+    private val _dynamicPost = MutableStateFlow<DynamicPost?>(null)
     private var _newCommentText = MutableStateFlow("")
     private var _showTextField = MutableStateFlow(false)
     private var _postUser = MutableStateFlow(
@@ -30,7 +30,7 @@ class DetailPageViewModel(context: Context) : ViewModel() {
     val postUser: StateFlow<User> = _postUser
     val commentAndUser: StateFlow<List<CommentAndUser>> = _commentAndUsers
     val photos: StateFlow<List<Uri>> = _photos
-    val post: StateFlow<DynamicPost> = _dynamicPost
+    val post: StateFlow<DynamicPost?> = _dynamicPost
 
     fun getPost(dynamicPost: DynamicPost) {
         _dynamicPost.value = dynamicPost
@@ -39,13 +39,21 @@ class DetailPageViewModel(context: Context) : ViewModel() {
 
     private fun getData() {
         viewModelScope.launch(Dispatchers.IO) {
-            _postUser.value = repository.getUserById(post.value.userId)
-            val comments = repository.getAllCommentsById(commentId = _dynamicPost.value.commentId)
-            comments.forEach {
-                _commentAndUsers.value.add(CommentAndUser(repository.getUserById(it.userId), it))
-            }
-            val photos = repository.getAllPhotosById(post.value.photoId)
-            photos.forEach { _photos.value.add(it.uri) }
+            _postUser.value = repository.getUserById(_dynamicPost.value!!.userId)
+            repository.getAllCommentsById(commentId = _dynamicPost.value!!.commentId)
+                .collect { comments ->
+                    _commentAndUsers.value.clear()
+                    comments.forEach {
+                        _commentAndUsers.value.add(
+                            CommentAndUser(
+                                repository.getUserById(it.userId), it
+                            )
+                        )
+                    }
+                    val photos = repository.getAllPhotosById(_dynamicPost.value!!.photoId)
+                    photos.forEach { _photos.value.add(it.uri) }
+                }
+
         }
     }
 
@@ -61,5 +69,11 @@ class DetailPageViewModel(context: Context) : ViewModel() {
 
     fun ifShowTextField(boolean: Boolean) {
         _showTextField.value = boolean
+    }
+
+    fun comment() {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.uploadComment(_newCommentText.value, _dynamicPost.value!!.commentId)
+        }
     }
 }

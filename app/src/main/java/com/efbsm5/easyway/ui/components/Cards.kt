@@ -1,5 +1,6 @@
 package com.efbsm5.easyway.ui.components
 
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -31,12 +32,13 @@ fun MapPageCard(
         is Screen.Comment -> {
             if (content.marker != null) {
                 commentAndHistoryCardViewModel.getPoint(content.marker)
+            } else if (content.poi != null) {
+                commentAndHistoryCardViewModel.addPoi(content.poi)
             } else if (content.poiItemV2 != null) {
-                commentAndHistoryCardViewModel.addPoi(content.poiItemV2)
+                commentAndHistoryCardViewModel.addPoiItem(content.poiItemV2)
             }
             CommentAndHistoryCard(
-                viewModel = commentAndHistoryCardViewModel,
-            )
+                viewModel = commentAndHistoryCardViewModel, navigate = { onNavigate(it, true) })
         }
 
         Screen.IconCard -> FunctionCard(onclick = {
@@ -62,7 +64,7 @@ fun MapPageCard(
             SearchPage(viewModel = searchPageViewModel, onSelected = {
                 onChangeScreen(
                     Screen.Comment(
-                        marker = null, poiItemV2 = it
+                        marker = null, poi = null, poiItemV2 = it
                     )
                 )
             })

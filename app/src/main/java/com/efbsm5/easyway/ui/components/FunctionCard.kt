@@ -3,7 +3,9 @@ package com.efbsm5.easyway.ui.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,6 +17,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -36,7 +39,8 @@ import com.efbsm5.easyway.R
 @Composable
 fun FunctionCard(onclick: (String) -> Unit, onChangeSearchPage: () -> Unit) {
     var text by remember { mutableStateOf("") }
-    FunctionCardScreen(text = text,
+    FunctionCardScreen(
+        text = text,
         onTextChange = { text = it },
         onclick = { onclick(it) },
         onClickSearchBar = { onChangeSearchPage() })
@@ -54,7 +58,8 @@ private fun FunctionCardScreen(
             .fillMaxWidth()
             .padding(16.dp)
     ) {
-        SearchBar(text = text,
+        SearchBar(
+            text = text,
             onTextChange = { onTextChange(it) },
             onClickSearchBar = { onClickSearchBar() })
         Spacer(Modifier.height(10.dp))
@@ -64,18 +69,25 @@ private fun FunctionCardScreen(
 
 @Composable
 private fun SearchBar(text: String, onTextChange: (String) -> Unit, onClickSearchBar: () -> Unit) {
-    TextField(
-        value = text,
-        onValueChange = { onTextChange(it) },
-        label = { Text("搜索") },
+    Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(5.dp)
             .clickable {
                 onClickSearchBar()
-            },
-        leadingIcon = { Icon(Icons.Default.Search, "search") },
-    )
+            }) {
+        TextField(
+            value = text,
+            onValueChange = { onTextChange(it) },
+            label = { Text("搜索") },
+            modifier =Modifier.fillMaxWidth(),
+            leadingIcon = { Icon(Icons.Default.Search, "search") },
+        )
+        Button(onClick = { onClickSearchBar() }) {
+            Text("搜索")
+        }
+    }
+
 }
 
 
@@ -91,7 +103,8 @@ private fun IconGrid(onclick: (String) -> Unit) {
         Pair(R.drawable.aed, "AED"),
         Pair(R.drawable.podao, "坡道")
     )
-    LazyVerticalGrid(columns = GridCells.Fixed(4),
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(4),
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
@@ -106,7 +119,8 @@ private fun IconGrid(onclick: (String) -> Unit) {
 
 @Composable
 private fun IconAndName(iconRes: Int, text: String, onclick: (String) -> Unit) {
-    Column(verticalArrangement = Arrangement.Center,
+    Column(
+        verticalArrangement = Arrangement.Center,
         modifier = Modifier
             .padding(8.dp)
             .fillMaxWidth()

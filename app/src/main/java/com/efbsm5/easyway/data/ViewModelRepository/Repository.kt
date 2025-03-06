@@ -16,21 +16,22 @@ import com.efbsm5.easyway.data.models.Photo
 import com.efbsm5.easyway.data.network.HttpClient
 import com.efbsm5.easyway.data.network.UrlForDatabase
 import com.efbsm5.easyway.map.MapUtil
+import kotlinx.coroutines.flow.Flow
 
 class DataRepository(private val context: Context) {
     private val database = AppDataBase.getDatabase(context)
     private val userManager = UserManager(context)
     private val httpClient = HttpClient(UrlForDatabase.BASE_URL)
 
-    fun getAllPoints(): List<EasyPointSimplify> {
+    fun getAllPoints(): Flow<List<EasyPointSimplify>> {
         return database.pointsDao().loadAllPoints()
     }
 
-    fun getAllDynamicPosts(): List<DynamicPost> {
+    fun getAllDynamicPosts(): Flow<List<DynamicPost>> {
         return database.dynamicPostDao().getAllDynamicPosts()
     }
 
-    fun getAllCommentsById(commentId: Int): List<Comment> {
+    fun getAllCommentsById(commentId: Int): Flow<List<Comment>> {
         return database.commentDao().getCommentByCommentId(commentId)
     }
 
@@ -97,7 +98,7 @@ class DataRepository(private val context: Context) {
     fun getPointFromMarker(marker: Marker): EasyPoint {
         return database.pointsDao()
             .getPointByLatLng(marker.position.latitude, marker.position.longitude)
-            ?: EasyPoint(
+            ?: database.pointsDao().getPointByName(marker.title) ?: EasyPoint(
                 pointId = 0,
                 name = "未找到的标点",
                 type = "",
@@ -150,7 +151,7 @@ class DataRepository(private val context: Context) {
         return database.photoDao().getPhotoById(id = photoId)
     }
 
-    fun getPointByUserId(userId: Int): List<DynamicPost> {
+    fun getPointByUserId(userId: Int): Flow<List<DynamicPost>> {
         return database.dynamicPostDao().getAllDynamicPostsByUserId(userId)
     }
 }

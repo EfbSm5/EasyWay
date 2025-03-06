@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.efbsm5.easyway.data.models.Comment
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CommentDao {
@@ -12,7 +13,7 @@ interface CommentDao {
     fun insert(comment: Comment)
 
     @Query("SELECT * FROM comments WHERE commentId = :id")
-    fun getCommentByCommentId(id: Int): List<Comment>
+    fun getCommentByCommentId(id: Int): Flow<List<Comment>>
 
     @Query("SELECT * FROM comments")
     fun getAllComments(): List<Comment>

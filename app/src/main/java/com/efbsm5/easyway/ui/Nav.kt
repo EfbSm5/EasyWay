@@ -56,7 +56,6 @@ fun EasyWay() {
     val context = LocalContext.current
     val mapPageViewModel = viewModel<MapPageViewModel>(factory = ViewModelFactory(context))
     val homePageViewModel = viewModel<HomePageViewModel>(factory = ViewModelFactory(context))
-
     AppSurface(
         navController = navControl,
         mapPageViewModel = mapPageViewModel,

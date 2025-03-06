@@ -51,7 +51,8 @@ fun DetailPage(onBack: () -> Unit, viewModel: DetailPageViewModel) {
         commentAndUser = commentAndUser,
         onLikeComment = { viewModel.addLike(it) },
         photos = photos,
-        post = post
+        post = post!!,
+        comment = {viewModel.comment()}
     )
 }
 
@@ -67,6 +68,7 @@ private fun DetailPageScreen(
     commentAndUser: List<CommentAndUser> = emptyList(),
     onLikeComment: (Int) -> Unit = {},
     photos: List<Uri> = emptyList(),
+    comment: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -83,9 +85,13 @@ private fun DetailPageScreen(
         HorizontalDivider(thickness = 1.dp, color = Color.Gray)
         CommentSection(comment = { changeIfShowTextField(true) })
         if (showTextField) {
-            AddCommentField(commentText = newCommentText,
+            AddCommentField(
+                commentText = newCommentText,
                 onAddComment = { onAddComment(it) },
-                onClickButton = { changeIfShowTextField(false) })
+                onClickButton = {
+                    changeIfShowTextField(false)
+                    comment()
+                })
         }
     }
     BackHandler(enabled = showTextField) {
@@ -218,7 +224,8 @@ private fun AddCommentField(
     commentText: String, onAddComment: (String) -> Unit, onClickButton: () -> Unit
 ) {
     Row(verticalAlignment = Alignment.CenterVertically) {
-        TextField(value = commentText,
+        TextField(
+            value = commentText,
             onValueChange = { onAddComment(it) },
             modifier = Modifier.weight(1f),
             placeholder = { Text("添加评论") })

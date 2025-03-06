@@ -1,5 +1,6 @@
 package com.efbsm5.easyway.ui.page
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -26,18 +27,27 @@ import com.efbsm5.easyway.ui.components.MapPageCard
 import com.efbsm5.easyway.viewmodel.pageViewmodel.MapPageViewModel
 import com.efbsm5.easyway.viewmodel.pageViewmodel.Screen
 
+private const val TAG = "MapPage"
+
 @Composable
 fun MapPage(viewModel: MapPageViewModel) {
     val context = LocalContext.current
     val mapView = MapView(context, AMapOptions().compassEnabled(true))
-    val mapController = MapController(onPoiClick = {}, onMapClick = {}, onMarkerClick = {})
+    val mapController = MapController(
+        onPoiClick = { viewModel.changeScreen(Screen.Comment(null, it, null)) },
+        onMapClick = { },
+        onMarkerClick = {
+            viewModel.changeScreen(Screen.Comment(it, null, null))
+            Log.e(TAG, "MapPage: onclick marker")
+        })
     mapController.mapLocationInit(context)
     mapController.MapLifecycle(context, mapView)
     viewModel.fetchPoints(mapView)
     val content by viewModel.content.collectAsState()
     val boxHeight by viewModel.boxHeight.collectAsState()
     val location by viewModel.location.collectAsState()
-    MapScreen(mapView = mapView,
+    MapScreen(
+        mapView = mapView,
         content = content,
         boxHeight = boxHeight,
         onChangeScreen = { viewModel.changeScreen(it) },
@@ -68,16 +78,15 @@ private fun MapScreen(
 ) {
     AndroidView(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(bottom = boxHeight),
-        factory = { mapView })
-    AddAndLocateButton(onAdd = {
-        onChangeScreen(
-            Screen.NewPoint(
-                location = location
+            .fillMaxSize(), factory = { mapView })
+    AddAndLocateButton(
+        onAdd = {
+            onChangeScreen(
+                Screen.NewPoint(
+                    location = location
+                )
             )
-        )
-    }, onLocate = { onLocate() }, bottomHeight = boxHeight
+        }, onLocate = { onLocate() }, bottomHeight = boxHeight
     )
 
     Box(

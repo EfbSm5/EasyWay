@@ -1,10 +1,12 @@
 package com.efbsm5.easyway.viewmodel.componentsViewmodel
 
 import android.content.Context
+import android.util.Log
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.amap.api.maps.model.Marker
+import com.amap.api.maps.model.Poi
 import com.amap.api.services.core.PoiItemV2
 import com.efbsm5.easyway.data.models.EasyPoint
 import com.efbsm5.easyway.data.ViewModelRepository.DataRepository
@@ -14,14 +16,16 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
+private const val TAG = "CommentAndHistoryCardVi"
+
 class CommentAndHistoryCardViewModel(context: Context) : ViewModel() {
     private val repository = DataRepository(context)
     private var _state = MutableStateFlow<CommentCardScreen>(CommentCardScreen.Comment)
-    private lateinit var _point: MutableStateFlow<EasyPoint>
+    private val _point = MutableStateFlow<EasyPoint?>(null)
     private var _showComment = MutableStateFlow(false)
     private var _pointComments = MutableStateFlow<List<CommentAndUser>?>(null)
     private var _newComment = MutableStateFlow("")
-    val point: StateFlow<EasyPoint> = _point
+    val point: StateFlow<EasyPoint?> = _point
     val state: StateFlow<CommentCardScreen> = _state
     val showComment: StateFlow<Boolean> = _showComment
     val pointComments: StateFlow<List<CommentAndUser>?> = _pointComments
@@ -29,16 +33,21 @@ class CommentAndHistoryCardViewModel(context: Context) : ViewModel() {
 
     fun getPoint(marker: Marker) {
         viewModelScope.launch(Dispatchers.IO) {
-            val commentsAndUser = emptyList<CommentAndUser>().toMutableList()
-            _point.value = repository.getPointFromMarker(marker).also { easyPoint ->
-                repository.getAllCommentsById(easyPoint.commentId).forEach {
-                    commentsAndUser.add(
-                        CommentAndUser(
-                            repository.getUserById(it.userId), it
+            _point.value = repository.getPointFromMarker(marker)
+            if (_point.value == null) {
+                Log.e(TAG, "getPoint:     null point")
+            } else
+                repository.getAllCommentsById(_point.value!!.commentId).collect { comments ->
+                    val commentsAndUser = emptyList<CommentAndUser>().toMutableList()
+                    comments.forEach {
+                        commentsAndUser.add(
+                            CommentAndUser(
+                                repository.getUserById(it.userId), it
+                            )
                         )
-                    )
+                    }
+
                 }
-            }
         }
     }
 
@@ -57,12 +66,12 @@ class CommentAndHistoryCardViewModel(context: Context) : ViewModel() {
     fun publish() {
         viewModelScope.launch(Dispatchers.IO) {
             repository.uploadComment(
-                _newComment.value, commentId = _point.value.commentId
+                _newComment.value, commentId = _point.value!!.commentId
             )
         }
     }
 
-    fun addPoi(poiItemV2: PoiItemV2) {
+    fun addPoiItem(poiItemV2: PoiItemV2) {
         _point.value = EasyPoint(
             pointId = 0,
             name = poiItemV2.title,
@@ -80,15 +89,35 @@ class CommentAndHistoryCardViewModel(context: Context) : ViewModel() {
         )
     }
 
+    fun addPoi(poi: Poi) {
+        _point.value = EasyPoint(
+            pointId = 0,
+            name = poi.name,
+            type = "一般点",
+            info = "无详细描述",
+            location = "无详细描述",
+            photo = null,
+            refreshTime = "未知",
+            likes = 0,
+            dislikes = 0,
+            lat = poi.coordinate.latitude,
+            lng = poi.coordinate.longitude,
+            userId = 0,
+            commentId = 0
+        )
+    }
+
     fun refresh() {
         viewModelScope.launch(Dispatchers.IO) {
             val commentsAndUser = emptyList<CommentAndUser>().toMutableList()
-            repository.getAllCommentsById(_point.value.commentId).forEach {
-                commentsAndUser.add(
-                    CommentAndUser(
-                        repository.getUserById(it.userId), it
+            repository.getAllCommentsById(_point.value!!.commentId).collect { comments ->
+                comments.forEach {
+                    commentsAndUser.add(
+                        CommentAndUser(
+                            repository.getUserById(it.userId), it
+                        )
                     )
-                )
+                }
             }
         }
     }

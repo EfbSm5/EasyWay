@@ -25,19 +25,20 @@ class ShowPageViewModel(context: Context) : ViewModel() {
 
     private fun fetchPosts() {
         viewModelScope.launch(Dispatchers.IO) {
-            val postList = repository.getAllDynamicPosts()
-            val list = emptyList<DynamicPostAndUser>().toMutableList()
-            postList.forEach {
-                list.add(
-                    DynamicPostAndUser(
-                        dynamicPost = it,
-                        user = repository.getUserById(it.userId),
-                        commentCount = repository.getCommentCount(it.commentId),
-                        photo = repository.getAllPhotosById(it.photoId)
+            repository.getAllDynamicPosts().collect { dynamicPosts ->
+                val list = emptyList<DynamicPostAndUser>().toMutableList()
+                dynamicPosts.forEach {
+                    list.add(
+                        DynamicPostAndUser(
+                            dynamicPost = it,
+                            user = repository.getUserById(it.userId),
+                            commentCount = repository.getCommentCount(it.commentId),
+                            photo = repository.getAllPhotosById(it.photoId)
+                        )
                     )
-                )
+                }
+                _posts.value = list.toList()
             }
-            _posts.value = list.toList()
         }
     }
 

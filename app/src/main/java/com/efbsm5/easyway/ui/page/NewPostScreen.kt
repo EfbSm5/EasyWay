@@ -41,7 +41,8 @@ fun NewDynamicPostPage(navigate: () -> Unit, viewModel: NewPostPageViewModel) {
     val newPost by viewModel.newPost.collectAsState()
     val selectedButton by viewModel.selectedButton.collectAsState()
     val photos by viewModel.choosedPhotos.collectAsState()
-    DynamicPostScreen(dynamicPost = newPost,
+    DynamicPostScreen(
+        dynamicPost = newPost,
         selectedButton = selectedButton,
         onSelected = { viewModel.changeSelectedButton(it) },
         onTitleChanged = { viewModel.editPost(newPost.copy(title = it)) },
@@ -52,7 +53,10 @@ fun NewDynamicPostPage(navigate: () -> Unit, viewModel: NewPostPageViewModel) {
                 viewModel.getPicture(it)
             }
         },
-        publish = { viewModel.push() },
+        publish = {
+            viewModel.push()
+            navigate()
+        },
         back = { navigate() })
 }
 
@@ -76,7 +80,8 @@ fun DynamicPostScreen(
         TopBar(back = { back() })
         PublishToSection(selectedButton = selectedButton, onSelected = { onSelected(it) })
         Spacer(modifier = Modifier.height(16.dp))
-        AddTitleAndContentSection(dynamicPost = dynamicPost,
+        AddTitleAndContentSection(
+            dynamicPost = dynamicPost,
             onTitleChanged = { onTitleChanged(it) },
             onContentChanged = { onContentChanged(it) })
         Spacer(modifier = Modifier.height(16.dp))
@@ -185,7 +190,8 @@ private fun AddLocationAndImagesSection(
         ) {
             items(selectedPhotos.size) { index ->
                 val photoUri = selectedPhotos[index]
-                Image(painter = rememberAsyncImagePainter(photoUri),
+                Image(
+                    painter = rememberAsyncImagePainter(photoUri),
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
