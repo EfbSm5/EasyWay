@@ -7,6 +7,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -28,6 +29,7 @@ class MainActivity : ComponentActivity() {
         handlePermission()
         setupPeriodicSync()
         setUser()
+        enableEdgeToEdge()
         setContent {
             EasyWayTheme {
                 EasyWay()

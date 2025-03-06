@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
@@ -46,15 +47,14 @@ import com.efbsm5.easyway.viewmodel.pageViewmodel.ShowPageViewModel
 
 @Composable
 fun ShowPage(
-    onChangeState: () -> Unit,
-    onSelectedPost: (DynamicPost) -> Unit,
-    viewModel: ShowPageViewModel
+    onChangeState: () -> Unit, onSelectedPost: (DynamicPost) -> Unit, viewModel: ShowPageViewModel
 ) {
     val postList = viewModel.posts.collectAsState().value
     val text by viewModel.text.collectAsState()
     val tabs = listOf("全部", "活动", "互助", "分享")
     val selectedTabIndex by viewModel.selectedTab.collectAsState()
-    ShowPageScreen(posts = postList,
+    ShowPageScreen(
+        posts = postList,
         onChangeState = { onChangeState() },
         text = text,
         onChangeText = { viewModel.changeText(it) },
@@ -79,23 +79,26 @@ fun ShowPageScreen(
     onSelect: (Int) -> Unit,
     onClick: (DynamicPostAndUser) -> Unit
 ) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        TopBar(text = titleText)
-        BannerSection()
-        SearchBar(text = text, onChangeText = { onChangeText(it) })
-        TabSection(selectedTabIndex = selectedTabIndex, tabs = tabs, onSelect = { onSelect(it) })
-        DynamicPostList(posts = posts, onClick = { onClick(it) })
-    }
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomEnd) {
-        FloatingActionButton(
-            onClick = { onChangeState() },
-            modifier = Modifier.padding(bottom = 16.dp, end = 16.dp)
+    Surface {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Icon(imageVector = Icons.Default.Add, contentDescription = "添加")
+            TopBar(text = titleText)
+            BannerSection()
+            SearchBar(text = text, onChangeText = { onChangeText(it) })
+            TabSection(
+                selectedTabIndex = selectedTabIndex, tabs = tabs, onSelect = { onSelect(it) })
+            DynamicPostList(posts = posts, onClick = { onClick(it) })
+        }
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomEnd) {
+            FloatingActionButton(
+                onClick = { onChangeState() },
+                modifier = Modifier.padding(bottom = 16.dp, end = 16.dp)
+            ) {
+                Icon(imageVector = Icons.Default.Add, contentDescription = "添加")
+            }
         }
     }
 }
@@ -126,7 +129,8 @@ fun BannerSection() {
 
 @Composable
 fun SearchBar(text: String, onChangeText: (String) -> Unit) {
-    TextField(value = text,
+    TextField(
+        value = text,
         onValueChange = { onChangeText(it) },
         modifier = Modifier
             .fillMaxWidth()
@@ -179,10 +183,11 @@ private fun PostsItem(dynamicPostAndUser: DynamicPostAndUser, onClick: () -> Uni
     val commentsCount = dynamicPostAndUser.commentCount
     val dynamicPost = dynamicPostAndUser.dynamicPost
     val photoList = dynamicPostAndUser.photo
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .padding(16.dp)
-        .clickable { onClick() }) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+            .clickable { onClick() }) {
         Image(
             rememberAsyncImagePainter(user),
             contentDescription = "头像",

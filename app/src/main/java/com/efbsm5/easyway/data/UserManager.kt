@@ -2,6 +2,9 @@ package com.efbsm5.easyway.data
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.core.content.edit
+import com.efbsm5.easyway.data.ViewModelRepository.DataRepository
+import com.efbsm5.easyway.data.models.User
 
 class UserManager(context: Context) {
     private val prefs: SharedPreferences =
@@ -10,6 +13,7 @@ class UserManager(context: Context) {
     var userId: Int
         get() = prefs.getInt("user_id", 0)
         set(value) {
-            prefs.edit().putInt("user_id", value).apply()
+            prefs.edit { putInt("user_id", value) }
         }
+
 }

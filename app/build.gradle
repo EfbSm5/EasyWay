@@ -4,6 +4,11 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     id "com.google.devtools.ksp" version "2.0.21-1.0.27"
 }
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localProperties.load(new FileInputStream(localPropertiesFile))
+}
 
 android {
     namespace 'com.efbsm5.easyway'
@@ -23,6 +28,7 @@ android {
             useSupportLibrary true
         }
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField "String", "BASE_URL", "\"${localProperties.getProperty('BASE_URL')}\""
     }
     sourceSets {
         main {
@@ -47,6 +53,7 @@ android {
     }
     buildFeatures {
         compose true
+        buildConfig true
     }
     composeOptions {
         kotlinCompilerExtensionVersion '1.5.1'
@@ -66,7 +73,7 @@ dependencies {
     annotationProcessor("androidx.room:room-compiler:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
     implementation('com.google.code.gson:gson:2.8.9')
-    implementation ("io.coil-kt:coil-compose:2.1.0")
+    implementation("io.coil-kt:coil-compose:2.1.0")
     implementation("androidx.work:work-runtime-ktx:2.7.1")
     implementation libs.androidx.core.ktx
     implementation libs.androidx.lifecycle.runtime.ktx

@@ -87,8 +87,7 @@ fun DynamicPostScreen(
         Spacer(modifier = Modifier.height(16.dp))
         Spacer(modifier = Modifier.height(16.dp))
         AddLocationAndImagesSection(
-            selectedPhotos = photos,
-            onSelectedPhoto = { it?.let { onSelectedPhoto(it) } })
+            selectedPhotos = photos, onSelectedPhoto = { it?.let { onSelectedPhoto(it) } })
         Spacer(modifier = Modifier.weight(1f))
         PublishButton(publish = { publish() })
     }

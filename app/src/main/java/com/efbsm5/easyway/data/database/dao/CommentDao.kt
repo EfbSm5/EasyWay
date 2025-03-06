@@ -43,7 +43,7 @@ interface CommentDao {
     fun getCount(): Int
 
     @Query("SELECT COUNT(*) FROM comments WHERE commentId = :commentId ")
-    fun getCountById(commentId: Int): Int
+    fun getCountById(commentId: Int): Flow<Int>
 
     @Query("SELECT MAX(commentId) FROM comments")
     fun getMaxCommentId(): Int

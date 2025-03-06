@@ -22,14 +22,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
-import com.amap.api.maps.model.Marker
 import com.efbsm5.easyway.R
 import com.efbsm5.easyway.data.models.EasyPoint
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import com.amap.api.maps.model.LatLng
-import com.amap.api.services.core.PoiItemV2
 import com.efbsm5.easyway.data.models.assistModel.CommentAndUser
 import com.efbsm5.easyway.map.MapUtil
 import com.efbsm5.easyway.viewmodel.componentsViewmodel.CommentAndHistoryCardViewModel
@@ -244,8 +241,7 @@ private fun CommentItem(commentAndUser: CommentAndUser) {
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = comment.like.toString(),
-                    style = MaterialTheme.typography.bodySmall
+                    text = comment.like.toString(), style = MaterialTheme.typography.bodySmall
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 Icon(
@@ -256,8 +252,7 @@ private fun CommentItem(commentAndUser: CommentAndUser) {
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = comment.dislike.toString(),
-                    style = MaterialTheme.typography.bodySmall
+                    text = comment.dislike.toString(), style = MaterialTheme.typography.bodySmall
                 )
             }
         }
@@ -304,25 +299,18 @@ private fun BottomActionBar(refresh: () -> Unit, comment: () -> Unit, navigate: 
 private fun ShowTextField(
     text: String, changeText: (String) -> Unit, publish: () -> Unit, cancel: () -> Unit
 ) {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Bottom,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            TextField(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp),
-                value = text,
-                onValueChange = { changeText(it) })
-            Row(modifier = Modifier.fillMaxWidth()) {
-                Button(onClick = { publish() }, modifier = Modifier.weight(1f)) { Text("发布") }
-                Spacer(modifier = Modifier.width(20.dp))
-                Button(onClick = { cancel() }, modifier = Modifier.weight(1f)) { Text("取消") }
-            }
-
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.Bottom,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        TextField(
+            modifier = Modifier.fillMaxWidth(), value = text, onValueChange = { changeText(it) })
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Button(onClick = { publish() }, modifier = Modifier.weight(1f)) { Text("发布") }
+            Spacer(modifier = Modifier.width(20.dp))
+            Button(onClick = { cancel() }, modifier = Modifier.weight(1f)) { Text("取消") }
         }
-
     }
+
 }

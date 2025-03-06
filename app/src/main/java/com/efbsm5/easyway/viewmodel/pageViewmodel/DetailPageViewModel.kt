@@ -4,10 +4,13 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.efbsm5.easyway.data.UserManager
 import com.efbsm5.easyway.data.models.DynamicPost
 import com.efbsm5.easyway.data.models.User
 import com.efbsm5.easyway.data.ViewModelRepository.DataRepository
+import com.efbsm5.easyway.data.models.Comment
 import com.efbsm5.easyway.data.models.assistModel.CommentAndUser
+import com.efbsm5.easyway.map.MapUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -25,6 +28,7 @@ class DetailPageViewModel(context: Context) : ViewModel() {
     )
     private val _commentAndUsers = MutableStateFlow(emptyList<CommentAndUser>().toMutableList())
     private val _photos = MutableStateFlow(emptyList<Uri>().toMutableList())
+    private val userManager = UserManager(context)
     val newCommentText: StateFlow<String> = _newCommentText
     val showTextField: StateFlow<Boolean> = _showTextField
     val postUser: StateFlow<User> = _postUser
@@ -73,7 +77,21 @@ class DetailPageViewModel(context: Context) : ViewModel() {
 
     fun comment() {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.uploadComment(_newCommentText.value, _dynamicPost.value!!.commentId)
+            val comment = Comment(
+                index = repository.getCommentCount(),
+                commentId = _dynamicPost.value!!.commentId,
+                userId = userManager.userId,
+                content = _newCommentText.value,
+                like = 0,
+                dislike = 0,
+                date = MapUtil.getCurrentFormattedTime()
+            )
+//            repository.uploadComment(comment)
+            _commentAndUsers.value.add(
+                CommentAndUser(
+                    user = repository.getUserById(userManager.userId), comment = comment
+                )
+            )
         }
     }
 }

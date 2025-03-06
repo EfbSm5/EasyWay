@@ -53,7 +53,10 @@ fun NewPointCard(location: LatLng?, back: (Boolean) -> Unit, viewModel: NewPoint
         },
         menuExpanded = expanded,
         selectedOption = selectedOption,
-        onSelectType = { viewModel.changeType(it) },
+        onSelectType = {
+            viewModel.changeType(it)
+            viewModel.changeTempPoint(newPoint.copy(type = it))
+        },
         onExpanded = { viewModel.changeExpanded(it) },
         confirm = {
             viewModel.changeTempPoint(
@@ -97,7 +100,8 @@ private fun NewPointCardSurface(
         )
         Spacer(modifier = Modifier.height(16.dp))
         Column(modifier = Modifier.fillMaxWidth()) {
-            DropdownField(label = "设施类别",
+            DropdownField(
+                label = "设施类别",
                 expanded = menuExpanded,
                 selectedOption = selectedOption,
                 onSelectType = { onSelectType(it) },
@@ -146,11 +150,12 @@ private fun DropdownField(
 ) {
     Column {
         Text(text = label, style = TextStyle(fontSize = 16.sp))
-        Box(modifier = Modifier
-            .fillMaxWidth()
-            .border(1.dp, Color.Gray)
-            .padding(8.dp)
-            .clickable { onExpanded(true) }) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(1.dp, Color.Gray)
+                .padding(8.dp)
+                .clickable { onExpanded(true) }) {
             Text(text = selectedOption.ifEmpty { "请选择" })
         }
         DropdownMenu(expanded = expanded, onDismissRequest = { onExpanded(false) }) {

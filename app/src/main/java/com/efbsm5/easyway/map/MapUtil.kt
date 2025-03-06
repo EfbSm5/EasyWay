@@ -9,6 +9,7 @@ import com.amap.api.maps.model.LatLng
 import com.amap.api.services.core.LatLonPoint
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import androidx.core.net.toUri
 
 
 object MapUtil {
@@ -43,13 +44,17 @@ object MapUtil {
     }
 
     fun onNavigate(context: Context, latLng: LatLng) {
-        val uri = Uri.parse("geo:${latLng.latitude},${latLng.longitude}")
+        val uri = "geo:${latLng.latitude},${latLng.longitude}".toUri()
         val intent = Intent(Intent.ACTION_VIEW, uri)
         if (intent.resolveActivity(context.packageManager) != null) {
             context.startActivity(intent)
         } else {
             showMsg("未找到地图应用", context)
         }
+    }
+
+    fun locationToLatlng(location: Location): LatLng {
+        return LatLng(location.latitude, location.longitude)
     }
 
     fun Float.formatDistance(): String {

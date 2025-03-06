@@ -1,5 +1,6 @@
 package com.efbsm5.easyway.ui
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -120,6 +121,17 @@ private fun HighlightButton(navController: NavController) {
             selectedIndex = direction.indexOf(route).takeIf { it != -1 } ?: 0
         }
     }
+//    BackHandler {
+//        if (navController.currentDestination?.route != "MapPage") {
+//            navController.navigate("MapPage") {
+//                popUpTo(navController.graph.startDestinationId) {
+//                    saveState = true
+//                }
+//                launchSingleTop = true
+//                restoreState = true
+//            }
+//        }
+//    }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -138,7 +150,8 @@ private fun HighlightButton(navController: NavController) {
                 animationSpec = tween(durationMillis = 300),
                 label = ""
             )
-            Column(horizontalAlignment = Alignment.CenterHorizontally,
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .width(100.dp)
                     .background(

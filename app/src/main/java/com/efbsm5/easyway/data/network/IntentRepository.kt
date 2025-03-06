@@ -2,6 +2,7 @@ package com.efbsm5.easyway.data.network
 
 import android.content.Context
 import androidx.room.Room
+import com.alibaba.idst.nui.BuildConfig
 import com.efbsm5.easyway.data.database.AppDataBase
 
 class IntentRepository(val context: Context) {

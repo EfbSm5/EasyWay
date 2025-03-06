@@ -60,8 +60,7 @@ class MapController(
     private fun saveLastKnownLocation(location: LatLng, cityCode: String) {
         sharedPreferences.edit {
             putFloat("last_lat", location.latitude.toFloat()).putFloat(
-                "last_lng",
-                location.longitude.toFloat()
+                "last_lng", location.longitude.toFloat()
             ).putString("citycode", cityCode)
         }
     }
@@ -73,17 +72,21 @@ class MapController(
         mLocationClient.setLocationListener { aMapLocation ->
             if (aMapLocation!!.errorCode == 0) {
                 mListener!!.onLocationChanged(aMapLocation)
-                val latitude = aMapLocation.latitude
-                val longitude = aMapLocation.longitude
-                Log.e(TAG, "mapLocationInit:       location")
-                mLocation = LatLng(latitude, longitude)
+                mLocation = LatLng(aMapLocation.latitude, aMapLocation.longitude)
                 saveLastKnownLocation(mLocation, aMapLocation.cityCode)
+                Log.e(TAG, "mapLocationInit:     location")
             }
         }
     }
 
     fun moveToLocation(mapView: MapView) {
-        moveMap(mLocation, mapView)
+        try {
+            moveMap(getLastKnownLocation(), mapView)
+            moveMap(mLocation, mapView)
+            moveMap(MapUtil.locationToLatlng(mapView.map.myLocation), mapView)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     fun navigate(destination: LatLng, context: Context, mapView: MapView) {

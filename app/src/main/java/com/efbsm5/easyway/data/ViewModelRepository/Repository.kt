@@ -135,35 +135,31 @@ class DataRepository(private val context: Context) {
             )
     }
 
-    fun uploadComment(commentContent: String, commentId: Int) {
-        val index = database.commentDao().getCount() + 1
-        val time = MapUtil.getCurrentFormattedTime()
-        val comment = Comment(
-            index = index,
-            commentId = commentId,
-            userId = userManager.userId,
-            content = commentContent,
-            like = 0,
-            dislike = 0,
-            date = time
-        )
+    fun uploadComment(comment: Comment) {
         database.commentDao().insert(comment)
     }
 
-    fun uploadPoint(easypoint: EasyPoint) {
-        val point = easypoint
-        val pointId = database.pointsDao().getCount() + 1
-        val refreshTime = MapUtil.getCurrentFormattedTime()
-        val userId = 1
-        val commentId = database.commentDao().getMaxCommentId() + 1
-        point.commentId = commentId
-        point.userId = userId
-        point.refreshTime = refreshTime
-        point.pointId = pointId
-        database.pointsDao().insert(point)
+    fun uploadPoint(easyPoint: EasyPoint) {
+        EasyPoint(
+            pointId = database.pointsDao().getCount() + 1,
+            name = easyPoint.name,
+            type = easyPoint.type,
+            info = easyPoint.info,
+            location = easyPoint.location,
+            photo = easyPoint.photo,
+            refreshTime = MapUtil.getCurrentFormattedTime(),
+            likes = 0,
+            dislikes = 0,
+            lat = easyPoint.lat,
+            lng = easyPoint.lng,
+            userId = userManager.userId,
+            commentId = database.commentDao().getMaxCommentId() + 1
+        ).let {
+            database.pointsDao().insert(it)
+        }
     }
 
-    fun getCommentCount(commentId: Int): Int {
+    fun getCommentCount(commentId: Int): Flow<Int> {
         return database.commentDao().getCountById(commentId)
     }
 
@@ -173,5 +169,9 @@ class DataRepository(private val context: Context) {
 
     fun getPointByUserId(userId: Int): Flow<List<DynamicPost>> {
         return database.dynamicPostDao().getAllDynamicPostsByUserId(userId)
+    }
+
+    fun getCommentCount(): Int {
+        return database.commentDao().getCount()
     }
 }

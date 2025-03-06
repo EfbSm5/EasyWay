@@ -1,14 +1,13 @@
 package com.efbsm5.easyway.ui.page
 
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -27,8 +26,6 @@ import com.efbsm5.easyway.ui.components.MapPageCard
 import com.efbsm5.easyway.viewmodel.pageViewmodel.MapPageViewModel
 import com.efbsm5.easyway.viewmodel.pageViewmodel.Screen
 
-private const val TAG = "MapPage"
-
 @Composable
 fun MapPage(viewModel: MapPageViewModel) {
     val context = LocalContext.current
@@ -38,7 +35,6 @@ fun MapPage(viewModel: MapPageViewModel) {
         onMapClick = { },
         onMarkerClick = {
             viewModel.changeScreen(Screen.Comment(it, null, null))
-            Log.e(TAG, "MapPage: onclick marker")
         })
     mapController.mapLocationInit(context)
     mapController.MapLifecycle(context, mapView)
@@ -46,6 +42,17 @@ fun MapPage(viewModel: MapPageViewModel) {
     val content by viewModel.content.collectAsState()
     val boxHeight by viewModel.boxHeight.collectAsState()
     val location by viewModel.location.collectAsState()
+//    DisposableEffect(mapView) {
+////        mapView.onCreate(null)
+////        mapController.mapLocationInit(context)
+////        mapController.MapLifecycle(context, mapView)
+////        viewModel.fetchPoints(mapView)
+//
+//        onDispose {
+//            mapView.onDestroy()
+//
+//        }
+//    }
     MapScreen(
         mapView = mapView,
         content = content,
@@ -77,8 +84,7 @@ private fun MapScreen(
     navigate: (LatLng, Boolean) -> Unit,
 ) {
     AndroidView(
-        modifier = Modifier
-            .fillMaxSize(), factory = { mapView })
+        modifier = Modifier.fillMaxSize(), factory = { mapView })
     AddAndLocateButton(
         onAdd = {
             onChangeScreen(

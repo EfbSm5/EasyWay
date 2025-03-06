@@ -9,9 +9,12 @@ import com.amap.api.maps.model.LatLng
 import com.amap.api.maps.model.Marker
 import com.amap.api.maps.model.Poi
 import com.amap.api.services.core.PoiItemV2
+import com.efbsm5.easyway.data.UserManager
 import com.efbsm5.easyway.data.models.EasyPoint
 import com.efbsm5.easyway.data.ViewModelRepository.DataRepository
+import com.efbsm5.easyway.data.models.Comment
 import com.efbsm5.easyway.data.models.assistModel.CommentAndUser
+import com.efbsm5.easyway.map.MapUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -26,6 +29,7 @@ class CommentAndHistoryCardViewModel(context: Context) : ViewModel() {
     private var _showComment = MutableStateFlow(false)
     private var _pointComments = MutableStateFlow<List<CommentAndUser>?>(null)
     private var _newComment = MutableStateFlow("")
+    private val userManager = UserManager(context)
     val point: StateFlow<EasyPoint?> = _point
     val state: StateFlow<CommentCardScreen> = _state
     val showComment: StateFlow<Boolean> = _showComment
@@ -66,8 +70,22 @@ class CommentAndHistoryCardViewModel(context: Context) : ViewModel() {
 
     fun publish() {
         viewModelScope.launch(Dispatchers.IO) {
+            val comment = Comment(
+                index = repository.getCommentCount(),
+                commentId = _point.value!!.commentId,
+                userId = userManager.userId,
+                content = _newComment.value,
+                like = 0,
+                dislike = 0,
+                date = MapUtil.getCurrentFormattedTime()
+            )
             repository.uploadComment(
-                _newComment.value, commentId = _point.value!!.commentId
+                comment = comment
+            )
+            _pointComments.value = _pointComments.value?.plus(
+                CommentAndUser(
+                    repository.getUserById(userManager.userId), comment
+                )
             )
         }
     }
