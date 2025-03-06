@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.amap.api.maps.model.LatLng
 import com.amap.api.maps.model.Marker
 import com.amap.api.maps.model.Poi
 import com.amap.api.services.core.PoiItemV2
@@ -31,23 +32,23 @@ class CommentAndHistoryCardViewModel(context: Context) : ViewModel() {
     val pointComments: StateFlow<List<CommentAndUser>?> = _pointComments
     val newComment: StateFlow<String> = _newComment
 
-    fun getPoint(marker: Marker) {
+    fun getPoint(latLng: LatLng) {
         viewModelScope.launch(Dispatchers.IO) {
-            _point.value = repository.getPointFromMarker(marker)
+            _point.value = repository.getPointFromLatlng(latLng)
             if (_point.value == null) {
                 Log.e(TAG, "getPoint:     null point")
-            } else
-                repository.getAllCommentsById(_point.value!!.commentId).collect { comments ->
-                    val commentsAndUser = emptyList<CommentAndUser>().toMutableList()
-                    comments.forEach {
-                        commentsAndUser.add(
-                            CommentAndUser(
-                                repository.getUserById(it.userId), it
-                            )
+            } else repository.getAllCommentsById(_point.value!!.commentId).collect { comments ->
+                val commentsAndUser = emptyList<CommentAndUser>().toMutableList()
+                comments.forEach {
+                    commentsAndUser.add(
+                        CommentAndUser(
+                            repository.getUserById(it.userId), it
                         )
-                    }
-
+                    )
                 }
+                _pointComments.value = commentsAndUser
+
+            }
         }
     }
 

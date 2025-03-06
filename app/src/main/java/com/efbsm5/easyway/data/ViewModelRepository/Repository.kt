@@ -4,6 +4,7 @@ package com.efbsm5.easyway.data.ViewModelRepository
 import android.content.Context
 import android.net.Uri
 import androidx.core.net.toUri
+import com.amap.api.maps.model.LatLng
 import com.amap.api.maps.model.Marker
 import com.efbsm5.easyway.data.UserManager
 import com.efbsm5.easyway.data.models.Comment
@@ -110,6 +111,25 @@ class DataRepository(private val context: Context) {
                 dislikes = 0,
                 lat = marker.position.latitude,
                 lng = marker.position.longitude,
+                userId = 0,
+                commentId = 0
+            )
+    }
+
+    fun getPointFromLatlng(latLng: LatLng): EasyPoint {
+        return database.pointsDao().getPointByLatLng(latLng.latitude, latLng.longitude)
+            ?: EasyPoint(
+                pointId = 0,
+                name = "未找到的标点",
+                type = "",
+                info = "",
+                location = "",
+                photo = null,
+                refreshTime = "",
+                likes = 0,
+                dislikes = 0,
+                lat = latLng.latitude,
+                lng = latLng.longitude,
                 userId = 0,
                 commentId = 0
             )

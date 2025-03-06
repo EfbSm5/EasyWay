@@ -13,6 +13,7 @@ import com.amap.api.maps.model.MarkerOptions
 import com.amap.api.maps.model.Poi
 import com.amap.api.services.core.PoiItemV2
 import com.efbsm5.easyway.data.ViewModelRepository.DataRepository
+import com.efbsm5.easyway.data.models.assistModel.EasyPointSimplify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,6 +25,7 @@ class MapPageViewModel(context: Context) : ViewModel() {
     private var _content = MutableStateFlow<Screen>(Screen.IconCard)
     private var _boxHeight = MutableStateFlow(100.dp)
     private val _location = MutableStateFlow(LatLng(30.513197, 114.413301))
+    private val _points = MutableStateFlow(emptyList<EasyPointSimplify>())
     val content: StateFlow<Screen> = _content
     val boxHeight: StateFlow<Dp> = _boxHeight
     val location: StateFlow<LatLng> = _location
@@ -31,6 +33,7 @@ class MapPageViewModel(context: Context) : ViewModel() {
     fun fetchPoints(mapView: MapView) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.getAllPoints().collect {
+                _points.value = it
                 mapView.map.clear()
                 it.forEach { point ->
                     mapView.map.addMarker(
@@ -47,6 +50,27 @@ class MapPageViewModel(context: Context) : ViewModel() {
 
     fun changeScreen(screen: Screen) {
         _content.value = screen
+        when (screen) {
+            is Screen.Comment -> {
+                _boxHeight.value = 200.dp
+            }
+
+            Screen.IconCard -> {
+                _boxHeight.value = 200.dp
+            }
+
+            is Screen.NewPoint -> {
+                _boxHeight.value = 200.dp
+            }
+
+            is Screen.Places -> {
+                _boxHeight.value = 200.dp
+            }
+
+            Screen.Search -> {
+                _boxHeight.value = 200.dp
+            }
+        }
     }
 
     fun changeBoxHeight(height: Dp) {

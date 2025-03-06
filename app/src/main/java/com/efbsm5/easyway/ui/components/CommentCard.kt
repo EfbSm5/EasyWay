@@ -158,7 +158,7 @@ private fun Select(onClick: (CommentCardScreen) -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp),
-        horizontalArrangement = Arrangement.Start,
+        horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
@@ -207,7 +207,7 @@ private fun CommentItem(commentAndUser: CommentAndUser) {
                 .size(50.dp)
                 .clip(CircleShape)
                 .border(1.dp, Color.Black, CircleShape),
-            contentDescription = stringResource(R.string.avatar)
+            contentDescription = null
         )
         Spacer(modifier = Modifier.width(16.dp))
         Column(
@@ -215,9 +215,7 @@ private fun CommentItem(commentAndUser: CommentAndUser) {
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = stringResource(
-                        R.string.username, user.name
-                    ), style = MaterialTheme.typography.bodyMedium
+                    text = user.name, style = MaterialTheme.typography.bodyMedium
                 )
                 Spacer(modifier = Modifier.width(8.dp))
             }
@@ -233,32 +231,32 @@ private fun CommentItem(commentAndUser: CommentAndUser) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = stringResource(R.string.time, comment.date),
+                    text = comment.date,
                     style = MaterialTheme.typography.bodyLarge,
                     color = Color.Gray
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Icon(
                     imageVector = Icons.Default.ThumbUp,
-                    contentDescription = stringResource(R.string.like),
+                    contentDescription = "",
                     modifier = Modifier.size(16.dp),
                     tint = Color.Green
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = stringResource(R.string.like, comment.like),
+                    text = comment.like.toString(),
                     style = MaterialTheme.typography.bodySmall
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowDown,
-                    contentDescription = stringResource(R.string.dislike),
+                    contentDescription = null,
                     modifier = Modifier.size(16.dp),
                     tint = Color.Red
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = stringResource(R.string.dislike, comment.dislike),
+                    text = comment.dislike.toString(),
                     style = MaterialTheme.typography.bodySmall
                 )
             }

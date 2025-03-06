@@ -31,7 +31,7 @@ fun MapPageCard(
     when (content) {
         is Screen.Comment -> {
             if (content.marker != null) {
-                commentAndHistoryCardViewModel.getPoint(content.marker)
+                commentAndHistoryCardViewModel.getPoint(content.marker.position)
             } else if (content.poi != null) {
                 commentAndHistoryCardViewModel.addPoi(content.poi)
             } else if (content.poiItemV2 != null) {
