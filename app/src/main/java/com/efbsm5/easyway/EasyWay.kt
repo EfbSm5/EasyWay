@@ -26,10 +26,10 @@ class MainActivity : ComponentActivity() {
     private val tag = "MainActivity"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         handlePermission()
         setupPeriodicSync()
         setUser()
-        enableEdgeToEdge()
         setContent {
             EasyWayTheme {
                 EasyWay()

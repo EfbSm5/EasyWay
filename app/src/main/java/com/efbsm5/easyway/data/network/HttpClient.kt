@@ -141,4 +141,21 @@ class HttpClient(url: String) {
             }
         })
     }
+
+    fun uploadData(context: Context, data: Any, callback: (Boolean) -> Unit) {
+        val json = gson.toJson(data)
+        val mediaType = "application/json; charset=utf-8".toMediaType()
+        val requestBody = RequestBody.create(mediaType, json)
+
+        val request = Request.Builder().url("$baseUrl/uploadData").post(requestBody).build()
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                callback(false)
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                callback(response.isSuccessful)
+            }
+        })
+    }
 }

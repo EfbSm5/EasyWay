@@ -1,4 +1,4 @@
-package com.efbsm5.easyway.ui.page
+package com.efbsm5.easyway.ui.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -31,12 +31,12 @@ import com.amap.api.services.core.PoiItemV2
 import com.efbsm5.easyway.viewmodel.pageViewmodel.SearchPageViewModel
 
 @Composable
-fun SearchPage(
+fun SearchCard(
     viewModel: SearchPageViewModel, onSelected: (poiItemV2: PoiItemV2) -> Unit
 ) {
     val keyword by viewModel.text.collectAsState()
     val poiList by viewModel.poiList.collectAsState()
-    SearchPageScreen(
+    SearchCardScreen(
         keyword = keyword,
         poiItemV2s = poiList,
         onChangeKeyWord = { viewModel.changeText(it) },
@@ -46,7 +46,7 @@ fun SearchPage(
 }
 
 @Composable
-fun SearchPageScreen(
+fun SearchCardScreen(
     keyword: String,
     poiItemV2s: List<PoiItemV2>,
     onChangeKeyWord: (String) -> Unit,
@@ -66,10 +66,12 @@ fun SearchPageScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
-                TextField(value = keyword,
+                TextField(
+                    value = keyword,
                     onValueChange = { onChangeKeyWord(it) },
                     placeholder = { Text(text = "请输入地点") })
-                Icon(Icons.Default.Search,
+                Icon(
+                    Icons.Default.Search,
                     contentDescription = null,
                     modifier = Modifier
                         .size(30.dp)

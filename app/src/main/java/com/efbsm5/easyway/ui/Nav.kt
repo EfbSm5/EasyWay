@@ -1,6 +1,5 @@
 package com.efbsm5.easyway.ui
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -8,10 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
@@ -20,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Place
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -44,8 +41,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.efbsm5.easyway.ui.page.CommunityPage
-import com.efbsm5.easyway.ui.page.HomePage
+import com.efbsm5.easyway.ui.page.communityPage.CommunityPage
+import com.efbsm5.easyway.ui.page.homepage.HomePage
 import com.efbsm5.easyway.ui.page.MapPage
 import com.efbsm5.easyway.viewmodel.ViewModelFactory
 import com.efbsm5.easyway.viewmodel.pageViewmodel.HomePageViewModel
@@ -121,24 +118,7 @@ private fun HighlightButton(navController: NavController) {
             selectedIndex = direction.indexOf(route).takeIf { it != -1 } ?: 0
         }
     }
-//    BackHandler {
-//        if (navController.currentDestination?.route != "MapPage") {
-//            navController.navigate("MapPage") {
-//                popUpTo(navController.graph.startDestinationId) {
-//                    saveState = true
-//                }
-//                launchSingleTop = true
-//                restoreState = true
-//            }
-//        }
-//    }
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(56.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
+    BottomAppBar {
         buttons.forEachIndexed { index, text ->
             val backgroundColor by animateColorAsState(
                 targetValue = if (selectedIndex == index) MaterialTheme.colorScheme.primary.copy(
@@ -173,4 +153,45 @@ private fun HighlightButton(navController: NavController) {
             }
         }
     }
+//    Row(
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .height(56.dp),
+//        horizontalArrangement = Arrangement.SpaceEvenly,
+//        verticalAlignment = Alignment.CenterVertically
+//    ) {
+//        buttons.forEachIndexed { index, text ->
+//            val backgroundColor by animateColorAsState(
+//                targetValue = if (selectedIndex == index) MaterialTheme.colorScheme.primary.copy(
+//                    alpha = 0.2f
+//                ) else Color.Transparent, animationSpec = tween(durationMillis = 300), label = ""
+//            )
+//            val textColor by animateColorAsState(
+//                targetValue = if (selectedIndex == index) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+//                animationSpec = tween(durationMillis = 300),
+//                label = ""
+//            )
+//            Column(
+//                horizontalAlignment = Alignment.CenterHorizontally,
+//                modifier = Modifier
+//                    .width(100.dp)
+//                    .background(
+//                        color = backgroundColor, shape = RoundedCornerShape(90)
+//                    )
+//                    .clip(shape = RoundedCornerShape(90))
+//                    .clickable {
+//                        if (selectedIndex != index) {
+//                            selectedIndex = index
+//                            navController.navigate(direction[index])
+//                        }
+//                    }) {
+//                Icon(
+//                    imageVector = icons[index], contentDescription = text, tint = textColor
+//                )
+//                Text(
+//                    text = text, fontSize = 14.sp, color = textColor
+//                )
+//            }
+//        }
+//    }
 }

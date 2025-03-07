@@ -1,4 +1,4 @@
-package com.efbsm5.easyway.ui.page
+package com.efbsm5.easyway.ui.page.communityPage
 
 import android.net.Uri
 import androidx.activity.compose.BackHandler

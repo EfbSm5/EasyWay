@@ -18,12 +18,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun AddAndLocateButton(bottomHeight: Dp, onAdd: () -> Unit, onLocate: () -> Unit) {
+fun AddAndLocateButton(onAdd: () -> Unit, onLocate: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp, bottom = bottomHeight),
-        verticalArrangement = Arrangement.Bottom,
+            .padding(16.dp, top = (-30).dp),
+        verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.End
     ) {
         FloatingActionButton(

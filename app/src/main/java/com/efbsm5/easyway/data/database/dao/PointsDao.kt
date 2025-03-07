@@ -38,11 +38,14 @@ interface PointsDao {
     fun getPointByLatLng(lat: Double, lng: Double): EasyPoint?
 
     @Query("SELECT * FROM points WHERE name=:name")
-    fun getPointByName(name:String): EasyPoint?
+    fun getPointByName(name: String): EasyPoint?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(posts: List<EasyPoint>)
 
     @Query("DELETE FROM points WHERE pointId IN (:ids)")
     fun deleteAll(ids: List<Int>)
+
+    @Query("SELECT * FROM points WHERE user_id=:userId")
+    fun getPointByUserId(userId: Int): Flow<List<EasyPoint>>
 }

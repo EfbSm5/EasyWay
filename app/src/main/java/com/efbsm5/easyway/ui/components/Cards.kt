@@ -1,11 +1,9 @@
 package com.efbsm5.easyway.ui.components
 
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.amap.api.maps.model.LatLng
-import com.efbsm5.easyway.ui.page.SearchPage
 import com.efbsm5.easyway.viewmodel.ViewModelFactory
 import com.efbsm5.easyway.viewmodel.componentsViewmodel.CommentAndHistoryCardViewModel
 import com.efbsm5.easyway.viewmodel.componentsViewmodel.NewPlaceCardViewModel
@@ -61,7 +59,7 @@ fun MapPageCard(
         }
 
         Screen.Search -> {
-            SearchPage(viewModel = searchPageViewModel, onSelected = {
+            SearchCard(viewModel = searchPageViewModel, onSelected = {
                 onChangeScreen(
                     Screen.Comment(
                         marker = null, poi = null, poiItemV2 = it

@@ -1,4 +1,4 @@
-package com.efbsm5.easyway.ui.page
+package com.efbsm5.easyway.ui.page.communityPage
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue

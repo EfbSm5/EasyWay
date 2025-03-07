@@ -167,8 +167,12 @@ class DataRepository(private val context: Context) {
         return database.photoDao().getPhotoById(id = photoId)
     }
 
-    fun getPointByUserId(userId: Int): Flow<List<DynamicPost>> {
+    fun getPostByUserId(userId: Int): Flow<List<DynamicPost>> {
         return database.dynamicPostDao().getAllDynamicPostsByUserId(userId)
+    }
+
+    fun getPointByUserId(userId: Int): Flow<List<EasyPoint>> {
+        return database.pointsDao().getPointByUserId(userId)
     }
 
     fun getCommentCount(): Int {

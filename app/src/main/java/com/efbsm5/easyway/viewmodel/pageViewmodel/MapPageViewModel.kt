@@ -23,11 +23,9 @@ import kotlinx.coroutines.launch
 class MapPageViewModel(context: Context) : ViewModel() {
     private val repository = DataRepository(context)
     private var _content = MutableStateFlow<Screen>(Screen.IconCard)
-    private var _boxHeight = MutableStateFlow(100.dp)
     private val _location = MutableStateFlow(LatLng(30.513197, 114.413301))
     private val _points = MutableStateFlow(emptyList<EasyPointSimplify>())
     val content: StateFlow<Screen> = _content
-    val boxHeight: StateFlow<Dp> = _boxHeight
     val location: StateFlow<LatLng> = _location
 
     fun fetchPoints(mapView: MapView) {
@@ -50,32 +48,9 @@ class MapPageViewModel(context: Context) : ViewModel() {
 
     fun changeScreen(screen: Screen) {
         _content.value = screen
-        when (screen) {
-            is Screen.Comment -> {
-                _boxHeight.value = 200.dp
-            }
 
-            Screen.IconCard -> {
-                _boxHeight.value = 200.dp
-            }
-
-            is Screen.NewPoint -> {
-                _boxHeight.value = 200.dp
-            }
-
-            is Screen.Places -> {
-                _boxHeight.value = 200.dp
-            }
-
-            Screen.Search -> {
-                _boxHeight.value = 200.dp
-            }
-        }
     }
 
-    fun changeBoxHeight(height: Dp) {
-        _boxHeight.value = height
-    }
 
 }
 

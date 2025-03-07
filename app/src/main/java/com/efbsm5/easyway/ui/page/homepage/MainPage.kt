@@ -1,9 +1,9 @@
-package com.efbsm5.easyway.ui.page
+package com.efbsm5.easyway.ui.page.homepage
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -22,31 +22,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.efbsm5.easyway.data.network.IntentRepository
-import com.efbsm5.easyway.map.MapUtil
-import com.efbsm5.easyway.viewmodel.pageViewmodel.HomePageViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import coil.compose.rememberAsyncImagePainter
+import com.efbsm5.easyway.data.models.User
+import com.efbsm5.easyway.viewmodel.pageViewmodel.HomePageState
 
 @Composable
-fun HomePage(viewModel: HomePageViewModel) {
-    val context = LocalContext.current
-    HomePageScreen(onUpdate = {
-        CoroutineScope(Dispatchers.IO).launch {
-            val repo = IntentRepository(context)
-            repo.syncData()
-        }
-    })
-}
-
-@Composable
-private fun HomePageScreen(onUpdate: () -> Unit) {
-    val context = LocalContext.current
+fun HomePageMain(onUpdate: () -> Unit, user: User, changeState: (HomePageState) -> Unit) {
     Column(
         Modifier
             .fillMaxSize()
@@ -55,36 +38,36 @@ private fun HomePageScreen(onUpdate: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(modifier = Modifier.height(32.dp))
-        ProfileHeader()
+        ProfileHeader(user)
         Spacer(modifier = Modifier.height(32.dp))
-        MenuItem("我的标注") { MapUtil.showMsg("开发中", context) }
-        MenuItem("版本切换") { MapUtil.showMsg("开发中", context) }
-        MenuItem("帮助中心") { MapUtil.showMsg("开发中", context) }
-        MenuItem("免责声明") { MapUtil.showMsg("开发中", context) }
-        MenuItem("关于") { MapUtil.showMsg("开发中", context) }
+        MenuItem("我的标注") { changeState(HomePageState.Point) }
+        MenuItem("我的动态") { changeState(HomePageState.Post) }
+        MenuItem("我的评论") { changeState(HomePageState.Comment) }
+        MenuItem("版本切换") { }
+        MenuItem("帮助中心") { }
+        MenuItem("免责声明") { }
+        MenuItem("关于") { }
         MenuItem("同步数据") { onUpdate() }
     }
 }
 
 @Composable
-private fun ProfileHeader() {
+private fun ProfileHeader(user: User) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(
+        Image(
+            painter = rememberAsyncImagePainter(user.avatar),
+            "头像",
             Modifier
                 .size(80.dp)
                 .clip(CircleShape)
-                .background(Color.Gray),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(text = "头像", color = Color.White)
-        }
+        )
         Spacer(modifier = Modifier.width(40.dp))
         Text(
-            text = "XXL用户", color = Color.Black
+            text = user.name, color = MaterialTheme.colorScheme.primary
         )
     }
 }
@@ -106,7 +89,3 @@ private fun MenuItem(title: String, onClick: () -> Unit) {
         }
     }
 }
-
-
-
-
