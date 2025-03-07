@@ -15,6 +15,9 @@ interface CommentDao {
     @Query("SELECT * FROM comments WHERE commentId = :id")
     fun getCommentByCommentId(id: Int): Flow<List<Comment>>
 
+    @Query("SELECT * FROM comments WHERE userId = :id")
+    fun getCommentByUserId(id: Int): Flow<List<Comment>>
+
     @Query("SELECT * FROM comments")
     fun getAllComments(): List<Comment>
 

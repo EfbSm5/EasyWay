@@ -10,6 +10,15 @@ import com.amap.api.services.core.LatLonPoint
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import androidx.core.net.toUri
+import com.amap.api.maps.AMap.MAP_TYPE_NIGHT
+import com.amap.api.maps.AMap.MAP_TYPE_NORMAL
+import com.amap.api.maps.AMapOptions
+import com.amap.api.maps.MapView
+import com.amap.api.maps.model.BitmapDescriptorFactory
+import com.amap.api.maps.model.MarkerOptions
+import com.amap.api.maps.model.MyLocationStyle
+import com.efbsm5.easyway.data.models.assistModel.EasyPointSimplify
+import com.efbsm5.easyway.ui.theme.isDarkTheme
 
 
 object MapUtil {
@@ -65,4 +74,21 @@ object MapUtil {
         }
     }
 
+    fun initMapView(context: Context): MapView {
+        return MapView(context, AMapOptions().compassEnabled(true)).apply {
+            map.apply {
+                mapType = if (isDarkTheme(context)) MAP_TYPE_NIGHT else MAP_TYPE_NORMAL
+                isMyLocationEnabled = true
+                myLocationStyle = MyLocationStyle().interval(2000)
+                    .myLocationType(MyLocationStyle.LOCATION_TYPE_LOCATION_ROTATE_NO_CENTER)
+                showMapText(true)
+                uiSettings.isMyLocationButtonEnabled = true
+                uiSettings.zoomPosition = AMapOptions.ZOOM_POSITION_RIGHT_CENTER
+            }
+        }
+    }
+
+    fun addPoint(mapView: MapView,easyPointSimplify: EasyPointSimplify) {
+
+    }
 }

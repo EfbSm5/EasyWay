@@ -175,6 +175,10 @@ class DataRepository(private val context: Context) {
         return database.pointsDao().getPointByUserId(userId)
     }
 
+    fun getCommentByUserId(userId: Int): Flow<List<Comment>> {
+        return database.commentDao().getCommentByUserId(userId)
+    }
+
     fun getCommentCount(): Int {
         return database.commentDao().getCount()
     }

@@ -1,4 +1,4 @@
-package com.efbsm5.easyway.ui.components
+package com.efbsm5.easyway.ui.components.mapcards
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

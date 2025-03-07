@@ -11,8 +11,7 @@ import com.amap.api.services.poisearch.PoiSearchV2
 private const val TAG = "MapPoiSearchUtil"
 
 class MapPoiSearchUtil(
-    private val context: Context,
-    val onPoiSearched: (ArrayList<PoiItemV2>) -> Unit
+    private val context: Context, val onPoiSearched: (ArrayList<PoiItemV2>) -> Unit
 ) : PoiSearchV2.OnPoiSearchListener {
     private var cityCode = "027"
 
@@ -34,7 +33,6 @@ class MapPoiSearchUtil(
     }
 
     override fun onPoiSearched(p0: PoiResultV2?, p1: Int) {
-
         p0?.pois?.let { onPoiSearched(it) }
         Log.d(TAG, "onPoiSearched: ${p0?.pois.toString()}")
     }

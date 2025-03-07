@@ -1,4 +1,4 @@
-package com.efbsm5.easyway.ui.components
+package com.efbsm5.easyway.ui.components.mapcards
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
