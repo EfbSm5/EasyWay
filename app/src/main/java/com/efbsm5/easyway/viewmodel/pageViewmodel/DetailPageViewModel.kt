@@ -7,7 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.efbsm5.easyway.data.UserManager
 import com.efbsm5.easyway.data.models.DynamicPost
 import com.efbsm5.easyway.data.models.User
-import com.efbsm5.easyway.data.ViewModelRepository.DataRepository
+import com.efbsm5.easyway.data.Repository.DataRepository
 import com.efbsm5.easyway.data.models.Comment
 import com.efbsm5.easyway.data.models.assistModel.CommentAndUser
 import com.efbsm5.easyway.map.MapUtil

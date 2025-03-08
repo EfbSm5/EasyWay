@@ -1,4 +1,4 @@
-package com.efbsm5.easyway.data.ViewModelRepository
+package com.efbsm5.easyway.data.Repository
 
 
 import android.content.Context
@@ -17,6 +17,8 @@ import com.efbsm5.easyway.data.models.Photo
 import com.efbsm5.easyway.data.network.HttpClient
 import com.efbsm5.easyway.data.network.UrlForDatabase
 import com.efbsm5.easyway.map.MapUtil
+import com.efbsm5.easyway.map.MapUtil.getInitPoint
+import com.efbsm5.easyway.map.MapUtil.getInitUser
 import kotlinx.coroutines.flow.Flow
 
 class DataRepository(private val context: Context) {
@@ -37,11 +39,7 @@ class DataRepository(private val context: Context) {
     }
 
     fun getUserById(userId: Int): User {
-        return database.userDao().getUserById(userId) ?: User(
-            id = 0,
-            name = "用户不存在",
-            avatar = null,
-        )
+        return database.userDao().getUserById(userId) ?: getInitUser()
     }
 
     fun addLike(commentId: Int) {
@@ -99,40 +97,12 @@ class DataRepository(private val context: Context) {
     fun getPointFromMarker(marker: Marker): EasyPoint {
         return database.pointsDao()
             .getPointByLatLng(marker.position.latitude, marker.position.longitude)
-            ?: database.pointsDao().getPointByName(marker.title) ?: EasyPoint(
-                pointId = 0,
-                name = "未找到的标点",
-                type = "",
-                info = "",
-                location = "",
-                photo = null,
-                refreshTime = "",
-                likes = 0,
-                dislikes = 0,
-                lat = marker.position.latitude,
-                lng = marker.position.longitude,
-                userId = 0,
-                commentId = 0
-            )
+            ?: database.pointsDao().getPointByName(marker.title) ?: getInitPoint(marker.position)
     }
 
     fun getPointFromLatlng(latLng: LatLng): EasyPoint {
         return database.pointsDao().getPointByLatLng(latLng.latitude, latLng.longitude)
-            ?: EasyPoint(
-                pointId = 0,
-                name = "未找到的标点",
-                type = "",
-                info = "",
-                location = "",
-                photo = null,
-                refreshTime = "",
-                likes = 0,
-                dislikes = 0,
-                lat = latLng.latitude,
-                lng = latLng.longitude,
-                userId = 0,
-                commentId = 0
-            )
+            ?: getInitPoint(latLng)
     }
 
     fun uploadComment(comment: Comment) {

@@ -5,11 +5,14 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
@@ -41,13 +44,15 @@ private const val TAG = "MapPage"
 @Composable
 fun MapPage(viewModel: MapPageViewModel) {
     val context = LocalContext.current
-    val mapView = remember {
-        initMapView(context)
-    }
+    val mapView = remember { initMapView(context) }
     viewModel.drawPointsAndInitLocation(mapView)
     val content by viewModel.content.collectAsState()
     val location by viewModel.location.collectAsState()
-    val sheetState = rememberBottomSheetScaffoldState()
+    val sheetState = rememberBottomSheetScaffoldState(
+        bottomSheetState = rememberStandardBottomSheetState(
+            initialValue = SheetValue.Hidden, skipHiddenState = false
+        )
+    )
     val scope = rememberCoroutineScope()
     MapScreen(
         mapView = mapView,
@@ -92,19 +97,21 @@ private fun MapScreen(
     onMarkerClick: (Marker) -> Unit
 ) {
     BottomSheetScaffold(sheetContent = {
-        AddAndLocateButton(onAdd = {
-            onChangeScreen(
-                Screen.NewPoint(
-                    location = location
+        Box {
+            AddAndLocateButton(onAdd = {
+                onChangeScreen(
+                    Screen.NewPoint(
+                        location = location
+                    )
                 )
+            }, onLocate = { onLocate() })
+            MapPageCard(
+                content = content,
+                onChangeScreen = { onChangeScreen(it) },
+                location = location,
+                onNavigate = navigate
             )
-        }, onLocate = { onLocate() })
-        MapPageCard(
-            content = content,
-            onChangeScreen = { onChangeScreen(it) },
-            location = location,
-            onNavigate = navigate
-        )
+        }
     }, scaffoldState = sheetState, sheetPeekHeight = 128.dp) {
         AndroidView(
             modifier = Modifier.fillMaxSize(), factory = { mapView })
@@ -115,7 +122,6 @@ private fun MapScreen(
             onMarkerClick = { onMarkerClick(it) })
     }
     BackHandler(enabled = content != Screen.IconCard, onBack = { onChangeScreen(Screen.IconCard) })
-
 }
 
 @Composable

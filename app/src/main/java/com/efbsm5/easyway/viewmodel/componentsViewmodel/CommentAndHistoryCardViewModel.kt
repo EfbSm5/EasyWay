@@ -1,17 +1,15 @@
 package com.efbsm5.easyway.viewmodel.componentsViewmodel
 
 import android.content.Context
-import android.util.Log
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.amap.api.maps.model.LatLng
-import com.amap.api.maps.model.Marker
 import com.amap.api.maps.model.Poi
 import com.amap.api.services.core.PoiItemV2
 import com.efbsm5.easyway.data.UserManager
 import com.efbsm5.easyway.data.models.EasyPoint
-import com.efbsm5.easyway.data.ViewModelRepository.DataRepository
+import com.efbsm5.easyway.data.Repository.DataRepository
 import com.efbsm5.easyway.data.models.Comment
 import com.efbsm5.easyway.data.models.assistModel.CommentAndUser
 import com.efbsm5.easyway.map.MapUtil
@@ -20,28 +18,25 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-private const val TAG = "CommentAndHistoryCardVi"
 
 class CommentAndHistoryCardViewModel(context: Context) : ViewModel() {
     private val repository = DataRepository(context)
     private var _state = MutableStateFlow<CommentCardScreen>(CommentCardScreen.Comment)
-    private val _point = MutableStateFlow<EasyPoint?>(null)
+    private val _point = MutableStateFlow(MapUtil.getInitPoint())
     private var _showComment = MutableStateFlow(false)
-    private var _pointComments = MutableStateFlow<List<CommentAndUser>?>(null)
+    private var _pointComments = MutableStateFlow<List<CommentAndUser>>(emptyList())
     private var _newComment = MutableStateFlow("")
     private val userManager = UserManager(context)
-    val point: StateFlow<EasyPoint?> = _point
+    val point: StateFlow<EasyPoint> = _point
     val state: StateFlow<CommentCardScreen> = _state
     val showComment: StateFlow<Boolean> = _showComment
-    val pointComments: StateFlow<List<CommentAndUser>?> = _pointComments
+    val pointComments: StateFlow<List<CommentAndUser>> = _pointComments
     val newComment: StateFlow<String> = _newComment
 
     fun getPoint(latLng: LatLng) {
         viewModelScope.launch(Dispatchers.IO) {
             _point.value = repository.getPointFromLatlng(latLng)
-            if (_point.value == null) {
-                Log.e(TAG, "getPoint:     null point")
-            } else repository.getAllCommentsById(_point.value!!.commentId).collect { comments ->
+            repository.getAllCommentsById(_point.value.commentId).collect { comments ->
                 val commentsAndUser = emptyList<CommentAndUser>().toMutableList()
                 comments.forEach {
                     commentsAndUser.add(
@@ -72,7 +67,7 @@ class CommentAndHistoryCardViewModel(context: Context) : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             val comment = Comment(
                 index = repository.getCommentCount(),
-                commentId = _point.value!!.commentId,
+                commentId = _point.value.commentId,
                 userId = userManager.userId,
                 content = _newComment.value,
                 like = 0,
@@ -82,7 +77,7 @@ class CommentAndHistoryCardViewModel(context: Context) : ViewModel() {
             repository.uploadComment(
                 comment = comment
             )
-            _pointComments.value = _pointComments.value?.plus(
+            _pointComments.value = _pointComments.value.plus(
                 CommentAndUser(
                     repository.getUserById(userManager.userId), comment
                 )
@@ -129,7 +124,7 @@ class CommentAndHistoryCardViewModel(context: Context) : ViewModel() {
     fun refresh() {
         viewModelScope.launch(Dispatchers.IO) {
             val commentsAndUser = emptyList<CommentAndUser>().toMutableList()
-            repository.getAllCommentsById(_point.value!!.commentId).collect { comments ->
+            repository.getAllCommentsById(_point.value.commentId).collect { comments ->
                 comments.forEach {
                     commentsAndUser.add(
                         CommentAndUser(

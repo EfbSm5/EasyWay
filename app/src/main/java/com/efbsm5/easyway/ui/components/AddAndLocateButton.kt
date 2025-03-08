@@ -21,7 +21,7 @@ fun AddAndLocateButton(onAdd: () -> Unit, onLocate: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp, top = (-30).dp),
+            .padding(16.dp, top = (30).dp),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.End
     ) {

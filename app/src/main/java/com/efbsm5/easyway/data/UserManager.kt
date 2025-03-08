@@ -3,8 +3,6 @@ package com.efbsm5.easyway.data
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
-import com.efbsm5.easyway.data.ViewModelRepository.DataRepository
-import com.efbsm5.easyway.data.models.User
 
 class UserManager(context: Context) {
     private val prefs: SharedPreferences =

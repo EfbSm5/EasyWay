@@ -1,8 +1,6 @@
 package com.efbsm5.easyway.viewmodel.pageViewmodel
 
 import android.content.Context
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.amap.api.maps.MapView
@@ -12,8 +10,10 @@ import com.amap.api.maps.model.Marker
 import com.amap.api.maps.model.MarkerOptions
 import com.amap.api.maps.model.Poi
 import com.amap.api.services.core.PoiItemV2
-import com.efbsm5.easyway.data.ViewModelRepository.DataRepository
+import com.efbsm5.easyway.data.Repository.DataRepository
 import com.efbsm5.easyway.map.LocationController
+import com.efbsm5.easyway.map.MapRouteSearchUtil
+import com.efbsm5.easyway.map.MapUtil
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -23,17 +23,14 @@ import kotlinx.coroutines.flow.stateIn
 class MapPageViewModel(context: Context) : ViewModel() {
     private val repository = DataRepository(context)
     private var _content = MutableStateFlow<Screen>(Screen.IconCard)
-    private val _location = MutableStateFlow(LatLng(30.513197, 114.413301))
     private val _points =
         repository.getAllPoints().stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
     private val locationController = LocationController(context)
     val content: StateFlow<Screen> = _content
-    val location: StateFlow<LatLng> = _location
+    val location = locationController.location
 
     fun drawPointsAndInitLocation(mapView: MapView) {
-        locationController.mapLocationInit(
-            mapView = mapView
-        )
+        locationController.mapLocationInit(mapView)
         mapView.map.clear()
         _points.value.forEach { point ->
             mapView.map.addMarker(
@@ -54,8 +51,11 @@ class MapPageViewModel(context: Context) : ViewModel() {
     }
 
     fun navigate(context: Context, destination: LatLng, mapView: MapView) {
-        locationController.navigate(
-            context = context, latLng = destination, mapView = mapView
+        MapRouteSearchUtil(
+            mapView = mapView,
+            context = context,
+            returnMsg = { MapUtil.showMsg(it, context) }).startRouteSearch(
+            mStartPoint = location.value, mEndPoint = destination
         )
     }
 }

@@ -75,6 +75,7 @@ fun AppSurface(
                 .fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
+
             NavHost(navController = navController, startDestination = "MapPage") {
                 composable("MapPage") {
                     MapPage(viewModel = mapPageViewModel)
