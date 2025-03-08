@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.StateFlow
 
 class LocationController(
     context: Context
-) {
+) : LocationSource {
     private var mLocationClient = AMapLocationClient(context).apply {
         setLocationOption(
             AMapLocationClientOption().setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy)
@@ -46,7 +46,7 @@ class LocationController(
 
     fun mapLocationInit(mapView: MapView) {
         mapView.map.setLocationSource(
-            locationSource()
+            this
         )
         mLocationClient.setLocationListener { aMapLocation ->
             if (aMapLocation!!.errorCode == 0) {
@@ -71,18 +71,17 @@ class LocationController(
         this.map.animateCamera(CameraUpdateFactory.newLatLng(latLng))
     }
 
-    private fun locationSource(): LocationSource = object : LocationSource {
-        override fun activate(p0: OnLocationChangedListener?) {
-            if (mListener == null) {
-                mListener = p0
-            }
-            mLocationClient.startLocation()
-        }
 
-        override fun deactivate() {
-            mListener = null
-            mLocationClient.stopLocation()
-            mLocationClient.onDestroy()
+    override fun activate(p0: OnLocationChangedListener?) {
+        if (mListener == null) {
+            mListener = p0
         }
+        mLocationClient.startLocation()
+    }
+
+    override fun deactivate() {
+        mListener = null
+        mLocationClient.stopLocation()
+        mLocationClient.onDestroy()
     }
 }

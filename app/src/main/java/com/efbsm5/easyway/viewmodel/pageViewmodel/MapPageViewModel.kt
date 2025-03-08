@@ -1,6 +1,7 @@
 package com.efbsm5.easyway.viewmodel.pageViewmodel
 
 import android.content.Context
+import android.os.Bundle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.amap.api.maps.MapView
@@ -28,6 +29,11 @@ class MapPageViewModel(context: Context) : ViewModel() {
     private val locationController = LocationController(context)
     val content: StateFlow<Screen> = _content
     val location = locationController.location
+    var bundle = Bundle()
+
+    fun saveBundle(bundle: Bundle) {
+        this.bundle = bundle
+    }
 
     fun drawPointsAndInitLocation(mapView: MapView) {
         locationController.mapLocationInit(mapView)

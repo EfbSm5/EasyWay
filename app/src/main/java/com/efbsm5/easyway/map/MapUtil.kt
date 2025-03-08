@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.location.Location
 import android.net.Uri
+import android.os.Bundle
 import android.widget.Toast
 import com.amap.api.maps.model.LatLng
 import com.amap.api.services.core.LatLonPoint
@@ -77,17 +78,7 @@ object MapUtil {
     }
 
     fun initMapView(context: Context): MapView {
-        return MapView(context, AMapOptions().compassEnabled(true)).apply {
-            map.apply {
-                mapType = if (isDarkTheme(context)) MAP_TYPE_NIGHT else MAP_TYPE_NORMAL
-                isMyLocationEnabled = true
-                myLocationStyle = MyLocationStyle().interval(2000)
-                    .myLocationType(MyLocationStyle.LOCATION_TYPE_LOCATION_ROTATE_NO_CENTER)
-                showMapText(true)
-                uiSettings.isMyLocationButtonEnabled = true
-                uiSettings.zoomPosition = AMapOptions.ZOOM_POSITION_RIGHT_CENTER
-            }
-        }
+        return MapView(context, AMapOptions().compassEnabled(true))
     }
 
     fun getInitPoint(latLng: LatLng = LatLng(30.507950, 114.413514)): EasyPoint {

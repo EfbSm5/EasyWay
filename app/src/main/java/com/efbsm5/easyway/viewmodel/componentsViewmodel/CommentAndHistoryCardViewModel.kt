@@ -11,6 +11,7 @@ import com.efbsm5.easyway.data.UserManager
 import com.efbsm5.easyway.data.models.EasyPoint
 import com.efbsm5.easyway.data.Repository.DataRepository
 import com.efbsm5.easyway.data.models.Comment
+import com.efbsm5.easyway.data.models.User
 import com.efbsm5.easyway.data.models.assistModel.CommentAndUser
 import com.efbsm5.easyway.map.MapUtil
 import kotlinx.coroutines.Dispatchers
@@ -23,15 +24,14 @@ class CommentAndHistoryCardViewModel(context: Context) : ViewModel() {
     private val repository = DataRepository(context)
     private var _state = MutableStateFlow<CommentCardScreen>(CommentCardScreen.Comment)
     private val _point = MutableStateFlow(MapUtil.getInitPoint())
-    private var _showComment = MutableStateFlow(false)
     private var _pointComments = MutableStateFlow<List<CommentAndUser>>(emptyList())
     private var _newComment = MutableStateFlow("")
     private val userManager = UserManager(context)
     val point: StateFlow<EasyPoint> = _point
     val state: StateFlow<CommentCardScreen> = _state
-    val showComment: StateFlow<Boolean> = _showComment
     val pointComments: StateFlow<List<CommentAndUser>> = _pointComments
     val newComment: StateFlow<String> = _newComment
+    lateinit var user: User
 
     fun getPoint(latLng: LatLng) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -46,17 +46,15 @@ class CommentAndHistoryCardViewModel(context: Context) : ViewModel() {
                     )
                 }
                 _pointComments.value = commentsAndUser
-
             }
+            user = repository.getUserById(point.value.userId)
         }
     }
 
-    fun changeState(commentCardScreen: CommentCardScreen) {
-        _state.value = commentCardScreen
-    }
-
-    fun showComment(boolean: Boolean) {
-        _showComment.value = boolean
+    fun changeState(commentCardScreen: Int) {
+        if (commentCardScreen == 1)
+            _state.value = CommentCardScreen.Comment
+        else _state.value = CommentCardScreen.History
     }
 
     fun editComment(string: String) {

@@ -78,7 +78,9 @@ fun AppSurface(
 
             NavHost(navController = navController, startDestination = "MapPage") {
                 composable("MapPage") {
-                    MapPage(viewModel = mapPageViewModel)
+                    MapPage(
+                        viewModel = mapPageViewModel
+                    )
                 }
                 composable("Community") {
                     CommunityPage()
@@ -112,9 +114,10 @@ private fun HighlightButton(navController: NavController) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(56.dp),
+            .height(56.dp)
+            .background(color = MaterialTheme.colorScheme.surface),
         horizontalArrangement = Arrangement.SpaceEvenly,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         buttons.forEachIndexed { index, text ->
             val backgroundColor by animateColorAsState(
@@ -151,3 +154,5 @@ private fun HighlightButton(navController: NavController) {
         }
     }
 }
+
+

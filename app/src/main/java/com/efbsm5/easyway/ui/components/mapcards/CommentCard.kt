@@ -3,8 +3,6 @@ package com.efbsm5.easyway.ui.components.mapcards
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -29,14 +27,16 @@ import coil.compose.rememberAsyncImagePainter
 import com.efbsm5.easyway.R
 import com.efbsm5.easyway.data.models.EasyPoint
 import androidx.compose.runtime.*
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.amap.api.maps.model.LatLng
+import com.efbsm5.easyway.data.models.Comment
 import com.efbsm5.easyway.data.models.assistModel.CommentAndUser
 import com.efbsm5.easyway.map.MapUtil
 import com.efbsm5.easyway.map.MapUtil.getInitPoint
+import com.efbsm5.easyway.ui.page.communityPage.TabSection
 import com.efbsm5.easyway.viewmodel.componentsViewmodel.CommentAndHistoryCardViewModel
 import com.efbsm5.easyway.viewmodel.componentsViewmodel.CommentCardScreen
 
@@ -47,7 +47,6 @@ fun CommentAndHistoryCard(
 ) {
     val state by viewModel.state.collectAsState()
     val pointComment by viewModel.pointComments.collectAsState()
-    val showComment by viewModel.showComment.collectAsState()
     val newComment by viewModel.newComment.collectAsState()
     val point by viewModel.point.collectAsState()
     val context = LocalContext.current
@@ -56,10 +55,8 @@ fun CommentAndHistoryCard(
         onSelect = { viewModel.changeState(it) },
         state = state,
         pointComments = pointComment,
-        showComment = showComment,
         newComment = newComment,
         onChangeComment = { viewModel.editComment(it) },
-        changeShowComment = { viewModel.showComment(it) },
         publish = { viewModel.publish() },
         refresh = { viewModel.refresh() },
         navigate = {
@@ -71,28 +68,22 @@ fun CommentAndHistoryCard(
         })
 }
 
-@Preview
-@Composable
-fun pre() {
-    CommentAndHistoryCardScreen()
-}
 
 @Composable
 private fun CommentAndHistoryCardScreen(
     point: EasyPoint = getInitPoint(),
-    onSelect: (CommentCardScreen) -> Unit = {},
+    onSelect: (Int) -> Unit = {},
     state: CommentCardScreen = CommentCardScreen.Comment,
     pointComments: List<CommentAndUser> = emptyList(),
-    showComment: Boolean = true,
     newComment: String = "",
     onChangeComment: (String) -> Unit = {},
-    changeShowComment: (Boolean) -> Unit = {},
     publish: () -> Unit = {},
     refresh: () -> Unit = {},
     navigate: () -> Unit = {},
     like: () -> Unit = {},
     dislike: () -> Unit = {}
 ) {
+    var showComment by rememberSaveable { mutableStateOf(false) }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -100,22 +91,18 @@ private fun CommentAndHistoryCardScreen(
     ) {
         PointInfo(point, onNavigate = navigate, like = like, dislike = dislike)
         Spacer(modifier = Modifier.height(16.dp))
-        Select { onSelect(it) }
+        Select(onSelect)
         when (state) {
             CommentCardScreen.Comment -> CommentCard(pointComments)
             CommentCardScreen.History -> HistoryCard()
         }
         if (showComment) {
-            ShowTextField(text = newComment, changeText = {
-                onChangeComment(it)
-            }, publish = {
-                changeShowComment(false)
+            ShowTextField(text = newComment, changeText = onChangeComment, publish = {
+                showComment = false
                 publish()
-            }, cancel = { changeShowComment(false) })
+            }, cancel = { showComment = false })
         }
-        BottomActionBar(refresh = { refresh() }, comment = {
-            changeShowComment(true)
-        }, navigate = { navigate() })
+        BottomActionBar(comment = { showComment = true })
     }
 }
 
@@ -208,35 +195,23 @@ fun PointInfo(easyPoint: EasyPoint, onNavigate: () -> Unit, like: () -> Unit, di
 }
 
 @Composable
-private fun Select(onClick: (CommentCardScreen) -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = "评论次数",
-            fontWeight = FontWeight.Bold,
-            fontSize = 16.sp,
-            modifier = Modifier.clickable {
-                onClick(CommentCardScreen.Comment)
-            })
-        Spacer(Modifier.width(50.dp))
-        Text(
-            text = "历史版本",
-            fontWeight = FontWeight.Bold,
-            fontSize = 16.sp,
-            modifier = Modifier.clickable {
-                onClick(CommentCardScreen.History)
-            })
-    }
+private fun Select(onClick: (Int) -> Unit) {
+    var selectedIndex by remember { mutableIntStateOf(0) }
+    TabSection(
+        selectedTabIndex = selectedIndex,
+        tabs = listOf("评论", "历史"),
+        onSelect = {
+            selectedIndex = it
+            it.let(
+                onClick
+            )
+        },
+    )
 }
 
 @Composable
-private fun CommentCard(comments: List<CommentAndUser>?) {
-    if (comments.isNullOrEmpty()) {
+private fun CommentCard(comments: List<CommentAndUser>) {
+    if (comments.isEmpty()) {
         Text("暂无")
     } else LazyColumn {
         items(comments) {
@@ -247,6 +222,25 @@ private fun CommentCard(comments: List<CommentAndUser>?) {
     }
 }
 
+@Preview
+@Composable
+fun a() {
+//    CommentItem(
+//        commentAndUser = CommentAndUser(
+//            comment = Comment(
+//                index = 1,
+//                commentId = 1,
+//                userId = 1,
+//                content = "这是一条评论",
+//                like = 1,
+//                dislike = 1,
+//                date = "2025.3.8"
+//            ), user = MapUtil.getInitUser()
+//        )
+//    )
+    BottomActionBar(comment = {})
+}
+
 @Composable
 private fun CommentItem(commentAndUser: CommentAndUser) {
     val user = commentAndUser.user
@@ -255,14 +249,16 @@ private fun CommentItem(commentAndUser: CommentAndUser) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
+            .height(50.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Start
     ) {
         Image(
             painter = rememberAsyncImagePainter(user.avatar ?: R.drawable.nouser),
             modifier = Modifier
                 .size(50.dp)
-                .clip(CircleShape)
-                .border(1.dp, Color.Black, CircleShape),
-            contentDescription = null
+                .clip(CircleShape),
+            contentDescription = "avatar"
         )
         Spacer(modifier = Modifier.width(16.dp))
         Column(
@@ -323,32 +319,13 @@ private fun HistoryCard() {
 }
 
 @Composable
-private fun BottomActionBar(refresh: () -> Unit, comment: () -> Unit, navigate: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly
-    ) {
-        Button(
-            onClick = { refresh() }, modifier = Modifier
-                .weight(1f)
-                .height(48.dp)
-        ) {
-            Text(text = "更新内容")
-        }
-
-        Spacer(modifier = Modifier.width(16.dp))
-
+private fun BottomActionBar(comment: () -> Unit) {
+    Box(contentAlignment = Alignment.BottomEnd) {
         OutlinedButton(
-            onClick = { comment() }, modifier = Modifier
-                .weight(1f)
-                .height(48.dp)
+            onClick = { comment() }, modifier = Modifier.height(48.dp)
+
         ) {
             Text(text = "发布评论")
-        }
-        Button(onClick = { navigate() }) {
-            Text(text = "导航")
         }
     }
 }

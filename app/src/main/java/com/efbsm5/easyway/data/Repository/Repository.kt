@@ -93,13 +93,6 @@ class DataRepository(private val context: Context) {
         database.dynamicPostDao().insert(post)
     }
 
-
-    fun getPointFromMarker(marker: Marker): EasyPoint {
-        return database.pointsDao()
-            .getPointByLatLng(marker.position.latitude, marker.position.longitude)
-            ?: database.pointsDao().getPointByName(marker.title) ?: getInitPoint(marker.position)
-    }
-
     fun getPointFromLatlng(latLng: LatLng): EasyPoint {
         return database.pointsDao().getPointByLatLng(latLng.latitude, latLng.longitude)
             ?: getInitPoint(latLng)
