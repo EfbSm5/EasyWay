@@ -1,4 +1,4 @@
-package com.efbsm5.easyway.viewmodel.pageViewmodel
+package com.efbsm5.easyway.viewmodel.componentsViewmodel
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
@@ -7,21 +7,15 @@ import com.efbsm5.easyway.map.MapPoiSearchUtil
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-class SearchPageViewModel(context: Context) : ViewModel() {
-    private val _text = MutableStateFlow("")
+class FunctionCardViewModel(context: Context) : ViewModel() {
     private val _poiList = MutableStateFlow(emptyList<PoiItemV2>())
-    val text: StateFlow<String> = _text
     val poiList: StateFlow<List<PoiItemV2>> = _poiList
     private val searchController = MapPoiSearchUtil(
         context = context,
         onPoiSearched = { _poiList.value = it.toList() },
     )
 
-    fun changeText(string: String) {
-        _text.value = string
-    }
-
-    fun searchForPoi() {
-        searchController.searchForPoi(_text.value)
+    fun searchForPoi(string: String) {
+        searchController.searchForPoi(string)
     }
 }

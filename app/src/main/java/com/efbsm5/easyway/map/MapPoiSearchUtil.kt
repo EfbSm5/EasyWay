@@ -1,6 +1,7 @@
 package com.efbsm5.easyway.map
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.util.Log
 import com.amap.api.services.core.AMapException
 import com.amap.api.services.core.PoiItemV2
@@ -13,10 +14,12 @@ private const val TAG = "MapPoiSearchUtil"
 class MapPoiSearchUtil(
     private val context: Context, val onPoiSearched: (ArrayList<PoiItemV2>) -> Unit
 ) : PoiSearchV2.OnPoiSearchListener {
-    private var cityCode = "027"
+    private var sharedPreferences: SharedPreferences =
+        context.getSharedPreferences("MapPreferences", Context.MODE_PRIVATE)
 
     fun searchForPoi(keyword: String) {
         Thread {
+            val cityCode = sharedPreferences.getString("citycode", "027")
             ServiceSettings.updatePrivacyShow(context, true, true)
             ServiceSettings.updatePrivacyAgree(context, true)
             val query: PoiSearchV2.Query = PoiSearchV2.Query(keyword, "", cityCode)

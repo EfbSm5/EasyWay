@@ -9,7 +9,7 @@ import com.efbsm5.easyway.viewmodel.componentsViewmodel.CommentAndHistoryCardVie
 import com.efbsm5.easyway.viewmodel.componentsViewmodel.NewPlaceCardViewModel
 import com.efbsm5.easyway.viewmodel.componentsViewmodel.NewPointCardViewModel
 import com.efbsm5.easyway.viewmodel.pageViewmodel.Screen
-import com.efbsm5.easyway.viewmodel.pageViewmodel.SearchPageViewModel
+import com.efbsm5.easyway.viewmodel.componentsViewmodel.FunctionCardViewModel
 
 @Composable
 fun MapPageCard(
@@ -25,7 +25,8 @@ fun MapPageCard(
         viewModel<NewPointCardViewModel>(factory = ViewModelFactory(context))
     val newPlaceCardViewModel =
         viewModel<NewPlaceCardViewModel>(factory = ViewModelFactory(context))
-    val searchPageViewModel = viewModel<SearchPageViewModel>(factory = ViewModelFactory(context))
+    val functionCardViewModel =
+        viewModel<FunctionCardViewModel>(factory = ViewModelFactory(context))
     when (content) {
         is Screen.Comment -> {
             if (content.marker != null) {
@@ -39,9 +40,9 @@ fun MapPageCard(
                 viewModel = commentAndHistoryCardViewModel, navigate = { onNavigate(it, true) })
         }
 
-        Screen.IconCard -> FunctionCard(onclick = {
-            onChangeScreen(Screen.Places(it))
-        }, onChangeSearchPage = { onChangeScreen(Screen.Search) })
+        Screen.IconCard -> FunctionCard(
+            viewModel = functionCardViewModel, location = location, changeScreen = onChangeScreen
+        )
 
         is Screen.NewPoint -> NewPointCard(
             content.location,
@@ -56,16 +57,6 @@ fun MapPageCard(
                 onNavigate = { latLng: LatLng, boolean: Boolean -> onNavigate(latLng, boolean) },
                 viewModel = newPlaceCardViewModel
             )
-        }
-
-        Screen.Search -> {
-            SearchCard(viewModel = searchPageViewModel, onSelected = {
-                onChangeScreen(
-                    Screen.Comment(
-                        marker = null, poi = null, poiItemV2 = it
-                    )
-                )
-            })
         }
     }
 }

@@ -71,5 +71,4 @@ sealed interface Screen {
     data class NewPoint(val location: LatLng?) : Screen
     data class Places(val name: String) : Screen
     data class Comment(val marker: Marker?, val poi: Poi?, val poiItemV2: PoiItemV2?) : Screen
-    data object Search : Screen
 }

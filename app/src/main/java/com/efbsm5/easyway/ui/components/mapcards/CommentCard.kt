@@ -10,7 +10,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material.icons.rounded.ThumbUp
@@ -30,9 +29,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import com.amap.api.maps.model.LatLng
-import com.efbsm5.easyway.data.models.Comment
 import com.efbsm5.easyway.data.models.assistModel.CommentAndUser
 import com.efbsm5.easyway.map.MapUtil
 import com.efbsm5.easyway.map.MapUtil.getInitPoint
@@ -47,7 +44,6 @@ fun CommentAndHistoryCard(
 ) {
     val state by viewModel.state.collectAsState()
     val pointComment by viewModel.pointComments.collectAsState()
-    val newComment by viewModel.newComment.collectAsState()
     val point by viewModel.point.collectAsState()
     val context = LocalContext.current
     CommentAndHistoryCardScreen(
@@ -55,17 +51,19 @@ fun CommentAndHistoryCard(
         onSelect = { viewModel.changeState(it) },
         state = state,
         pointComments = pointComment,
-        newComment = newComment,
-        onChangeComment = { viewModel.editComment(it) },
-        publish = { viewModel.publish() },
-        refresh = { viewModel.refresh() },
+        publish = { viewModel.publish(it) },
+        update = { viewModel.refresh() },
         navigate = {
             if (point.pointId != 0) {
                 navigate(LatLng(point.lat, point.lng))
             } else {
                 MapUtil.showMsg("出错了", context = context)
             }
-        })
+        },
+        like = {},
+        dislike = {},
+        likeComment = {},
+        dislikeComment = {})
 }
 
 
@@ -75,13 +73,13 @@ private fun CommentAndHistoryCardScreen(
     onSelect: (Int) -> Unit = {},
     state: CommentCardScreen = CommentCardScreen.Comment,
     pointComments: List<CommentAndUser> = emptyList(),
-    newComment: String = "",
-    onChangeComment: (String) -> Unit = {},
-    publish: () -> Unit = {},
-    refresh: () -> Unit = {},
+    publish: (String) -> Unit = {},
+    update: () -> Unit = {},
     navigate: () -> Unit = {},
     like: () -> Unit = {},
-    dislike: () -> Unit = {}
+    dislike: () -> Unit = {},
+    likeComment: (Int) -> Unit,
+    dislikeComment: (Int) -> Unit
 ) {
     var showComment by rememberSaveable { mutableStateOf(false) }
     Column(
@@ -93,16 +91,19 @@ private fun CommentAndHistoryCardScreen(
         Spacer(modifier = Modifier.height(16.dp))
         Select(onSelect)
         when (state) {
-            CommentCardScreen.Comment -> CommentCard(pointComments)
+            CommentCardScreen.Comment -> CommentCard(
+                pointComments, like = likeComment, dislike = dislikeComment
+            )
+
             CommentCardScreen.History -> HistoryCard()
+            CommentCardScreen.Update -> UpdateCard()
         }
         if (showComment) {
-            ShowTextField(text = newComment, changeText = onChangeComment, publish = {
+            ShowTextField(publish = {
                 showComment = false
-                publish()
+                publish(it)
             }, cancel = { showComment = false })
-        }
-        BottomActionBar(comment = { showComment = true })
+        } else BottomActionBar(comment = { showComment = true }, update = update)
     }
 }
 
@@ -210,46 +211,36 @@ private fun Select(onClick: (Int) -> Unit) {
 }
 
 @Composable
-private fun CommentCard(comments: List<CommentAndUser>) {
+private fun CommentCard(
+    comments: List<CommentAndUser>, like: (Int) -> Unit, dislike: (Int) -> Unit
+) {
     if (comments.isEmpty()) {
         Text("暂无")
     } else LazyColumn {
         items(comments) {
             CommentItem(
-                commentAndUser = it
+                commentAndUser = it,
+                like = { like(comments.indexOf(it)) },
+                dislike = { dislike(comments.indexOf(it)) },
             )
         }
     }
 }
 
-@Preview
 @Composable
-fun a() {
-//    CommentItem(
-//        commentAndUser = CommentAndUser(
-//            comment = Comment(
-//                index = 1,
-//                commentId = 1,
-//                userId = 1,
-//                content = "这是一条评论",
-//                like = 1,
-//                dislike = 1,
-//                date = "2025.3.8"
-//            ), user = MapUtil.getInitUser()
-//        )
-//    )
-    BottomActionBar(comment = {})
-}
-
-@Composable
-private fun CommentItem(commentAndUser: CommentAndUser) {
+private fun CommentItem(commentAndUser: CommentAndUser, like: () -> Unit, dislike: () -> Unit) {
+    var isLiked by remember { mutableStateOf(false) }
+    var isDisliked by remember { mutableStateOf(false) }
+    val likeColor by animateColorAsState(targetValue = if (isLiked) Color.Red else Color.Gray)
+    val dislikeColor by animateColorAsState(targetValue = if (isDisliked) Color.Red else Color.Gray)
+    val likeSize by animateFloatAsState(targetValue = if (isLiked) 36f else 24f)
+    val dislikeSize by animateFloatAsState(targetValue = if (isDisliked) 36f else 24f)
     val user = commentAndUser.user
     val comment = commentAndUser.comment
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
-            .height(50.dp),
+            .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start
     ) {
@@ -288,10 +279,13 @@ private fun CommentItem(commentAndUser: CommentAndUser) {
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Icon(
-                    imageVector = Icons.Default.ThumbUp,
-                    contentDescription = "",
-                    modifier = Modifier.size(16.dp),
-                    tint = Color.Green
+                    Icons.Default.ThumbUp, modifier = Modifier
+                        .size(likeSize.dp)
+                        .clickable {
+                            like()
+                            isLiked = !isLiked
+                            if (isDisliked) isDisliked = false
+                        }, contentDescription = "Dislike", tint = likeColor
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
@@ -299,10 +293,16 @@ private fun CommentItem(commentAndUser: CommentAndUser) {
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 Icon(
-                    imageVector = Icons.Default.KeyboardArrowDown,
-                    contentDescription = null,
-                    modifier = Modifier.size(16.dp),
-                    tint = Color.Red
+                    modifier = Modifier
+                        .size(dislikeSize.dp)
+                        .clickable {
+                            dislike()
+                            isDisliked = !isDisliked
+                            if (isLiked) isLiked = false
+                        },
+                    painter = painterResource(id = R.drawable.thumb_down),
+                    contentDescription = "Dislike",
+                    tint = dislikeColor
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
@@ -314,16 +314,22 @@ private fun CommentItem(commentAndUser: CommentAndUser) {
 }
 
 @Composable
-private fun HistoryCard() {
-    Text("历史卡片内容,目前仍在开发")
-}
-
-@Composable
-private fun BottomActionBar(comment: () -> Unit) {
-    Box(contentAlignment = Alignment.BottomEnd) {
+private fun BottomActionBar(comment: () -> Unit, update: () -> Unit) {
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.Bottom,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(39.dp)
+    ) {
         OutlinedButton(
-            onClick = { comment() }, modifier = Modifier.height(48.dp)
-
+            onClick = { update() }, modifier = Modifier.weight(5f)
+        ) {
+            Text(text = "更新内容")
+        }
+        Spacer(modifier = Modifier.width(16.dp))
+        Button(
+            onClick = { comment() }, modifier = Modifier.weight(3f)
         ) {
             Text(text = "发布评论")
         }
@@ -332,19 +338,20 @@ private fun BottomActionBar(comment: () -> Unit) {
 
 @Composable
 private fun ShowTextField(
-    text: String, changeText: (String) -> Unit, publish: () -> Unit, cancel: () -> Unit
+    publish: (String) -> Unit, cancel: () -> Unit
 ) {
+    var text by remember { mutableStateOf("") }
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.Bottom,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         TextField(
-            modifier = Modifier.fillMaxWidth(), value = text, onValueChange = { changeText(it) })
+            modifier = Modifier.fillMaxWidth(), value = text, onValueChange = { text = it })
         Row(modifier = Modifier.fillMaxWidth()) {
-            Button(onClick = { publish() }, modifier = Modifier.weight(1f)) { Text("发布") }
+            Button(onClick = { publish(text) }, modifier = Modifier.weight(3f)) { Text("发布") }
             Spacer(modifier = Modifier.width(20.dp))
-            Button(onClick = { cancel() }, modifier = Modifier.weight(1f)) { Text("取消") }
+            Button(onClick = { cancel() }, modifier = Modifier.weight(2f)) { Text("取消") }
         }
     }
 

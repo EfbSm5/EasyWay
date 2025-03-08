@@ -25,12 +25,10 @@ class CommentAndHistoryCardViewModel(context: Context) : ViewModel() {
     private var _state = MutableStateFlow<CommentCardScreen>(CommentCardScreen.Comment)
     private val _point = MutableStateFlow(MapUtil.getInitPoint())
     private var _pointComments = MutableStateFlow<List<CommentAndUser>>(emptyList())
-    private var _newComment = MutableStateFlow("")
     private val userManager = UserManager(context)
     val point: StateFlow<EasyPoint> = _point
     val state: StateFlow<CommentCardScreen> = _state
     val pointComments: StateFlow<List<CommentAndUser>> = _pointComments
-    val newComment: StateFlow<String> = _newComment
     lateinit var user: User
 
     fun getPoint(latLng: LatLng) {
@@ -57,17 +55,14 @@ class CommentAndHistoryCardViewModel(context: Context) : ViewModel() {
         else _state.value = CommentCardScreen.History
     }
 
-    fun editComment(string: String) {
-        _newComment.value = string
-    }
 
-    fun publish() {
+    fun publish(string: String) {
         viewModelScope.launch(Dispatchers.IO) {
             val comment = Comment(
                 index = repository.getCommentCount(),
                 commentId = _point.value.commentId,
                 userId = userManager.userId,
-                content = _newComment.value,
+                content = string,
                 like = 0,
                 dislike = 0,
                 date = MapUtil.getCurrentFormattedTime()
@@ -133,9 +128,14 @@ class CommentAndHistoryCardViewModel(context: Context) : ViewModel() {
             }
         }
     }
+
+    fun likePost() {
+
+    }
 }
 
 sealed interface CommentCardScreen {
     data object Comment : CommentCardScreen
     data object History : CommentCardScreen
+    data object Update : CommentCardScreen
 }
