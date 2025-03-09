@@ -26,10 +26,16 @@ interface PointsDao {
     fun getPointById(id: Int): EasyPoint?
 
     @Query("UPDATE points SET `like` = `like` + 1 WHERE pointId = :id")
-    fun incrementLikes(id: Int)
+    fun increaseLikes(id: Int)
+
+    @Query("UPDATE points SET `like` = `like` -1 WHERE pointId = :id")
+    fun decreaseLikes(id: Int)
 
     @Query("UPDATE points SET dislike = dislike + 1 WHERE pointId = :id")
-    fun incrementDislikes(id: Int)
+    fun increaseDislikes(id: Int)
+
+    @Query("UPDATE points SET dislike = dislike -1 WHERE pointId = :id")
+    fun decreaseDislikes(id: Int)
 
     @Query("SELECT * FROM points WHERE pointId = :pointId")
     fun getHistory(pointId: Int): List<EasyPoint>
@@ -48,4 +54,7 @@ interface PointsDao {
 
     @Query("SELECT * FROM points WHERE user_id=:userId")
     fun getPointByUserId(userId: Int): Flow<List<EasyPoint>>
+
+    @Query("SELECT * FROM points WHERE name LIKE '%' || :searchString || '%'")
+    fun searchEasyPointsByName(searchString: String): Flow<List<EasyPoint>>
 }

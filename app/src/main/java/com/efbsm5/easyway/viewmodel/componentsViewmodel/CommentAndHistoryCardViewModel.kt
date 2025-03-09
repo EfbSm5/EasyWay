@@ -29,7 +29,6 @@ class CommentAndHistoryCardViewModel(context: Context) : ViewModel() {
     val point: StateFlow<EasyPoint> = _point
     val state: StateFlow<CommentCardScreen> = _state
     val pointComments: StateFlow<List<CommentAndUser>> = _pointComments
-    lateinit var user: User
 
     fun getPoint(latLng: LatLng) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -45,13 +44,11 @@ class CommentAndHistoryCardViewModel(context: Context) : ViewModel() {
                 }
                 _pointComments.value = commentsAndUser
             }
-            user = repository.getUserById(point.value.userId)
         }
     }
 
     fun changeState(commentCardScreen: Int) {
-        if (commentCardScreen == 1)
-            _state.value = CommentCardScreen.Comment
+        if (commentCardScreen == 0) _state.value = CommentCardScreen.Comment
         else _state.value = CommentCardScreen.History
     }
 
@@ -114,6 +111,10 @@ class CommentAndHistoryCardViewModel(context: Context) : ViewModel() {
         )
     }
 
+    fun addEasyPoint(easyPoint: EasyPoint) {
+        _point.value = easyPoint
+    }
+
     fun refresh() {
         viewModelScope.launch(Dispatchers.IO) {
             val commentsAndUser = emptyList<CommentAndUser>().toMutableList()
@@ -129,8 +130,60 @@ class CommentAndHistoryCardViewModel(context: Context) : ViewModel() {
         }
     }
 
-    fun likePost() {
+    fun likePost(boolean: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (boolean) {
+                _point.value = _point.value.copy(likes = _point.value.likes + 1)
+                repository.addLikeForPoint(point.value.pointId)
+            } else {
+                _point.value = _point.value.copy(likes = _point.value.likes - 1)
+                repository.decreaseLikeForPoint(point.value.pointId)
+            }
+        }
+    }
 
+    fun dislikePost(boolean: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (boolean) {
+                _point.value = _point.value.copy(dislikes = _point.value.dislikes + 1)
+                repository.addDisLikeForPoint(point.value.pointId)
+            } else {
+                _point.value = _point.value.copy(dislikes = _point.value.dislikes - 1)
+                repository.decreaseDisLikeForPoint(point.value.pointId)
+            }
+        }
+    }
+
+    fun likeComment(commentIndex: Int, boolean: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (boolean) {
+                _pointComments.value.find { commentAndUser ->
+                    commentAndUser.comment.index == commentIndex
+                }!!.comment.like + 1
+                repository.addLikeForComment(commentIndex)
+            } else {
+                _pointComments.value.find { commentAndUser ->
+                    commentAndUser.comment.index == commentIndex
+                }!!.comment.like - 1
+                repository.decreaseLikeForComment(commentIndex)
+            }
+        }
+    }
+
+    fun dislikeComment(commentIndex: Int, boolean: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (boolean) {
+                _pointComments.value.find { commentAndUser ->
+                    commentAndUser.comment.index == commentIndex
+                }!!.comment.dislike + 1
+                repository.addDisLikeForComment(commentIndex)
+            } else {
+                _pointComments.value.find { commentAndUser ->
+                    commentAndUser.comment.index == commentIndex
+                }!!.comment.dislike - 1
+                repository.decreaseDisLikeForComment(commentIndex)
+            }
+        }
     }
 }
 

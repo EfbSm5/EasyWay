@@ -2,6 +2,7 @@ package com.efbsm5.easyway.map
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
 import com.amap.api.location.AMapLocationClient
 import com.amap.api.location.AMapLocationClientOption
 import com.amap.api.maps.CameraUpdateFactory
@@ -13,7 +14,7 @@ import androidx.core.content.edit
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-
+private const val TAG = "LocationController"
 class LocationController(
     context: Context
 ) : LocationSource {
@@ -30,7 +31,8 @@ class LocationController(
     private val _location = MutableStateFlow(LatLng(30.507950, 114.413514))
     val location: StateFlow<LatLng> = _location
 
-    private fun getLastKnownLocation(): LatLng {
+    fun getLastKnownLocation(): LatLng {
+        Log.e(TAG, "getLastKnownLocation:       get", )
         val lat = sharedPreferences.getFloat("last_lat", Float.NaN)
         val lng = sharedPreferences.getFloat("last_lng", Float.NaN)
         return LatLng(lat.toDouble(), lng.toDouble())
@@ -42,17 +44,18 @@ class LocationController(
                 "last_lng", location.longitude.toFloat()
             ).putString("citycode", cityCode)
         }
+        Log.e(TAG, "saveLastKnownLocation:   save", )
     }
 
     fun mapLocationInit(mapView: MapView) {
-        mapView.map.setLocationSource(
-            this
-        )
+        mapView.map.setLocationSource(this)
         mLocationClient.setLocationListener { aMapLocation ->
             if (aMapLocation!!.errorCode == 0) {
                 mListener!!.onLocationChanged(aMapLocation)
                 _location.value = LatLng(aMapLocation.latitude, aMapLocation.longitude)
                 saveLastKnownLocation(_location.value, aMapLocation.cityCode)
+                Log.e(TAG, "saveLastKnownLocation:   locate", )
+
             }
         }
     }

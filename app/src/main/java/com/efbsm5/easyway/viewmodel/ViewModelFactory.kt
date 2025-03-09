@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.efbsm5.easyway.viewmodel.componentsViewmodel.CommentAndHistoryCardViewModel
-import com.efbsm5.easyway.viewmodel.componentsViewmodel.NewPlaceCardViewModel
 import com.efbsm5.easyway.viewmodel.componentsViewmodel.NewPointCardViewModel
 import com.efbsm5.easyway.viewmodel.pageViewmodel.DetailPageViewModel
 import com.efbsm5.easyway.viewmodel.pageViewmodel.HomePageViewModel
@@ -35,9 +34,6 @@ class ViewModelFactory(
         }
         if (modelClass.isAssignableFrom(ShowPageViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST") return ShowPageViewModel(context) as T
-        }
-        if (modelClass.isAssignableFrom(NewPlaceCardViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST") return NewPlaceCardViewModel() as T
         }
         if (modelClass.isAssignableFrom(HomePageViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST") return HomePageViewModel(context) as T

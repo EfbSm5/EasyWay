@@ -18,21 +18,19 @@ class MapPoiSearchUtil(
         context.getSharedPreferences("MapPreferences", Context.MODE_PRIVATE)
 
     fun searchForPoi(keyword: String) {
-        Thread {
-            val cityCode = sharedPreferences.getString("citycode", "027")
-            ServiceSettings.updatePrivacyShow(context, true, true)
-            ServiceSettings.updatePrivacyAgree(context, true)
-            val query: PoiSearchV2.Query = PoiSearchV2.Query(keyword, "", cityCode)
-            query.pageSize = 5
-            query.pageNum = 1
-            try {
-                val poiSearch = PoiSearchV2(context, query)
-                poiSearch.setOnPoiSearchListener(this)
-                poiSearch.searchPOIAsyn()
-            } catch (e: AMapException) {
-                throw RuntimeException(e)
-            }
-        }.start()
+        val cityCode = sharedPreferences.getString("citycode", "027")
+        ServiceSettings.updatePrivacyShow(context, true, true)
+        ServiceSettings.updatePrivacyAgree(context, true)
+        val query: PoiSearchV2.Query = PoiSearchV2.Query(keyword, "", cityCode)
+        query.pageSize = 5
+        query.pageNum = 1
+        try {
+            val poiSearch = PoiSearchV2(context, query)
+            poiSearch.setOnPoiSearchListener(this)
+            poiSearch.searchPOIAsyn()
+        } catch (e: AMapException) {
+            throw RuntimeException(e)
+        }
     }
 
     override fun onPoiSearched(p0: PoiResultV2?, p1: Int) {

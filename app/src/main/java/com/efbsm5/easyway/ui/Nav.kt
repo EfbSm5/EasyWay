@@ -1,5 +1,10 @@
 package com.efbsm5.easyway.ui
 
+import android.content.ComponentCallbacks
+import android.content.res.Configuration
+import android.os.Bundle
+import android.util.Log
+import android.view.View
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -23,6 +28,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -35,6 +41,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -42,12 +52,25 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.amap.api.maps.AMap
+import com.amap.api.maps.AMap.MAP_TYPE_NIGHT
+import com.amap.api.maps.AMap.MAP_TYPE_NORMAL
+import com.amap.api.maps.AMapOptions
+import com.amap.api.maps.MapView
+import com.amap.api.maps.model.LatLng
+import com.amap.api.maps.model.Marker
+import com.amap.api.maps.model.MyLocationStyle
+import com.amap.api.maps.model.Poi
+import com.efbsm5.easyway.ui.components.mapcards.Screen
 import com.efbsm5.easyway.ui.page.communityPage.CommunityPage
 import com.efbsm5.easyway.ui.page.homepage.HomePage
 import com.efbsm5.easyway.ui.page.MapPage
+import com.efbsm5.easyway.ui.theme.isDarkTheme
 import com.efbsm5.easyway.viewmodel.ViewModelFactory
 import com.efbsm5.easyway.viewmodel.pageViewmodel.HomePageViewModel
 import com.efbsm5.easyway.viewmodel.pageViewmodel.MapPageViewModel
+
+private const val TAG = "Nav"
 
 @Composable
 fun EasyWay() {
@@ -55,10 +78,34 @@ fun EasyWay() {
     val context = LocalContext.current
     val mapPageViewModel = viewModel<MapPageViewModel>(factory = ViewModelFactory(context))
     val homePageViewModel = viewModel<HomePageViewModel>(factory = ViewModelFactory(context))
+    val mapView = MapView(context, AMapOptions().compassEnabled(true))
+    mapPageViewModel.drawPointsAndInitLocation(mapView)
     AppSurface(
         navController = navControl,
         mapPageViewModel = mapPageViewModel,
-        homePageViewModel = homePageViewModel
+        homePageViewModel = homePageViewModel,
+        mapView = mapView,
+        onMapClick = {
+            mapPageViewModel.changeScreen(
+                Screen.Comment(
+                    latLng = it, poi = null, poiItemV2 = null, easyPoint = null
+                )
+            )
+        },
+        onPoiClick = {
+            mapPageViewModel.changeScreen(
+                Screen.Comment(
+                    latLng = null, poi = it, poiItemV2 = null, easyPoint = null
+                )
+            )
+        },
+        onMarkerClick = {
+            mapPageViewModel.changeScreen(
+                Screen.Comment(
+                    latLng = it.position, poi = null, poiItemV2 = null, easyPoint = null
+                )
+            )
+        },
     )
 }
 
@@ -67,6 +114,10 @@ fun AppSurface(
     navController: NavHostController,
     mapPageViewModel: MapPageViewModel,
     homePageViewModel: HomePageViewModel,
+    mapView: MapView,
+    onMapClick: (LatLng) -> Unit,
+    onPoiClick: (Poi) -> Unit,
+    onMarkerClick: (Marker) -> Unit,
 ) {
     Scaffold(bottomBar = { HighlightButton(navController = navController) }) { innerPadding ->
         Box(
@@ -75,22 +126,32 @@ fun AppSurface(
                 .fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-
+            AndroidView(
+                modifier = Modifier.fillMaxSize(), factory = { mapView })
             NavHost(navController = navController, startDestination = "MapPage") {
                 composable("MapPage") {
+                    mapView.visibility = View.VISIBLE
                     MapPage(
-                        viewModel = mapPageViewModel
+                        viewModel = mapPageViewModel, mapView = mapView,
                     )
                 }
                 composable("Community") {
+                    mapView.visibility = View.GONE
                     CommunityPage()
                 }
                 composable("home") {
+                    mapView.visibility = View.GONE
                     HomePage(homePageViewModel)
                 }
             }
         }
     }
+    MapLifecycle(
+        mapView = mapView,
+        onPoiClick = onPoiClick,
+        onMapClick = onMapClick,
+        onMarkerClick = onMarkerClick,
+    )
 }
 
 @Composable
@@ -155,4 +216,91 @@ private fun HighlightButton(navController: NavController) {
     }
 }
 
+@Composable
+fun MapLifecycle(
+    mapView: MapView,
+    onMapClick: (LatLng) -> Unit,
+    onPoiClick: (Poi) -> Unit,
+    onMarkerClick: (Marker) -> Unit,
+) {
+    val onMapClickListener = AMap.OnMapClickListener { onMapClick(it) }
+    val onMarkerClickListener = AMap.OnMarkerClickListener {
+        onMarkerClick(it)
+        true
+    }
+    val onPoiClickListener = AMap.OnPOIClickListener { onPoiClick(it) }
+
+    val context = LocalContext.current
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    DisposableEffect(context, lifecycle, mapView) {
+        val mapLifecycleObserver = mapView.lifecycleObserver(onResume = {
+            mapView.map.apply {
+                mapType = if (isDarkTheme(context)) MAP_TYPE_NIGHT else MAP_TYPE_NORMAL
+                isMyLocationEnabled = true
+                myLocationStyle = MyLocationStyle().interval(2000)
+                    .myLocationType(MyLocationStyle.LOCATION_TYPE_LOCATION_ROTATE)
+                showMapText(true)
+                uiSettings.apply {
+                    isMyLocationButtonEnabled = true
+                    zoomPosition = AMapOptions.ZOOM_POSITION_RIGHT_CENTER
+                }
+                setOnMapClickListener(onMapClickListener)
+                setOnPOIClickListener(onPoiClickListener)
+                setOnMarkerClickListener(onMarkerClickListener)
+            }
+        }, onPause = {
+            mapView.map.apply {
+                removeOnMapClickListener(onMapClickListener)
+                removeOnPOIClickListener(onPoiClickListener)
+                removeOnMarkerClickListener(onMarkerClickListener)
+            }
+        })
+        val callbacks = mapView.componentCallbacks()
+        lifecycle.addObserver(mapLifecycleObserver)
+        context.registerComponentCallbacks(callbacks)
+        onDispose {
+            lifecycle.removeObserver(mapLifecycleObserver)
+            Log.e(TAG, "MapLifecycle:      remove")
+            context.unregisterComponentCallbacks(callbacks)
+        }
+    }
+}
+
+private fun MapView.lifecycleObserver(
+    onResume: () -> Unit, onPause: () -> Unit,
+): LifecycleEventObserver = LifecycleEventObserver { _, event ->
+    when (event) {
+        Lifecycle.Event.ON_CREATE -> {
+            this.onCreate(Bundle())
+            Log.e(TAG, "lifecycleObserver:     oncreate view")
+        }
+
+        Lifecycle.Event.ON_RESUME -> {
+            onResume()
+            this.onResume()
+            Log.e(TAG, "lifecycleObserver:           onresume view")
+        }
+
+        Lifecycle.Event.ON_PAUSE -> {
+            onPause()
+            this.onPause()
+            Log.e(TAG, "lifecycleObserver:                on pause view")
+        }
+
+        Lifecycle.Event.ON_DESTROY -> {
+            this.onDestroy()
+            Log.e(TAG, "lifecycleObserver:            on destory view")
+        } // 销毁地图
+        else -> {}
+    }
+}
+
+private fun MapView.componentCallbacks(): ComponentCallbacks = object : ComponentCallbacks {
+    override fun onConfigurationChanged(config: Configuration) {}
+
+    @Deprecated("Deprecated in Java", ReplaceWith("this@componentCallbacks.onLowMemory()"))
+    override fun onLowMemory() {
+        this@componentCallbacks.onLowMemory()
+    }
+}
 

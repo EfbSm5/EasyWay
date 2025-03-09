@@ -18,9 +18,5 @@ data class DynamicPost(
     @SerializedName("user_id") var userId: Int,
     @SerializedName("comment_id") var commentId: Int,
     @SerializedName("photo_id") var photoId: Int
-) {
-    fun getLatlng(): LatLng {
-        return LatLng(lat, lng)
-    }
-}
+)
 

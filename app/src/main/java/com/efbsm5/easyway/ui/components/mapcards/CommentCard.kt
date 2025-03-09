@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ThumbUp
@@ -32,7 +31,6 @@ import androidx.compose.ui.res.painterResource
 import com.amap.api.maps.model.LatLng
 import com.efbsm5.easyway.data.models.assistModel.CommentAndUser
 import com.efbsm5.easyway.map.MapUtil
-import com.efbsm5.easyway.map.MapUtil.getInitPoint
 import com.efbsm5.easyway.ui.page.communityPage.TabSection
 import com.efbsm5.easyway.viewmodel.componentsViewmodel.CommentAndHistoryCardViewModel
 import com.efbsm5.easyway.viewmodel.componentsViewmodel.CommentCardScreen
@@ -60,34 +58,41 @@ fun CommentAndHistoryCard(
                 MapUtil.showMsg("出错了", context = context)
             }
         },
-        like = {},
-        dislike = {},
-        likeComment = {},
-        dislikeComment = {})
+        like = { viewModel.likePost(it) },
+        dislike = { viewModel.dislikePost(it) },
+        likeComment = { index, boolean ->
+            viewModel.likeComment(
+                commentIndex = index, boolean = boolean
+            )
+        },
+        dislikeComment = { index, boolean ->
+            viewModel.dislikeComment(
+                commentIndex = index, boolean = boolean
+            )
+        })
 }
-
 
 @Composable
 private fun CommentAndHistoryCardScreen(
-    point: EasyPoint = getInitPoint(),
-    onSelect: (Int) -> Unit = {},
-    state: CommentCardScreen = CommentCardScreen.Comment,
-    pointComments: List<CommentAndUser> = emptyList(),
-    publish: (String) -> Unit = {},
-    update: () -> Unit = {},
-    navigate: () -> Unit = {},
-    like: () -> Unit = {},
-    dislike: () -> Unit = {},
-    likeComment: (Int) -> Unit,
-    dislikeComment: (Int) -> Unit
+    point: EasyPoint,
+    onSelect: (Int) -> Unit,
+    state: CommentCardScreen,
+    pointComments: List<CommentAndUser>,
+    publish: (String) -> Unit,
+    update: () -> Unit,
+    navigate: () -> Unit,
+    like: (Boolean) -> Unit,
+    dislike: (Boolean) -> Unit,
+    likeComment: (Int, Boolean) -> Unit,
+    dislikeComment: (Int, Boolean) -> Unit
 ) {
-    var showComment by rememberSaveable { mutableStateOf(false) }
+    var comment by rememberSaveable { mutableStateOf(false) }
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        PointInfo(point, onNavigate = navigate, like = like, dislike = dislike)
+        PointInfo(easyPoint = point, onNavigate = navigate, like = like, dislike = dislike)
         Spacer(modifier = Modifier.height(16.dp))
         Select(onSelect)
         when (state) {
@@ -98,24 +103,35 @@ private fun CommentAndHistoryCardScreen(
             CommentCardScreen.History -> HistoryCard()
             CommentCardScreen.Update -> UpdateCard()
         }
-        if (showComment) {
+        if (comment) {
             ShowTextField(publish = {
-                showComment = false
+                comment = false
                 publish(it)
-            }, cancel = { showComment = false })
-        } else BottomActionBar(comment = { showComment = true }, update = update)
+            }, cancel = { comment = false })
+        } else BottomActionBar(comment = { comment = true }, update = update)
     }
 }
 
 @Composable
-fun PointInfo(easyPoint: EasyPoint, onNavigate: () -> Unit, like: () -> Unit, dislike: () -> Unit) {
+fun PointInfo(
+    easyPoint: EasyPoint,
+    onNavigate: () -> Unit,
+    like: (Boolean) -> Unit,
+    dislike: (Boolean) -> Unit
+) {
     var isLiked by remember { mutableStateOf(false) }
     var isDisliked by remember { mutableStateOf(false) }
     val likeColor by animateColorAsState(targetValue = if (isLiked) Color.Red else Color.Gray)
     val dislikeColor by animateColorAsState(targetValue = if (isDisliked) Color.Red else Color.Gray)
     val likeSize by animateFloatAsState(targetValue = if (isLiked) 36f else 24f)
     val dislikeSize by animateFloatAsState(targetValue = if (isDisliked) 36f else 24f)
-    Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.Start) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(200.dp),
+        horizontalAlignment = Alignment.Start,
+        verticalArrangement = Arrangement.Top,
+    ) {
         Image(
             painter = rememberAsyncImagePainter(easyPoint.photo),
             contentDescription = "Image",
@@ -142,7 +158,7 @@ fun PointInfo(easyPoint: EasyPoint, onNavigate: () -> Unit, like: () -> Unit, di
                 modifier = Modifier
                     .size(likeSize.dp)
                     .clickable {
-                        like()
+                        like(isLiked)
                         isLiked = !isLiked
                         if (isDisliked) isDisliked = false
                     },
@@ -154,7 +170,7 @@ fun PointInfo(easyPoint: EasyPoint, onNavigate: () -> Unit, like: () -> Unit, di
                 modifier = Modifier
                     .size(dislikeSize.dp)
                     .clickable {
-                        dislike()
+                        dislike(isDisliked)
                         isDisliked = !isDisliked
                         if (isLiked) isLiked = false
                     },
@@ -182,16 +198,6 @@ fun PointInfo(easyPoint: EasyPoint, onNavigate: () -> Unit, like: () -> Unit, di
             )
             Text("点位来源:${easyPoint.userId}", modifier = Modifier.padding(start = 4.dp))
         }
-        Spacer(modifier = Modifier.weight(1f))
-        Button(
-            onClick = { },
-            shape = RoundedCornerShape(8.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Text("历史版本")
-        }
     }
 }
 
@@ -212,23 +218,25 @@ private fun Select(onClick: (Int) -> Unit) {
 
 @Composable
 private fun CommentCard(
-    comments: List<CommentAndUser>, like: (Int) -> Unit, dislike: (Int) -> Unit
+    comments: List<CommentAndUser>, like: (Int, Boolean) -> Unit, dislike: (Int, Boolean) -> Unit
 ) {
     if (comments.isEmpty()) {
         Text("暂无")
     } else LazyColumn {
-        items(comments) {
+        items(comments) { commentAndUser ->
             CommentItem(
-                commentAndUser = it,
-                like = { like(comments.indexOf(it)) },
-                dislike = { dislike(comments.indexOf(it)) },
+                commentAndUser = commentAndUser,
+                like = { like(commentAndUser.comment.index, it) },
+                dislike = { dislike(commentAndUser.comment.index, it) },
             )
         }
     }
 }
 
 @Composable
-private fun CommentItem(commentAndUser: CommentAndUser, like: () -> Unit, dislike: () -> Unit) {
+private fun CommentItem(
+    commentAndUser: CommentAndUser, like: (Boolean) -> Unit, dislike: (Boolean) -> Unit
+) {
     var isLiked by remember { mutableStateOf(false) }
     var isDisliked by remember { mutableStateOf(false) }
     val likeColor by animateColorAsState(targetValue = if (isLiked) Color.Red else Color.Gray)
@@ -282,21 +290,22 @@ private fun CommentItem(commentAndUser: CommentAndUser, like: () -> Unit, dislik
                     Icons.Default.ThumbUp, modifier = Modifier
                         .size(likeSize.dp)
                         .clickable {
-                            like()
+                            like(isLiked)
                             isLiked = !isLiked
                             if (isDisliked) isDisliked = false
                         }, contentDescription = "Dislike", tint = likeColor
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = comment.like.toString(), style = MaterialTheme.typography.bodySmall
+                    text = if (isLiked) (comment.like + 1).toString() else comment.like.toString(),
+                    style = MaterialTheme.typography.bodySmall
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 Icon(
                     modifier = Modifier
                         .size(dislikeSize.dp)
                         .clickable {
-                            dislike()
+                            dislike(isDisliked)
                             isDisliked = !isDisliked
                             if (isLiked) isLiked = false
                         },
@@ -306,7 +315,8 @@ private fun CommentItem(commentAndUser: CommentAndUser, like: () -> Unit, dislik
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = comment.dislike.toString(), style = MaterialTheme.typography.bodySmall
+                    text = if (isDisliked) (comment.dislike + 1).toString() else comment.dislike.toString(),
+                    style = MaterialTheme.typography.bodySmall
                 )
             }
         }
@@ -349,10 +359,11 @@ private fun ShowTextField(
         TextField(
             modifier = Modifier.fillMaxWidth(), value = text, onValueChange = { text = it })
         Row(modifier = Modifier.fillMaxWidth()) {
-            Button(onClick = { publish(text) }, modifier = Modifier.weight(3f)) { Text("发布") }
+            Button(
+                onClick = { publish(text) }, modifier = Modifier.weight(3f)
+            ) { Text("发布") }
             Spacer(modifier = Modifier.width(20.dp))
             Button(onClick = { cancel() }, modifier = Modifier.weight(2f)) { Text("取消") }
         }
     }
-
 }

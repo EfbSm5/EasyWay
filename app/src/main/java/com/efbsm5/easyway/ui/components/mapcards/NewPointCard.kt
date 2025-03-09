@@ -10,6 +10,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -18,12 +19,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import coil.compose.rememberAsyncImagePainter
 import com.amap.api.maps.model.LatLng
 import com.efbsm5.easyway.data.models.EasyPoint
+import com.efbsm5.easyway.map.MapUtil
 import com.efbsm5.easyway.viewmodel.componentsViewmodel.NewPointCardViewModel
 import java.io.File
 import java.io.FileOutputStream
@@ -32,8 +35,6 @@ import java.io.FileOutputStream
 fun NewPointCard(location: LatLng?, back: (Boolean) -> Unit, viewModel: NewPointCardViewModel) {
     val context = LocalContext.current
     val newPoint by viewModel.tempPoint.collectAsState()
-    val expanded by viewModel.expanded.collectAsState()
-    val selectedOption by viewModel.selectedOption.collectAsState()
     NewPointCardSurface(
         point = newPoint,
         onInfoValueChange = { viewModel.changeTempPoint(newPoint.copy(info = it)) },
@@ -51,61 +52,58 @@ fun NewPointCard(location: LatLng?, back: (Boolean) -> Unit, viewModel: NewPoint
                 }
             }
         },
-        menuExpanded = expanded,
-        selectedOption = selectedOption,
         onSelectType = {
-            viewModel.changeType(it)
             viewModel.changeTempPoint(newPoint.copy(type = it))
         },
-        onExpanded = { viewModel.changeExpanded(it) },
-        confirm = {
-            viewModel.changeTempPoint(
-                newPoint.copy(
-                    lat = location!!.latitude, lng = location.longitude
+        callback = {
+            if (it) {
+                viewModel.changeTempPoint(
+                    newPoint.copy(
+                        lat = location!!.latitude, lng = location.longitude
+                    )
                 )
-            )
-            viewModel.publishPoint()
-            back(true)
+                viewModel.publishPoint()
+                back(true)
+            } else {
+                back(false)
+            }
         },
-        cancel = { back(false) },
         onNameValueChange = { viewModel.changeTempPoint(newPoint.copy(name = it)) },
     )
 }
 
+@Preview
+@Composable
+fun pre() {
+    NewPointCardSurface()
+}
+
 @Composable
 private fun NewPointCardSurface(
-    point: EasyPoint,
-    menuExpanded: Boolean,
-    selectedOption: String,
-    onInfoValueChange: (String) -> Unit,
-    onLocationValueChange: (String) -> Unit,
-    onNameValueChange: (String) -> Unit,
-    onUploadImage: (Uri?) -> Unit,
-    onSelectType: (String) -> Unit,
-    onExpanded: (Boolean) -> Unit,
-    confirm: () -> Unit,
-    cancel: () -> Unit
+    point: EasyPoint = MapUtil.getInitPoint(),
+    onInfoValueChange: (String) -> Unit = {},
+    onLocationValueChange: (String) -> Unit = {},
+    onNameValueChange: (String) -> Unit = {},
+    onUploadImage: (Uri?) -> Unit = {},
+    onSelectType: (String) -> Unit = {},
+    callback: (Boolean) -> Unit = {},
 ) {
     Column(
         modifier = Modifier
             .padding(16.dp)
-            .background(color = MaterialTheme.colorScheme.surface),
-        verticalArrangement = Arrangement.Bottom,
+            .background(color = MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(8.dp))
+            .padding(16.dp),
+        verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
             text = "新增标识",
-            style = TextStyle(fontSize = 20.sp),
+            style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
         Spacer(modifier = Modifier.height(16.dp))
         Column(modifier = Modifier.fillMaxWidth()) {
-            DropdownField(
-                label = "设施类别",
-                expanded = menuExpanded,
-                selectedOption = selectedOption,
-                onSelectType = { onSelectType(it) },
-                onExpanded = { onExpanded(it) })
+            DropdownField(onSelectType = { onSelectType(it) })
             Spacer(modifier = Modifier.height(16.dp))
             TextFieldWithText(
                 label = "设施名", text = point.name
@@ -125,16 +123,17 @@ private fun NewPointCardSurface(
         ) {
             Button(
                 onClick = {
-                    confirm()
-                }, colors = ButtonDefaults.buttonColors(contentColor = Color.Green)
+                    callback(true)
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
-                Text(text = "确认上传")
+                Text(text = "确认上传", color = MaterialTheme.colorScheme.onPrimary)
             }
             Button(
-                onClick = { cancel() },
-                colors = ButtonDefaults.buttonColors(contentColor = Color.Gray)
+                onClick = { callback(false) },
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
             ) {
-                Text(text = "取消")
+                Text(text = "取消", color = MaterialTheme.colorScheme.onSecondary)
             }
         }
     }
@@ -142,23 +141,25 @@ private fun NewPointCardSurface(
 
 @Composable
 private fun DropdownField(
-    label: String,
-    expanded: Boolean,
-    selectedOption: String,
     onSelectType: (String) -> Unit,
-    onExpanded: (Boolean) -> Unit
 ) {
+    var expanded by remember { mutableStateOf(false) }
+    var selectedOption by remember { mutableStateOf("") }
     Column {
-        Text(text = label, style = TextStyle(fontSize = 16.sp))
+        Text(
+            text = "设施类别",
+            style = TextStyle(fontSize = 16.sp),
+            modifier = Modifier.padding(horizontal = 16.dp)
+        )
         Box(
             modifier = Modifier
-                .fillMaxWidth()
                 .border(1.dp, Color.Gray)
                 .padding(8.dp)
-                .clickable { onExpanded(true) }) {
+                .fillMaxWidth()
+                .clickable { expanded = true }) {
             Text(text = selectedOption.ifEmpty { "请选择" })
         }
-        DropdownMenu(expanded = expanded, onDismissRequest = { onExpanded(false) }) {
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             listOf(
                 "无障碍电梯",
                 "无障碍厕所",
@@ -167,11 +168,14 @@ private fun DropdownField(
                 "轮椅租赁",
                 "爱心站点",
                 "AED",
-                "坡道"
+                "坡道",
+                "无障碍汽车",
+                "其他"
             ).forEach { option ->
                 DropdownMenuItem(onClick = {
                     onSelectType(option)
-                    onExpanded(false)
+                    expanded = false
+                    selectedOption = option
                 }, text = { Text(option) })
             }
         }
@@ -185,13 +189,11 @@ private fun TextFieldWithText(label: String, text: String, onValueChange: (Strin
             text = label,
             style = TextStyle(fontSize = 16.sp),
             modifier = Modifier
-                .width(70.dp) // 固定宽度
-                .wrapContentWidth(Alignment.CenterHorizontally) // 居中
+                .width(70.dp)
+                .wrapContentWidth(Alignment.CenterHorizontally)
         )
         TextField(
-            value = text,
-            onValueChange = { onValueChange(it) },
-            modifier = Modifier.weight(1f) // 占据剩余空间
+            value = text, onValueChange = { onValueChange(it) }, modifier = Modifier.weight(1f)
         )
     }
 }

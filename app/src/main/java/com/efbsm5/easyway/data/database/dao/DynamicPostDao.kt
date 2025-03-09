@@ -36,4 +36,5 @@ interface DynamicPostDao {
 
     @Query("SELECT * FROM dynamicposts WHERE userId = :userId")
     fun getAllDynamicPostsByUserId(userId: Int): Flow<List<DynamicPost>>
+
 }

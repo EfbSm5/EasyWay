@@ -77,9 +77,6 @@ object MapUtil {
         }
     }
 
-    fun initMapView(context: Context): MapView {
-        return MapView(context, AMapOptions().compassEnabled(true))
-    }
 
     fun getInitPoint(latLng: LatLng = LatLng(30.507950, 114.413514)): EasyPoint {
         return EasyPoint(
@@ -106,4 +103,9 @@ object MapUtil {
             avatar = null,
         )
     }
+
+    fun EasyPoint.getLatlng(): LatLng {
+        return LatLng(this.lat, this.lng)
+    }
+
 }

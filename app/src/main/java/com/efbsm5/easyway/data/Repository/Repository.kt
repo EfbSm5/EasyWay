@@ -5,7 +5,6 @@ import android.content.Context
 import android.net.Uri
 import androidx.core.net.toUri
 import com.amap.api.maps.model.LatLng
-import com.amap.api.maps.model.Marker
 import com.efbsm5.easyway.data.UserManager
 import com.efbsm5.easyway.data.models.Comment
 import com.efbsm5.easyway.data.models.DynamicPost
@@ -42,16 +41,36 @@ class DataRepository(private val context: Context) {
         return database.userDao().getUserById(userId) ?: getInitUser()
     }
 
-    fun addLike(commentId: Int) {
-        database.commentDao().increaseLikes(commentId)
+    fun addLikeForComment(commentIndex: Int) {
+        database.commentDao().increaseLikes(commentIndex)
     }
 
-    fun decreaseLike(commentId: Int) {
-        database.commentDao().decreaseLikes(commentId)
+    fun decreaseLikeForComment(commentIndex: Int) {
+        database.commentDao().decreaseLikes(commentIndex)
     }
 
-    fun addDisLike(commentId: Int) {
-        database.commentDao().increaseDislikes(commentId)
+    fun addDisLikeForComment(commentIndex: Int) {
+        database.commentDao().increaseDislikes(commentIndex)
+    }
+
+    fun decreaseDisLikeForComment(commentIndex: Int) {
+        database.commentDao().decreaseDislikes(commentIndex)
+    }
+
+    fun addLikeForPoint(pointId: Int) {
+        database.pointsDao().increaseLikes(pointId)
+    }
+
+    fun decreaseLikeForPoint(pointId: Int) {
+        database.pointsDao().decreaseLikes(pointId)
+    }
+
+    fun addDisLikeForPoint(pointId: Int) {
+        database.pointsDao().increaseDislikes(pointId)
+    }
+
+    fun decreaseDisLikeForPoint(pointId: Int) {
+        database.pointsDao().decreaseDislikes(pointId)
     }
 
     fun uploadPost(dynamicPost: DynamicPost, photos: List<Uri>) {
@@ -88,8 +107,6 @@ class DataRepository(private val context: Context) {
             commentId = commentId,
             photoId = photoId
         )
-
-
         database.dynamicPostDao().insert(post)
     }
 
@@ -103,13 +120,22 @@ class DataRepository(private val context: Context) {
     }
 
     fun uploadPoint(easyPoint: EasyPoint) {
+        var photoUri: Uri? = null
+        easyPoint.photo?.let { uri ->
+            httpClient.uploadImage(
+                context, uri,
+                callback = {
+                    photoUri = it?.toUri()
+                },
+            )
+        }
         EasyPoint(
             pointId = database.pointsDao().getCount() + 1,
             name = easyPoint.name,
             type = easyPoint.type,
             info = easyPoint.info,
             location = easyPoint.location,
-            photo = easyPoint.photo,
+            photo = photoUri,
             refreshTime = MapUtil.getCurrentFormattedTime(),
             likes = 0,
             dislikes = 0,
@@ -144,5 +170,9 @@ class DataRepository(private val context: Context) {
 
     fun getCommentCount(): Int {
         return database.commentDao().getCount()
+    }
+
+    fun getPointByName(string: String): Flow<List<EasyPoint>> {
+        return database.pointsDao().searchEasyPointsByName(string)
     }
 }

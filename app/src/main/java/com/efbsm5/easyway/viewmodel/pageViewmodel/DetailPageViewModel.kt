@@ -63,7 +63,7 @@ class DetailPageViewModel(context: Context) : ViewModel() {
 
     fun addLike(commentId: Int) {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.addLike(commentId)
+            repository.addLikeForComment(commentId)
         }
     }
 
