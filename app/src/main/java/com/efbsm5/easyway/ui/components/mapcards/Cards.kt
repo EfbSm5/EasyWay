@@ -37,12 +37,12 @@ fun MapPageCard(
             }
             CommentAndHistoryCard(
                 viewModel = commentAndHistoryCardViewModel,
-                navigate = { onNavigate(it) },
+                navigate = onNavigate,
                 changeScreen = onChangeScreen
             )
         }
 
-        Screen.IconCard -> FunctionCard(
+        Screen.Function -> FunctionCard(
             viewModel = functionCardViewModel, location = location, changeScreen = onChangeScreen,
             navigate = onNavigate,
         )
@@ -50,14 +50,15 @@ fun MapPageCard(
         is Screen.NewPoint -> NewPointCard(
             location = content.location,
             viewModel = newPointCardViewModel,
-            changeScreen = onChangeScreen
+            changeScreen = onChangeScreen,
+            label = content.label
         )
     }
 }
 
 sealed interface Screen {
-    data object IconCard : Screen
-    data class NewPoint(val location: LatLng?) : Screen
+    data object Function : Screen
+    data class NewPoint(val location: LatLng, val label: String) : Screen
     data class Comment(
         val poi: Poi?, val poiItemV2: PoiItemV2?, val easyPoint: EasyPoint?
     ) : Screen

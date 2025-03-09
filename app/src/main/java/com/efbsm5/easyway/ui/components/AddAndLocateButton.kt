@@ -11,7 +11,14 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -48,6 +55,23 @@ fun AddAndLocateButton(onAdd: () -> Unit, onLocate: () -> Unit) {
                 contentDescription = "定位",
                 tint = MaterialTheme.colorScheme.onPrimary
             )
+        }
+    }
+}
+
+@Composable
+fun TabSection(tabs: List<String>, onSelect: (Int) -> Unit) {
+    var selectedTabIndex by rememberSaveable { mutableIntStateOf(0) }
+    TabRow(selectedTabIndex = selectedTabIndex) {
+        tabs.forEachIndexed { index, title ->
+            Tab(selected = index == selectedTabIndex, onClick = {
+                onSelect(index)
+                selectedTabIndex = index
+            }) {
+                Text(
+                    text = title, modifier = Modifier.padding(16.dp)
+                )
+            }
         }
     }
 }

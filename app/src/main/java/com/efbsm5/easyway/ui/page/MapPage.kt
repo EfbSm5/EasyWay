@@ -51,7 +51,13 @@ fun MapPage(viewModel: MapPageViewModel, mapView: MapView) {
         location = location,
         navigate = { viewModel.navigate(context, it, mapView) },
         sheetState = sheetState,
-        onAdd = { viewModel.changeScreen(Screen.NewPoint(location)) },
+        onAdd = {
+            viewModel.changeScreen(
+                Screen.NewPoint(
+                    label = "新增点位", location = location
+                )
+            )
+        },
     )
 }
 
@@ -89,5 +95,5 @@ private fun MapScreen(
             )
         }
     }
-    BackHandler(enabled = state != Screen.IconCard, onBack = { onChangeScreen(Screen.IconCard) })
+    BackHandler(enabled = state != Screen.Function, onBack = { onChangeScreen(Screen.Function) })
 }

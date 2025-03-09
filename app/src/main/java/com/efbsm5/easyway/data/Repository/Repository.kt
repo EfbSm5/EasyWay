@@ -105,7 +105,8 @@ class DataRepository(private val context: Context) {
             position = dynamicPost.position,
             userId = userManager.userId,
             commentId = commentId,
-            photoId = photoId
+            photoId = photoId,
+            type = TODO()
         )
         database.dynamicPostDao().insert(post)
     }

@@ -32,7 +32,7 @@ import com.amap.api.maps.model.LatLng
 import com.efbsm5.easyway.data.models.assistModel.CommentAndUser
 import com.efbsm5.easyway.map.MapUtil
 import com.efbsm5.easyway.map.MapUtil.getLatlng
-import com.efbsm5.easyway.ui.page.communityPage.TabSection
+import com.efbsm5.easyway.ui.components.TabSection
 import com.efbsm5.easyway.viewmodel.componentsViewmodel.CommentAndHistoryCardViewModel
 import com.efbsm5.easyway.viewmodel.componentsViewmodel.CommentCardScreen
 
@@ -61,7 +61,7 @@ fun CommentAndHistoryCard(
         update = {
             changeScreen(
                 Screen.NewPoint(
-                    location = point.getLatlng()
+                    label = "更新点位", location = point.getLatlng()
                 )
             )
         },
@@ -108,7 +108,10 @@ private fun CommentAndHistoryCardScreen(
     ) {
         PointInfo(easyPoint = point, onNavigate = navigate, like = like, dislike = dislike)
         Spacer(modifier = Modifier.height(16.dp))
-        Select(onSelect)
+        TabSection(
+            onSelect = onSelect,
+            tabs = listOf("评论", "历史"),
+        )
         when (state) {
             CommentCardScreen.Comment -> CommentCard(
                 pointComments, like = likeComment, dislike = dislikeComment
@@ -214,20 +217,6 @@ fun PointInfo(
     }
 }
 
-@Composable
-private fun Select(onClick: (Int) -> Unit) {
-    var selectedIndex by remember { mutableIntStateOf(0) }
-    TabSection(
-        selectedTabIndex = selectedIndex,
-        tabs = listOf("评论", "历史"),
-        onSelect = {
-            selectedIndex = it
-            it.let(
-                onClick
-            )
-        },
-    )
-}
 
 @Composable
 private fun CommentCard(

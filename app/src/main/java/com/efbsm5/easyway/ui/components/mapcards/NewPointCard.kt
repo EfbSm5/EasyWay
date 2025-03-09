@@ -19,7 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
@@ -35,11 +34,13 @@ import java.io.FileOutputStream
 fun NewPointCard(
     location: LatLng?,
     changeScreen: (Screen) -> Unit,
-    viewModel: NewPointCardViewModel
+    viewModel: NewPointCardViewModel,
+    label: String
 ) {
     val context = LocalContext.current
     val newPoint by viewModel.tempPoint.collectAsState()
     NewPointCardSurface(
+        label = label,
         point = newPoint,
         onInfoValueChange = { viewModel.changeTempPoint(newPoint.copy(info = it)) },
         onLocationValueChange = { viewModel.changeTempPoint(newPoint.copy(location = it)) },
@@ -67,23 +68,18 @@ fun NewPointCard(
                     )
                 )
                 viewModel.publishPoint()
-                changeScreen(Screen.IconCard)
+                changeScreen(Screen.Function)
             } else {
-                changeScreen(Screen.IconCard)
+                changeScreen(Screen.Function)
             }
         },
         onNameValueChange = { viewModel.changeTempPoint(newPoint.copy(name = it)) },
     )
 }
 
-@Preview
-@Composable
-fun pre() {
-    NewPointCardSurface()
-}
-
 @Composable
 private fun NewPointCardSurface(
+    label: String,
     point: EasyPoint = MapUtil.getInitPoint(),
     onInfoValueChange: (String) -> Unit = {},
     onLocationValueChange: (String) -> Unit = {},
@@ -101,7 +97,7 @@ private fun NewPointCardSurface(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "新增标识",
+            text = label,
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )

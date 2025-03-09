@@ -57,7 +57,7 @@ import com.efbsm5.easyway.map.MapUtil.calculateDistance
 import com.efbsm5.easyway.map.MapUtil.convertToLatLng
 import com.efbsm5.easyway.map.MapUtil.formatDistance
 import com.efbsm5.easyway.map.MapUtil.getLatlng
-import com.efbsm5.easyway.ui.page.communityPage.TabSection
+import com.efbsm5.easyway.ui.components.TabSection
 import com.efbsm5.easyway.viewmodel.componentsViewmodel.FunctionCardViewModel
 
 @Composable
@@ -222,7 +222,6 @@ fun SearchPart(
         item {
             TabSection(
                 tabs = listOf("无障碍地点", "全部地点"),
-                selectedTabIndex = selectedTabIndex,
                 onSelect = {
                     selectedTabIndex = it
                 })

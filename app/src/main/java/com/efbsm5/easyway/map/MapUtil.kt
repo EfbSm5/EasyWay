@@ -18,6 +18,7 @@ import com.amap.api.maps.MapView
 import com.amap.api.maps.model.BitmapDescriptorFactory
 import com.amap.api.maps.model.MarkerOptions
 import com.amap.api.maps.model.MyLocationStyle
+import com.efbsm5.easyway.data.models.DynamicPost
 import com.efbsm5.easyway.data.models.EasyPoint
 import com.efbsm5.easyway.data.models.User
 import com.efbsm5.easyway.data.models.assistModel.EasyPointSimplify
@@ -101,6 +102,23 @@ object MapUtil {
             id = 0,
             name = "用户不存在",
             avatar = null,
+        )
+    }
+
+    fun getInitPost(): DynamicPost {
+        return DynamicPost(
+            title = "",
+            date = "",
+            like = 0,
+            content = "",
+            lat = 30.5155,
+            lng = 114.4268,
+            position = "",
+            userId = 1,
+            commentId = 1,
+            id = 1,
+            photoId = 1,
+            type = 1
         )
     }
 

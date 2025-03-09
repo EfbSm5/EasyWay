@@ -23,7 +23,7 @@ import kotlinx.coroutines.launch
 class MapPageViewModel(context: Context) : ViewModel() {
     private val repository = DataRepository(context)
     private val locationController = LocationController(context)
-    private val _state = MutableStateFlow<Screen>(Screen.IconCard)
+    private val _state = MutableStateFlow<Screen>(Screen.Function)
     val location = locationController.location
     val state: StateFlow<Screen> = _state
     val onMarkerClick = AMap.OnMarkerClickListener {

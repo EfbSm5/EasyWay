@@ -1,10 +1,12 @@
 package com.efbsm5.easyway.viewmodel.pageViewmodel
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.efbsm5.easyway.data.Repository.DataRepository
 import com.efbsm5.easyway.data.models.assistModel.DynamicPostAndUser
+import com.efbsm5.easyway.data.models.assistModel.PostType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,11 +15,9 @@ import kotlinx.coroutines.launch
 class ShowPageViewModel(context: Context) : ViewModel() {
     private val repository = DataRepository(context)
     private var _posts = MutableStateFlow<List<DynamicPostAndUser>>(emptyList())
+    private var _showPosts = MutableStateFlow<List<DynamicPostAndUser>>(emptyList())
     private val _selectedTab = MutableStateFlow(0)
-    private val _text = MutableStateFlow("")
-    val text: StateFlow<String> = _text
-    val selectedTab: StateFlow<Int> = _selectedTab
-    val posts: StateFlow<List<DynamicPostAndUser>> = _posts
+    val posts: StateFlow<List<DynamicPostAndUser>> = _showPosts
 
     init {
         fetchPosts()
@@ -39,6 +39,7 @@ class ShowPageViewModel(context: Context) : ViewModel() {
                             )
                         )
                         _posts.value = list.toList()
+                        _showPosts.value = list.toList()
                     }
                 }
             }
@@ -47,10 +48,20 @@ class ShowPageViewModel(context: Context) : ViewModel() {
 
     fun changeTab(int: Int) {
         _selectedTab.value = int
+        if (int != PostType.ALL) {
+            Log.e("", "changeTab: $int")
+            _showPosts.value = _posts.value.filter {
+                it.dynamicPost.type == int
+            }
+        } else {
+            _showPosts.value = _posts.value
+        }
     }
 
-    fun changeText(string: String) {
-        _text.value = string
+    fun search(string: String) {
+        _showPosts.value = _posts.value.filter {
+            it.dynamicPost.title.contains(string)
+        }
     }
 }
 

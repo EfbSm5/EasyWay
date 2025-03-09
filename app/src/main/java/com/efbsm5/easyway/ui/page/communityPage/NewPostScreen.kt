@@ -40,7 +40,7 @@ import com.efbsm5.easyway.viewmodel.pageViewmodel.NewPostPageViewModel
 fun NewDynamicPostPage(navigate: () -> Unit, viewModel: NewPostPageViewModel) {
     val newPost by viewModel.newPost.collectAsState()
     val selectedButton by viewModel.selectedButton.collectAsState()
-    val photos by viewModel.choosedPhotos.collectAsState()
+    val photos by viewModel.chosenPhotos.collectAsState()
     DynamicPostScreen(
         dynamicPost = newPost,
         selectedButton = selectedButton,
