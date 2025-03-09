@@ -1,21 +1,20 @@
 package com.efbsm5.easyway.ui.page
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -42,23 +41,25 @@ fun MapPage(viewModel: MapPageViewModel, mapView: MapView) {
         bottomSheetState = rememberStandardBottomSheetState(initialValue = SheetValue.PartiallyExpanded)
     )
     val scope = rememberCoroutineScope()
+    LaunchedEffect(state) {
+        if (state != Screen.Function) scope.launch { sheetState.bottomSheetState.expand() }
+    }
     MapScreen(
         state = state,
-        onChangeScreen = {
-            viewModel.changeScreen(it)
-            scope.launch { sheetState.bottomSheetState.expand() }
-        },
+        onChangeScreen = { viewModel.changeScreen(it) },
         location = location,
         navigate = { viewModel.navigate(context, it, mapView) },
         sheetState = sheetState,
         onAdd = {
             viewModel.changeScreen(
-                Screen.NewPoint(
-                    label = "新增点位", location = location
-                )
+                Screen.NewPoint(label = "新增点位", location = location)
             )
         },
     )
+    BackHandler(
+        enabled = sheetState.bottomSheetState.currentValue == SheetValue.Expanded, onBack = {
+            scope.launch { sheetState.bottomSheetState.partialExpand() }
+        })
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -79,19 +80,15 @@ private fun MapScreen(
             onNavigate = navigate
         )
     }, scaffoldState = sheetState, sheetPeekHeight = 128.dp) {
-        FloatingActionButton(
-            onClick = onAdd,
-            modifier = Modifier
-                .padding(bottom = 16.dp)
-                .clip(RoundedCornerShape(16.dp))
-                .alpha(0.3f),
-            containerColor = MaterialTheme.colorScheme.primary,
-            shape = CircleShape
+        IconButton(
+            onClick = onAdd, modifier = Modifier
+                .size(50.dp)
+                .alpha(0.7f)
+                .clip(RoundedCornerShape(11))
         ) {
             Icon(
                 imageVector = Icons.Default.Add,
                 contentDescription = "新加无障碍点",
-                tint = MaterialTheme.colorScheme.onPrimary
             )
         }
     }
