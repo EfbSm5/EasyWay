@@ -1,6 +1,5 @@
 package com.efbsm5.easyway.ui.components.mapcards
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -29,17 +28,18 @@ fun MapPageCard(
         viewModel<FunctionCardViewModel>(factory = ViewModelFactory(context))
     when (content) {
         is Screen.Comment -> {
-            if (content.latLng != null) {
-                commentAndHistoryCardViewModel.getPoint(content.latLng)
-            } else if (content.poi != null) {
+            if (content.poi != null) {
                 commentAndHistoryCardViewModel.addPoi(content.poi)
             } else if (content.poiItemV2 != null) {
                 commentAndHistoryCardViewModel.addPoiItem(content.poiItemV2)
-            } else if(content.easyPoint != null) {
+            } else if (content.easyPoint != null) {
                 commentAndHistoryCardViewModel.addEasyPoint(content.easyPoint)
             }
             CommentAndHistoryCard(
-                viewModel = commentAndHistoryCardViewModel, navigate = { onNavigate(it) })
+                viewModel = commentAndHistoryCardViewModel,
+                navigate = { onNavigate(it) },
+                changeScreen = onChangeScreen
+            )
         }
 
         Screen.IconCard -> FunctionCard(
@@ -48,9 +48,9 @@ fun MapPageCard(
         )
 
         is Screen.NewPoint -> NewPointCard(
-            content.location,
-            back = { onChangeScreen(Screen.IconCard) },
-            viewModel = newPointCardViewModel
+            location = content.location,
+            viewModel = newPointCardViewModel,
+            changeScreen = onChangeScreen
         )
     }
 }
@@ -59,6 +59,6 @@ sealed interface Screen {
     data object IconCard : Screen
     data class NewPoint(val location: LatLng?) : Screen
     data class Comment(
-        val latLng: LatLng?, val poi: Poi?, val poiItemV2: PoiItemV2?, val easyPoint: EasyPoint?
+        val poi: Poi?, val poiItemV2: PoiItemV2?, val easyPoint: EasyPoint?
     ) : Screen
 }

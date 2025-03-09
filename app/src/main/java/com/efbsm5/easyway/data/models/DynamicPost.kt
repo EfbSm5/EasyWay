@@ -9,6 +9,7 @@ import com.google.gson.annotations.SerializedName
 data class DynamicPost(
     @PrimaryKey @SerializedName("id") var id: Int,
     @SerializedName("title") var title: String,
+    @SerializedName("type") var type: Int,
     @SerializedName("date") var date: String,
     @SerializedName("like") var like: Int,
     @SerializedName("content") var content: String,

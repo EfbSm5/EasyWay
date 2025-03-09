@@ -32,7 +32,11 @@ import java.io.File
 import java.io.FileOutputStream
 
 @Composable
-fun NewPointCard(location: LatLng?, back: (Boolean) -> Unit, viewModel: NewPointCardViewModel) {
+fun NewPointCard(
+    location: LatLng?,
+    changeScreen: (Screen) -> Unit,
+    viewModel: NewPointCardViewModel
+) {
     val context = LocalContext.current
     val newPoint by viewModel.tempPoint.collectAsState()
     NewPointCardSurface(
@@ -63,9 +67,9 @@ fun NewPointCard(location: LatLng?, back: (Boolean) -> Unit, viewModel: NewPoint
                     )
                 )
                 viewModel.publishPoint()
-                back(true)
+                changeScreen(Screen.IconCard)
             } else {
-                back(false)
+                changeScreen(Screen.IconCard)
             }
         },
         onNameValueChange = { viewModel.changeTempPoint(newPoint.copy(name = it)) },

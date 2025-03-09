@@ -1,30 +1,22 @@
 package com.efbsm5.easyway.viewmodel.pageViewmodel
 
 import android.content.Context
-import android.os.Bundle
-import androidx.lifecycle.VIEW_MODEL_STORE_OWNER_KEY
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.amap.api.maps.AMap
 import com.amap.api.maps.CameraUpdateFactory
 import com.amap.api.maps.MapView
 import com.amap.api.maps.model.BitmapDescriptorFactory
 import com.amap.api.maps.model.LatLng
-import com.amap.api.maps.model.Marker
 import com.amap.api.maps.model.MarkerOptions
-import com.amap.api.maps.model.Poi
-import com.amap.api.services.core.PoiItemV2
 import com.efbsm5.easyway.data.Repository.DataRepository
-import com.efbsm5.easyway.data.models.EasyPoint
-import com.efbsm5.easyway.data.models.assistModel.EasyPointSimplify
 import com.efbsm5.easyway.map.LocationController
 import com.efbsm5.easyway.map.MapRouteSearchUtil
 import com.efbsm5.easyway.map.MapUtil
 import com.efbsm5.easyway.ui.components.mapcards.Screen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 
@@ -34,6 +26,28 @@ class MapPageViewModel(context: Context) : ViewModel() {
     private val _state = MutableStateFlow<Screen>(Screen.IconCard)
     val location = locationController.location
     val state: StateFlow<Screen> = _state
+    val onMarkerClick = AMap.OnMarkerClickListener {
+        viewModelScope.launch(Dispatchers.IO) {
+            changeScreen(
+                Screen.Comment(
+                    poi = null,
+                    poiItemV2 = null,
+                    easyPoint = repository.getPointFromLatlng(it.position)
+                )
+            )
+        }
+        true
+    }
+    val onPoiClick = AMap.OnPOIClickListener {
+        changeScreen(
+            Screen.Comment(
+                poi = it, poiItemV2 = null, easyPoint = null
+            )
+        )
+    }
+    val onMapClick = AMap.OnMapClickListener {
+
+    }
 
     fun drawPointsAndInitLocation(mapView: MapView) {
         locationController.mapLocationInit(mapView)

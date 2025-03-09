@@ -1,6 +1,7 @@
 package com.efbsm5.easyway.viewmodel.componentsViewmodel
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.amap.api.maps.model.LatLng
@@ -26,6 +27,7 @@ class FunctionCardViewModel(context: Context) : ViewModel() {
     fun search(string: String) {
         viewModelScope.launch(Dispatchers.IO) {
             searchUtil.searchForPoi(string)
+            Log.e("search", "search:    ${_poiList.value.toString()} ")
             repository.getPointByName(string).collect {
                 _points.value = it
             }

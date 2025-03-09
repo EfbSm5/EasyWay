@@ -31,6 +31,7 @@ import androidx.compose.ui.res.painterResource
 import com.amap.api.maps.model.LatLng
 import com.efbsm5.easyway.data.models.assistModel.CommentAndUser
 import com.efbsm5.easyway.map.MapUtil
+import com.efbsm5.easyway.map.MapUtil.getLatlng
 import com.efbsm5.easyway.ui.page.communityPage.TabSection
 import com.efbsm5.easyway.viewmodel.componentsViewmodel.CommentAndHistoryCardViewModel
 import com.efbsm5.easyway.viewmodel.componentsViewmodel.CommentCardScreen
@@ -38,7 +39,9 @@ import com.efbsm5.easyway.viewmodel.componentsViewmodel.CommentCardScreen
 
 @Composable
 fun CommentAndHistoryCard(
-    viewModel: CommentAndHistoryCardViewModel, navigate: (LatLng) -> Unit
+    viewModel: CommentAndHistoryCardViewModel,
+    navigate: (LatLng) -> Unit,
+    changeScreen: (Screen) -> Unit
 ) {
     val state by viewModel.state.collectAsState()
     val pointComment by viewModel.pointComments.collectAsState()
@@ -46,11 +49,22 @@ fun CommentAndHistoryCard(
     val context = LocalContext.current
     CommentAndHistoryCardScreen(
         point = point,
-        onSelect = { viewModel.changeState(it) },
+        onSelect = {
+            viewModel.changeState(
+                if (it == 0) CommentCardScreen.Comment
+                else CommentCardScreen.History
+            )
+        },
         state = state,
         pointComments = pointComment,
         publish = { viewModel.publish(it) },
-        update = { viewModel.refresh() },
+        update = {
+            changeScreen(
+                Screen.NewPoint(
+                    location = point.getLatlng()
+                )
+            )
+        },
         navigate = {
             if (point.pointId != 0) {
                 navigate(LatLng(point.lat, point.lng))
@@ -101,7 +115,6 @@ private fun CommentAndHistoryCardScreen(
             )
 
             CommentCardScreen.History -> HistoryCard()
-            CommentCardScreen.Update -> UpdateCard()
         }
         if (comment) {
             ShowTextField(publish = {
@@ -128,7 +141,7 @@ fun PointInfo(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .height(200.dp),
+            .height(430.dp),
         horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.Top,
     ) {
@@ -158,9 +171,9 @@ fun PointInfo(
                 modifier = Modifier
                     .size(likeSize.dp)
                     .clickable {
-                        like(isLiked)
                         isLiked = !isLiked
                         if (isDisliked) isDisliked = false
+                        like(isLiked)
                     },
                 tint = likeColor
             )
@@ -170,9 +183,9 @@ fun PointInfo(
                 modifier = Modifier
                     .size(dislikeSize.dp)
                     .clickable {
-                        dislike(isDisliked)
                         isDisliked = !isDisliked
                         if (isLiked) isLiked = false
+                        dislike(isDisliked)
                     },
                 painter = painterResource(id = R.drawable.thumb_down),
                 contentDescription = "Dislike",

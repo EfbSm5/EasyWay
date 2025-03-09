@@ -100,14 +100,17 @@ private fun FunctionCardScreen(
             .fillMaxWidth()
             .padding(16.dp)
     ) {
-        SearchBar(onClick = onclick)
+        SearchBar(onClick = {
+            onclick(it)
+            isSearching = true
+        })
         Spacer(Modifier.height(10.dp))
         if (isSearching) {
             SearchPart(
                 poiItemV2s = poiItemV2s,
                 easyPoints = easyPoints,
-                onPoiItemV2Selected = { changeScreen(Screen.Comment(null, null, it, null)) },
-                onPointSelected = { changeScreen(Screen.Comment(null, null, null, it)) },
+                onPoiItemV2Selected = { changeScreen(Screen.Comment( null, it, null)) },
+                onPointSelected = { changeScreen(Screen.Comment(null, null, it)) },
                 location = location,
                 navigate = {
                     isShowDialog = true

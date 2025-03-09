@@ -4,14 +4,12 @@ import android.content.Context
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.amap.api.maps.model.LatLng
 import com.amap.api.maps.model.Poi
 import com.amap.api.services.core.PoiItemV2
 import com.efbsm5.easyway.data.UserManager
 import com.efbsm5.easyway.data.models.EasyPoint
 import com.efbsm5.easyway.data.Repository.DataRepository
 import com.efbsm5.easyway.data.models.Comment
-import com.efbsm5.easyway.data.models.User
 import com.efbsm5.easyway.data.models.assistModel.CommentAndUser
 import com.efbsm5.easyway.map.MapUtil
 import kotlinx.coroutines.Dispatchers
@@ -30,29 +28,9 @@ class CommentAndHistoryCardViewModel(context: Context) : ViewModel() {
     val state: StateFlow<CommentCardScreen> = _state
     val pointComments: StateFlow<List<CommentAndUser>> = _pointComments
 
-    fun getPoint(latLng: LatLng) {
-        viewModelScope.launch(Dispatchers.IO) {
-            _point.value = repository.getPointFromLatlng(latLng)
-            repository.getAllCommentsById(_point.value.commentId).collect { comments ->
-                val commentsAndUser = emptyList<CommentAndUser>().toMutableList()
-                comments.forEach {
-                    commentsAndUser.add(
-                        CommentAndUser(
-                            repository.getUserById(it.userId), it
-                        )
-                    )
-                }
-                _pointComments.value = commentsAndUser
-            }
-        }
+    fun changeState(commentCardScreen: CommentCardScreen) {
+        _state.value = commentCardScreen
     }
-
-    fun changeState(commentCardScreen: Int) {
-        if (commentCardScreen == 0) _state.value = CommentCardScreen.Comment
-        else _state.value = CommentCardScreen.History
-    }
-
-
     fun publish(string: String) {
         viewModelScope.launch(Dispatchers.IO) {
             val comment = Comment(
@@ -115,21 +93,6 @@ class CommentAndHistoryCardViewModel(context: Context) : ViewModel() {
         _point.value = easyPoint
     }
 
-    fun refresh() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val commentsAndUser = emptyList<CommentAndUser>().toMutableList()
-            repository.getAllCommentsById(_point.value.commentId).collect { comments ->
-                comments.forEach {
-                    commentsAndUser.add(
-                        CommentAndUser(
-                            repository.getUserById(it.userId), it
-                        )
-                    )
-                }
-            }
-        }
-    }
-
     fun likePost(boolean: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
             if (boolean) {
@@ -190,5 +153,4 @@ class CommentAndHistoryCardViewModel(context: Context) : ViewModel() {
 sealed interface CommentCardScreen {
     data object Comment : CommentCardScreen
     data object History : CommentCardScreen
-    data object Update : CommentCardScreen
 }

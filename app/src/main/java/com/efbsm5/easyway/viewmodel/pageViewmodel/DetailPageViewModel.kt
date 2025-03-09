@@ -11,6 +11,7 @@ import com.efbsm5.easyway.data.Repository.DataRepository
 import com.efbsm5.easyway.data.models.Comment
 import com.efbsm5.easyway.data.models.assistModel.CommentAndUser
 import com.efbsm5.easyway.map.MapUtil
+import com.efbsm5.easyway.map.MapUtil.getInitUser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,11 +22,7 @@ class DetailPageViewModel(context: Context) : ViewModel() {
     private val _dynamicPost = MutableStateFlow<DynamicPost?>(null)
     private var _newCommentText = MutableStateFlow("")
     private var _showTextField = MutableStateFlow(false)
-    private var _postUser = MutableStateFlow(
-        User(
-            id = 0, name = "test", avatar = null
-        )
-    )
+    private var _postUser = MutableStateFlow(getInitUser())
     private val _commentAndUsers = MutableStateFlow(emptyList<CommentAndUser>().toMutableList())
     private val _photos = MutableStateFlow(emptyList<Uri>().toMutableList())
     private val userManager = UserManager(context)
@@ -86,7 +83,7 @@ class DetailPageViewModel(context: Context) : ViewModel() {
                 dislike = 0,
                 date = MapUtil.getCurrentFormattedTime()
             )
-//            repository.uploadComment(comment)
+            repository.uploadComment(comment)
             _commentAndUsers.value.add(
                 CommentAndUser(
                     user = repository.getUserById(userManager.userId), comment = comment

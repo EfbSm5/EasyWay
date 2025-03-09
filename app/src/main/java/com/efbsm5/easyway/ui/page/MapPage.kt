@@ -3,6 +3,7 @@ package com.efbsm5.easyway.ui.page
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.BottomSheetScaffold
@@ -19,6 +20,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.amap.api.maps.MapView
@@ -48,9 +51,7 @@ fun MapPage(viewModel: MapPageViewModel, mapView: MapView) {
         location = location,
         navigate = { viewModel.navigate(context, it, mapView) },
         sheetState = sheetState,
-        onAdd = {
-            viewModel.changeScreen(Screen.NewPoint(location))
-        },
+        onAdd = { viewModel.changeScreen(Screen.NewPoint(location)) },
     )
 }
 
@@ -73,10 +74,11 @@ private fun MapScreen(
         )
     }, scaffoldState = sheetState, sheetPeekHeight = 128.dp) {
         FloatingActionButton(
-            onClick = {
-                onAdd()
-            },
-            modifier = Modifier.padding(bottom = 16.dp),
+            onClick = onAdd,
+            modifier = Modifier
+                .padding(bottom = 16.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .alpha(0.3f),
             containerColor = MaterialTheme.colorScheme.primary,
             shape = CircleShape
         ) {

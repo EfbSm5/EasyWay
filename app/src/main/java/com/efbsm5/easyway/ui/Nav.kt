@@ -57,11 +57,7 @@ import com.amap.api.maps.AMap.MAP_TYPE_NIGHT
 import com.amap.api.maps.AMap.MAP_TYPE_NORMAL
 import com.amap.api.maps.AMapOptions
 import com.amap.api.maps.MapView
-import com.amap.api.maps.model.LatLng
-import com.amap.api.maps.model.Marker
 import com.amap.api.maps.model.MyLocationStyle
-import com.amap.api.maps.model.Poi
-import com.efbsm5.easyway.ui.components.mapcards.Screen
 import com.efbsm5.easyway.ui.page.communityPage.CommunityPage
 import com.efbsm5.easyway.ui.page.homepage.HomePage
 import com.efbsm5.easyway.ui.page.MapPage
@@ -85,27 +81,6 @@ fun EasyWay() {
         mapPageViewModel = mapPageViewModel,
         homePageViewModel = homePageViewModel,
         mapView = mapView,
-        onMapClick = {
-            mapPageViewModel.changeScreen(
-                Screen.Comment(
-                    latLng = it, poi = null, poiItemV2 = null, easyPoint = null
-                )
-            )
-        },
-        onPoiClick = {
-            mapPageViewModel.changeScreen(
-                Screen.Comment(
-                    latLng = null, poi = it, poiItemV2 = null, easyPoint = null
-                )
-            )
-        },
-        onMarkerClick = {
-            mapPageViewModel.changeScreen(
-                Screen.Comment(
-                    latLng = it.position, poi = null, poiItemV2 = null, easyPoint = null
-                )
-            )
-        },
     )
 }
 
@@ -115,9 +90,6 @@ fun AppSurface(
     mapPageViewModel: MapPageViewModel,
     homePageViewModel: HomePageViewModel,
     mapView: MapView,
-    onMapClick: (LatLng) -> Unit,
-    onPoiClick: (Poi) -> Unit,
-    onMarkerClick: (Marker) -> Unit,
 ) {
     Scaffold(bottomBar = { HighlightButton(navController = navController) }) { innerPadding ->
         Box(
@@ -148,9 +120,9 @@ fun AppSurface(
     }
     MapLifecycle(
         mapView = mapView,
-        onPoiClick = onPoiClick,
-        onMapClick = onMapClick,
-        onMarkerClick = onMarkerClick,
+        onPoiClick = mapPageViewModel.onPoiClick,
+        onMapClick = mapPageViewModel.onMapClick,
+        onMarkerClick = mapPageViewModel.onMarkerClick,
     )
 }
 
@@ -219,17 +191,10 @@ private fun HighlightButton(navController: NavController) {
 @Composable
 fun MapLifecycle(
     mapView: MapView,
-    onMapClick: (LatLng) -> Unit,
-    onPoiClick: (Poi) -> Unit,
-    onMarkerClick: (Marker) -> Unit,
+    onMapClick: AMap.OnMapClickListener,
+    onPoiClick: AMap.OnPOIClickListener,
+    onMarkerClick: AMap.OnMarkerClickListener
 ) {
-    val onMapClickListener = AMap.OnMapClickListener { onMapClick(it) }
-    val onMarkerClickListener = AMap.OnMarkerClickListener {
-        onMarkerClick(it)
-        true
-    }
-    val onPoiClickListener = AMap.OnPOIClickListener { onPoiClick(it) }
-
     val context = LocalContext.current
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     DisposableEffect(context, lifecycle, mapView) {
@@ -244,15 +209,15 @@ fun MapLifecycle(
                     isMyLocationButtonEnabled = true
                     zoomPosition = AMapOptions.ZOOM_POSITION_RIGHT_CENTER
                 }
-                setOnMapClickListener(onMapClickListener)
-                setOnPOIClickListener(onPoiClickListener)
-                setOnMarkerClickListener(onMarkerClickListener)
+                setOnMapClickListener(onMapClick)
+                setOnPOIClickListener(onPoiClick)
+                setOnMarkerClickListener(onMarkerClick)
             }
         }, onPause = {
             mapView.map.apply {
-                removeOnMapClickListener(onMapClickListener)
-                removeOnPOIClickListener(onPoiClickListener)
-                removeOnMarkerClickListener(onMarkerClickListener)
+                removeOnMapClickListener(onMapClick)
+                removeOnPOIClickListener(onPoiClick)
+                removeOnMarkerClickListener(onMarkerClick)
             }
         })
         val callbacks = mapView.componentCallbacks()
