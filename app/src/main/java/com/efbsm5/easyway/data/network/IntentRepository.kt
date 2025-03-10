@@ -12,7 +12,7 @@ class IntentRepository(val context: Context) {
     private val userDao = db.userDao()
     private val dynamicPostDao = db.dynamicPostDao()
     private val pointsDao = db.pointsDao()
-    private val httpClient = HttpClient(UrlForDatabase.BASE_URL)
+    private val httpClient = HttpClient()
 
     fun syncData() {
         syncUsers()
@@ -79,5 +79,6 @@ class IntentRepository(val context: Context) {
             }
         }
     }
+
 
 }

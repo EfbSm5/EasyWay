@@ -23,7 +23,7 @@ import kotlinx.coroutines.flow.Flow
 class DataRepository(private val context: Context) {
     private val database = AppDataBase.getDatabase(context)
     private val userManager = UserManager(context)
-    private val httpClient = HttpClient(UrlForDatabase.BASE_URL)
+    private val httpClient = HttpClient()
 
     fun getAllPoints(): Flow<List<EasyPointSimplify>> {
         return database.pointsDao().loadAllPoints()

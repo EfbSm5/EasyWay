@@ -1,7 +1,10 @@
 package com.efbsm5.easyway
 
 import android.Manifest
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -9,6 +12,15 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
@@ -18,9 +30,12 @@ import com.efbsm5.easyway.ui.theme.EasyWayTheme
 import com.amap.api.maps.MapsInitializer
 import com.amap.apis.utils.core.api.AMapUtilCoreApi
 import com.efbsm5.easyway.data.UserManager
+import com.efbsm5.easyway.data.models.assistModel.UpdateInfo
+import com.efbsm5.easyway.data.network.HttpClient
 import com.efbsm5.easyway.data.network.SyncWorker
 import com.efbsm5.easyway.ui.EasyWay
 import java.util.concurrent.TimeUnit
+import androidx.core.net.toUri
 
 class MainActivity : ComponentActivity() {
     private val tag = "MainActivity"
