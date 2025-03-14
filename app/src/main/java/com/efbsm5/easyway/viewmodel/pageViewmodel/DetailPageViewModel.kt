@@ -20,17 +20,13 @@ import kotlinx.coroutines.launch
 class DetailPageViewModel(context: Context) : ViewModel() {
     private val repository = DataRepository(context)
     private val _dynamicPost = MutableStateFlow<DynamicPost?>(null)
-    private var _newCommentText = MutableStateFlow("")
-    private var _showTextField = MutableStateFlow(false)
     private var _postUser = MutableStateFlow(getInitUser())
     private val _commentAndUsers = MutableStateFlow(emptyList<CommentAndUser>().toMutableList())
     private val _photos = MutableStateFlow(emptyList<Uri>().toMutableList())
     private val userManager = UserManager(context)
-    val newCommentText: StateFlow<String> = _newCommentText
-    val showTextField: StateFlow<Boolean> = _showTextField
     val postUser: StateFlow<User> = _postUser
-    val commentAndUser: StateFlow<List<CommentAndUser>> = _commentAndUsers
-    val photos: StateFlow<List<Uri>> = _photos
+    val commentAndUser: StateFlow<MutableList<CommentAndUser>> = _commentAndUsers
+    val photos: StateFlow<MutableList<Uri>> = _photos
     val post: StateFlow<DynamicPost?> = _dynamicPost
 
     fun getPost(dynamicPost: DynamicPost) {
@@ -51,34 +47,53 @@ class DetailPageViewModel(context: Context) : ViewModel() {
                             )
                         )
                     }
-                    val photos = repository.getAllPhotosById(_dynamicPost.value!!.photoId)
-                    photos.forEach { _photos.value.add(it.uri) }
+                    repository.getAllPhotosById(_dynamicPost.value!!.photoId).forEach {
+                        _photos.value = _photos.value.add(it.uri)
+                    }
                 }
 
         }
     }
 
-    fun addLike(commentId: Int) {
+    fun likeComment(boolean: Boolean, commentIndex: Int) {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.addLikeForComment(commentId)
+            if (boolean) {
+                _commentAndUsers.value.find { commentAndUser ->
+                    commentAndUser.comment.index == commentIndex
+                }!!.comment.like + 1
+                repository.addLikeForComment(commentIndex)
+            } else {
+                _commentAndUsers.value.find { commentAndUser ->
+                    commentAndUser.comment.index == commentIndex
+                }!!.comment.like - 1
+                repository.decreaseLikeForComment(commentIndex)
+            }
         }
     }
 
-    fun changeText(text: String) {
-        _newCommentText.value = text
+    fun dislikeComment(commentIndex: Int, boolean: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (boolean) {
+                _commentAndUsers.value.find { commentAndUser ->
+                    commentAndUser.comment.index == commentIndex
+                }!!.comment.dislike + 1
+                repository.addDisLikeForComment(commentIndex)
+            } else {
+                _commentAndUsers.value.find { commentAndUser ->
+                    commentAndUser.comment.index == commentIndex
+                }!!.comment.dislike - 1
+                repository.decreaseDisLikeForComment(commentIndex)
+            }
+        }
     }
 
-    fun ifShowTextField(boolean: Boolean) {
-        _showTextField.value = boolean
-    }
-
-    fun comment() {
+    fun comment(string: String) {
         viewModelScope.launch(Dispatchers.IO) {
             val comment = Comment(
-                index = repository.getCommentCount(),
+                index = repository.getCommentCount() + 1,
                 commentId = _dynamicPost.value!!.commentId,
                 userId = userManager.userId,
-                content = _newCommentText.value,
+                content = string,
                 like = 0,
                 dislike = 0,
                 date = MapUtil.getCurrentFormattedTime()

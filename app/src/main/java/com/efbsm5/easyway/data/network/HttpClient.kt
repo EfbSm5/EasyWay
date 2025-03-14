@@ -2,6 +2,7 @@ package com.efbsm5.easyway.data.network
 
 import android.content.Context
 import android.net.Uri
+import androidx.core.net.toUri
 import com.efbsm5.easyway.data.models.Comment
 import com.efbsm5.easyway.data.models.DynamicPost
 import com.efbsm5.easyway.data.models.EasyPoint
@@ -11,14 +12,17 @@ import com.efbsm5.easyway.data.models.assistModel.UpdateInfo
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import okhttp3.*
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
+import java.net.URL
 
 class HttpClient() {
     private val client = OkHttpClient()
@@ -28,7 +32,6 @@ class HttpClient() {
 
     fun getAllComments(callback: (List<Comment>?) -> Unit) {
         val request = Request.Builder().url("$baseUrl:5000/comments").build()
-
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 callback(null)
@@ -48,7 +51,6 @@ class HttpClient() {
 
     fun getAllUsers(callback: (List<User>?) -> Unit) {
         val request = Request.Builder().url("$baseUrl:5000/users").build()
-
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 callback(null)
@@ -118,9 +120,8 @@ class HttpClient() {
         return tempFile
     }
 
-    fun uploadImage(context: Context, uri: Uri, callback: (String?) -> Unit) {
+    fun uploadImage(context: Context, uri: Uri, callback: (Uri?) -> Unit) {
         val file = uriToFile(context, uri)
-        val client = OkHttpClient()
         val mediaType = "image/jpeg".toMediaType()
         val requestBody = MultipartBody.Builder().setType(MultipartBody.FORM)
             .addFormDataPart("photo", file.name, file.asRequestBody(mediaType)).build()
@@ -134,8 +135,8 @@ class HttpClient() {
                 if (response.isSuccessful) {
                     val responseData = response.body?.string()
                     val json = JSONObject(responseData)
-                    val path = json.getString("path")
-                    callback(path)
+                    val url = json.getString("url").toUri()
+                    callback(url)
                 } else {
                     callback(null)
                 }
@@ -143,12 +144,18 @@ class HttpClient() {
         })
     }
 
-    fun uploadData(context: Context, data: Any, callback: (Boolean) -> Unit) {
-        val json = gson.toJson(data)
+    fun uploadData(data: Any, callback: (Boolean) -> Unit) {
         val mediaType = "application/json; charset=utf-8".toMediaType()
-        val requestBody = RequestBody.create(mediaType, json)
+        val requestBody = gson.toJson(data).toRequestBody(mediaType)
+        var uploadType = when (data) {
+            is User -> "users"
+            is Comment -> "comments"
+            is DynamicPost -> "dynamicposts"
+            is EasyPoint -> "easypoints"
+            else -> throw IllegalArgumentException("unsupported data")
+        }
+        val request = Request.Builder().url("$baseUrl:5000/$uploadType").post(requestBody).build()
 
-        val request = Request.Builder().url("$baseUrl:5000/uploadData").post(requestBody).build()
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 callback(false)

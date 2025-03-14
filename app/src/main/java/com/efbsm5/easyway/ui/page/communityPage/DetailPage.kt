@@ -2,6 +2,8 @@ package com.efbsm5.easyway.ui.page.communityPage
 
 import android.net.Uri
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -24,78 +26,84 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
+import com.efbsm5.easyway.R
 import com.efbsm5.easyway.data.models.assistModel.CommentAndUser
 import com.efbsm5.easyway.data.models.DynamicPost
 import com.efbsm5.easyway.data.models.User
+import com.efbsm5.easyway.map.MapUtil
 import com.efbsm5.easyway.viewmodel.pageViewmodel.DetailPageViewModel
 
 
 @Composable
 fun DetailPage(onBack: () -> Unit, viewModel: DetailPageViewModel) {
-    val newCommentText by viewModel.newCommentText.collectAsState()
-    val showTextField by viewModel.showTextField.collectAsState()
     val postUser by viewModel.postUser.collectAsState()
     val commentAndUser by viewModel.commentAndUser.collectAsState()
     val photos by viewModel.photos.collectAsState()
     val post by viewModel.post.collectAsState()
     DetailPageScreen(
-        newCommentText = newCommentText,
         onAddComment = { viewModel.changeText(it) },
-        changeIfShowTextField = { viewModel.ifShowTextField(it) },
-        showTextField = showTextField,
         postUser = postUser,
         onBack = { onBack() },
         commentAndUser = commentAndUser,
         onLikeComment = { viewModel.addLike(it) },
         photos = photos,
         post = post!!,
-        comment = {viewModel.comment()}
+        comment = { viewModel.comment() },
+        like = viewModel
     )
 }
 
+@Preview
 @Composable
 private fun DetailPageScreen(
     onBack: () -> Unit = {},
-    post: DynamicPost,
-    newCommentText: String = "",
-    showTextField: Boolean = true,
+    post: DynamicPost = MapUtil.getInitPost(),
     onAddComment: (String) -> Unit = {},
-    changeIfShowTextField: (Boolean) -> Unit = {},
-    postUser: User,
+    postUser: User = MapUtil.getInitUser(),
     commentAndUser: List<CommentAndUser> = emptyList(),
     onLikeComment: (Int) -> Unit = {},
     photos: List<Uri> = emptyList(),
-    comment: () -> Unit
+    comment: () -> Unit = {},
+    like: (Boolean, Int) -> Unit = { _, _ -> },
+    dislike: (Boolean, Int) -> Unit = { _, _ -> }
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        TopBar { onBack() }
-        Spacer(modifier = Modifier.height(16.dp))
-        DetailsContent(
-            post = post, user = postUser, photos = photos
-        )
-        HorizontalDivider(thickness = 1.dp, color = Color.Gray)
-        Comments(list = commentAndUser, onLike = { onLikeComment(it) })
-        HorizontalDivider(thickness = 1.dp, color = Color.Gray)
-        CommentSection(comment = { changeIfShowTextField(true) })
-        if (showTextField) {
-            AddCommentField(
-                commentText = newCommentText,
-                onAddComment = { onAddComment(it) },
-                onClickButton = {
-                    changeIfShowTextField(false)
-                    comment()
-                })
+    var showTextField by remember { mutableStateOf(false) }
+    Surface {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            TopBar { onBack() }
+            Spacer(modifier = Modifier.height(16.dp))
+            DetailsContent(
+                post = post, user = postUser, photos = photos, like = like
+            )
+            HorizontalDivider(thickness = 1.dp, color = Color.Gray)
+            Comments(
+                list = commentAndUser, onLike = { onLikeComment(it) },
+                like =,
+                dislike = TODO()
+            )
+            CommentSection(comment = { showTextField = true })
+            if (showTextField) {
+                AddCommentField(
+                    commentText = newCommentText,
+                    onAddComment = { onAddComment(it) },
+                    onClickButton = {
+                        changeIfShowTextField(false)
+                        comment()
+                    })
+            }
         }
     }
     BackHandler(enabled = showTextField) {
-        changeIfShowTextField(false)
+        showTextField = false
     }
 }
 
@@ -110,7 +118,16 @@ private fun TopBar(back: () -> Unit) {
 }
 
 @Composable
-private fun DetailsContent(post: DynamicPost, user: User, photos: List<Uri>) {
+private fun DetailsContent(
+    post: DynamicPost,
+    user: User,
+    photos: List<Uri>,
+    like: (Boolean) -> Unit,
+) {
+    var isLiked by remember { mutableStateOf(false) }
+    var isDisliked by remember { mutableStateOf(false) }
+    val likeColor by animateColorAsState(targetValue = if (isLiked) Color.Red else Color.Gray)
+    val likeSize by animateFloatAsState(targetValue = if (isLiked) 36f else 24f)
     Row(
         modifier = Modifier.padding(bottom = 16.dp), verticalAlignment = Alignment.CenterVertically
     ) {
@@ -121,7 +138,6 @@ private fun DetailsContent(post: DynamicPost, user: User, photos: List<Uri>) {
                 .size(40.dp)
                 .clip(CircleShape)
         )
-
         Spacer(modifier = Modifier.width(8.dp))
         Column {
             Text(user.name, fontWeight = FontWeight.Bold)
@@ -142,28 +158,44 @@ private fun DetailsContent(post: DynamicPost, user: User, photos: List<Uri>) {
     }
     Spacer(modifier = Modifier.height(8.dp))
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-        Icon(Icons.Default.ThumbUp, contentDescription = "Like")
-        Spacer(modifier = Modifier.width(8.dp))
+        Icon(
+            Icons.Default.ThumbUp, modifier = Modifier
+                .size(likeSize.dp)
+                .clickable {
+                    like(isLiked)
+                    isLiked = !isLiked
+                    if (isDisliked) isDisliked = false
+                }, contentDescription = "Dislike", tint = likeColor
+        )
         Text(post.like.toString())
         Spacer(modifier = Modifier.width(16.dp))
     }
 }
 
 @Composable
-private fun Comments(list: List<CommentAndUser>, onLike: (Int) -> Unit) {
+private fun Comments(
+    list: List<CommentAndUser>, like: (Boolean, Int) -> Unit, dislike: (Boolean, Int) -> Unit
+) {
     LazyColumn(modifier = Modifier.padding(vertical = 16.dp)) {
         items(list) { commentAndUser ->
-            CommentItems(commentAndUser) {
-                onLike(commentAndUser.comment.commentId)
-            }
+            CommentItems(
+                commentAndUser, like = like, dislike = dislike
+            )
         }
     }
 }
 
 
 @Composable
-private fun CommentItems(commentAndUser: CommentAndUser, like: () -> Unit) {
+private fun CommentItems(
+    commentAndUser: CommentAndUser, like: (Boolean, Int) -> Unit, dislike: (Boolean, Int) -> Unit
+) {
     var isLiked by remember { mutableStateOf(false) }
+    var isDisliked by remember { mutableStateOf(false) }
+    val likeColor by animateColorAsState(targetValue = if (isLiked) Color.Red else Color.Gray)
+    val dislikeColor by animateColorAsState(targetValue = if (isDisliked) Color.Red else Color.Gray)
+    val likeSize by animateFloatAsState(targetValue = if (isLiked) 36f else 24f)
+    val dislikeSize by animateFloatAsState(targetValue = if (isDisliked) 36f else 24f)
     val user = commentAndUser.user
     val comment = commentAndUser.comment
     Row(
@@ -187,12 +219,28 @@ private fun CommentItems(commentAndUser: CommentAndUser, like: () -> Unit) {
         }
         Spacer(modifier = Modifier.weight(1f))
         Icon(
-            Icons.Default.ThumbUp, contentDescription = "Like", modifier = Modifier.clickable {
-                isLiked = true
-                comment.like += 1
-                like()
-            }, tint = if (isLiked) Color.Red else Color.Black
+            Icons.Default.ThumbUp, modifier = Modifier
+                .size(likeSize.dp)
+                .clickable {
+                    like(isLiked, comment.index)
+                    isLiked = !isLiked
+                    if (isDisliked) isDisliked = false
+                }, contentDescription = "Dislike", tint = likeColor
         )
+        Text(comment.like.toString())
+        Icon(
+            modifier = Modifier
+                .size(dislikeSize.dp)
+                .clickable {
+                    dislike(isDisliked, comment.index)
+                    isDisliked = !isDisliked
+                    if (isLiked) isLiked = false
+                },
+            painter = painterResource(id = R.drawable.thumb_down),
+            contentDescription = "Dislike",
+            tint = dislikeColor
+        )
+        Text(comment.dislike.toString())
     }
 }
 
@@ -221,17 +269,18 @@ private fun CommentSection(comment: () -> Unit) {
 
 @Composable
 private fun AddCommentField(
-    commentText: String, onAddComment: (String) -> Unit, onClickButton: () -> Unit
+    onClickButton: (String) -> Unit
 ) {
+    var commentText by remember { mutableStateOf("") }
     Row(verticalAlignment = Alignment.CenterVertically) {
         TextField(
             value = commentText,
-            onValueChange = { onAddComment(it) },
+            onValueChange = { commentText = it },
             modifier = Modifier.weight(1f),
             placeholder = { Text("添加评论") })
         Spacer(modifier = Modifier.width(8.dp))
-        Button(onClick = {
-            onClickButton()
+        TextButton(onClick = {
+            onClickButton(commentText)
         }) {
             Text("发送")
         }

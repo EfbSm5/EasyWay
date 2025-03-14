@@ -26,6 +26,7 @@ class MapPageViewModel(context: Context) : ViewModel() {
     private val _state = MutableStateFlow<Screen>(Screen.Function)
     val location = locationController.location
     val state: StateFlow<Screen> = _state
+    val locationSource = locationController.getLocationSource()
     val onMarkerClick = AMap.OnMarkerClickListener {
         viewModelScope.launch(Dispatchers.IO) {
             changeScreen(
@@ -46,11 +47,9 @@ class MapPageViewModel(context: Context) : ViewModel() {
         )
     }
     val onMapClick = AMap.OnMapClickListener {
-
     }
 
     fun drawPointsAndInitLocation(mapView: MapView) {
-        locationController.mapLocationInit(mapView)
         viewModelScope.launch(Dispatchers.IO) {
             repository.getAllPoints().collect {
                 mapView.map.clear()

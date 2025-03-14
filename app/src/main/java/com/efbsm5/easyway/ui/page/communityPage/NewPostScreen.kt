@@ -3,6 +3,7 @@ package com.efbsm5.easyway.ui.page.communityPage
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import android.view.Surface
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateColorAsState
@@ -33,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.efbsm5.easyway.data.models.DynamicPost
+import com.efbsm5.easyway.map.MapUtil
 import com.efbsm5.easyway.viewmodel.pageViewmodel.NewPostPageViewModel
 
 
@@ -62,34 +64,36 @@ fun NewDynamicPostPage(navigate: () -> Unit, viewModel: NewPostPageViewModel) {
 
 @Composable
 fun DynamicPostScreen(
-    dynamicPost: DynamicPost,
-    selectedButton: String,
-    photos: List<Uri>,
-    onSelected: (String) -> Unit,
-    onTitleChanged: (String) -> Unit,
-    onContentChanged: (String) -> Unit,
-    onSelectedPhoto: (Uri?) -> Unit,
-    publish: () -> Unit,
-    back: () -> Unit
+    dynamicPost: DynamicPost = MapUtil.getInitPost(),
+    selectedButton: String = "",
+    photos: List<Uri> = emptyList(),
+    onSelected: (String) -> Unit = {},
+    onTitleChanged: (String) -> Unit = {},
+    onContentChanged: (String) -> Unit = {},
+    onSelectedPhoto: (Uri?) -> Unit = {},
+    publish: () -> Unit = {},
+    back: () -> Unit = {}
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        TopBar(back = { back() })
-        PublishToSection(selectedButton = selectedButton, onSelected = { onSelected(it) })
-        Spacer(modifier = Modifier.height(16.dp))
-        AddTitleAndContentSection(
-            dynamicPost = dynamicPost,
-            onTitleChanged = { onTitleChanged(it) },
-            onContentChanged = { onContentChanged(it) })
-        Spacer(modifier = Modifier.height(16.dp))
-        Spacer(modifier = Modifier.height(16.dp))
-        AddLocationAndImagesSection(
-            selectedPhotos = photos, onSelectedPhoto = { it?.let { onSelectedPhoto(it) } })
-        Spacer(modifier = Modifier.weight(1f))
-        PublishButton(publish = { publish() })
+    Surface {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            TopBar(back = { back() })
+            PublishToSection(selectedButton = selectedButton, onSelected = { onSelected(it) })
+            Spacer(modifier = Modifier.height(16.dp))
+            AddTitleAndContentSection(
+                dynamicPost = dynamicPost,
+                onTitleChanged = { onTitleChanged(it) },
+                onContentChanged = { onContentChanged(it) })
+            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+            AddLocationAndImagesSection(
+                selectedPhotos = photos, onSelectedPhoto = { it?.let { onSelectedPhoto(it) } })
+            Spacer(modifier = Modifier.weight(1f))
+            PublishButton(publish = { publish() })
+        }
     }
 }
 

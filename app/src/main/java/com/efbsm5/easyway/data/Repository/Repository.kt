@@ -12,7 +12,6 @@ import com.efbsm5.easyway.data.models.EasyPoint
 import com.efbsm5.easyway.data.models.assistModel.EasyPointSimplify
 import com.efbsm5.easyway.data.models.User
 import com.efbsm5.easyway.data.database.AppDataBase
-import com.efbsm5.easyway.data.models.Photo
 import com.efbsm5.easyway.data.network.HttpClient
 import com.efbsm5.easyway.data.network.UrlForDatabase
 import com.efbsm5.easyway.map.MapUtil
@@ -77,19 +76,13 @@ class DataRepository(private val context: Context) {
         val id = database.dynamicPostDao().getCount() + 1
         val date = MapUtil.getCurrentFormattedTime()
         val commentId = database.commentDao().getMaxCommentId() + 1
-        val photoId = database.photoDao().getMaxCommentId() + 1
+        val photo = emptyList<Uri>().toMutableList()
         photos.forEach { uri ->
             httpClient.uploadImage(
                 context, uri,
                 callback = {
                     if (it != null) {
-                        database.photoDao().insert(
-                            Photo(
-                                uri = it.toUri(),
-                                photoId = photoId,
-                                id = database.photoDao().getCount() + 1
-                            )
-                        )
+                        photo.add(it)
                     }
                 },
             )
@@ -105,8 +98,8 @@ class DataRepository(private val context: Context) {
             position = dynamicPost.position,
             userId = userManager.userId,
             commentId = commentId,
-            photoId = photoId,
-            type = TODO()
+            type = dynamicPost.type,
+            photo = photo,
         )
         database.dynamicPostDao().insert(post)
     }

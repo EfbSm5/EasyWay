@@ -15,9 +15,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 private const val TAG = "LocationController"
+
 class LocationController(
     context: Context
-) : LocationSource {
+) {
     private var mLocationClient = AMapLocationClient(context).apply {
         setLocationOption(
             AMapLocationClientOption().setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy)
@@ -32,7 +33,7 @@ class LocationController(
     val location: StateFlow<LatLng> = _location
 
     fun getLastKnownLocation(): LatLng {
-        Log.e(TAG, "getLastKnownLocation:       get", )
+        Log.e(TAG, "getLastKnownLocation:       get")
         val lat = sharedPreferences.getFloat("last_lat", Float.NaN)
         val lng = sharedPreferences.getFloat("last_lng", Float.NaN)
         return LatLng(lat.toDouble(), lng.toDouble())
@@ -44,19 +45,37 @@ class LocationController(
                 "last_lng", location.longitude.toFloat()
             ).putString("citycode", cityCode)
         }
-        Log.e(TAG, "saveLastKnownLocation:   save", )
+        Log.e(TAG, "saveLastKnownLocation:   save")
     }
 
-    fun mapLocationInit(mapView: MapView) {
-        mapView.map.setLocationSource(this)
+    init {
+        initLocation()
+    }
+
+    fun initLocation() {
         mLocationClient.setLocationListener { aMapLocation ->
             if (aMapLocation!!.errorCode == 0) {
                 mListener!!.onLocationChanged(aMapLocation)
                 _location.value = LatLng(aMapLocation.latitude, aMapLocation.longitude)
                 saveLastKnownLocation(_location.value, aMapLocation.cityCode)
-                Log.e(TAG, "saveLastKnownLocation:   locate", )
+                Log.e(TAG, "saveLastKnownLocation:   locate")
 
             }
+        }
+    }
+
+    fun getLocationSource(): LocationSource = object : LocationSource {
+        override fun activate(p0: OnLocationChangedListener?) {
+            if (mListener == null) {
+                mListener = p0
+            }
+            mLocationClient.startLocation()
+        }
+
+        override fun deactivate() {
+            mListener = null
+            mLocationClient.stopLocation()
+            mLocationClient.onDestroy()
         }
     }
 
@@ -75,16 +94,4 @@ class LocationController(
     }
 
 
-    override fun activate(p0: OnLocationChangedListener?) {
-        if (mListener == null) {
-            mListener = p0
-        }
-        mLocationClient.startLocation()
-    }
-
-    override fun deactivate() {
-        mListener = null
-        mLocationClient.stopLocation()
-        mLocationClient.onDestroy()
-    }
 }

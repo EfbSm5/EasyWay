@@ -195,7 +195,7 @@ private fun IconAndName(iconRes: Int, text: String, onclick: () -> Unit) {
             modifier = Modifier
                 .size(50.dp)
                 .padding(bottom = 8.dp),
-            tint = MaterialTheme.colorScheme.surfaceTint
+//            tint = MaterialTheme.colorScheme.surfaceTint
         )
         Text(
             text = text,

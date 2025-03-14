@@ -35,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.efbsm5.easyway.R
 import com.efbsm5.easyway.data.models.DynamicPost
@@ -57,18 +58,21 @@ fun ShowPage(
         search = { viewModel.search(it) })
 }
 
+@Preview
 @Composable
 fun ShowPageScreen(
-    posts: List<DynamicPostAndUser>,
-    titleText: String,
-    onChangeState: () -> Unit,
-    onSelect: (Int) -> Unit,
-    onClick: (DynamicPostAndUser) -> Unit,
-    search: (String) -> Unit
+    posts: List<DynamicPostAndUser> = emptyList(),
+    titleText: String = "心无距离，共享每一刻",
+    onChangeState: () -> Unit = {},
+    onSelect: (Int) -> Unit = {},
+    onClick: (DynamicPostAndUser) -> Unit = {},
+    search: (String) -> Unit = {}
 ) {
     Surface {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {

@@ -1,5 +1,6 @@
 package com.efbsm5.easyway.data.models
 
+import android.net.Uri
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.amap.api.maps.model.LatLng
@@ -18,6 +19,6 @@ data class DynamicPost(
     @SerializedName("position") var position: String,
     @SerializedName("user_id") var userId: Int,
     @SerializedName("comment_id") var commentId: Int,
-    @SerializedName("photo_id") var photoId: Int
+    @SerializedName("photo") var photo: List<Uri>
 )
 
