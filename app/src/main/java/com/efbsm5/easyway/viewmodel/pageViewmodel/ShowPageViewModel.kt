@@ -4,7 +4,7 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.efbsm5.easyway.data.Repository.DataRepository
+import com.efbsm5.easyway.data.repository.DataRepository
 import com.efbsm5.easyway.data.models.assistModel.DynamicPostAndUser
 import com.efbsm5.easyway.data.models.assistModel.PostType
 import kotlinx.coroutines.Dispatchers
@@ -35,7 +35,6 @@ class ShowPageViewModel(context: Context) : ViewModel() {
                                 dynamicPost = post,
                                 user = repository.getUserById(post.userId),
                                 commentCount = it,
-                                photo = repository.getAllPhotosById(post.photoId)
                             )
                         )
                         _posts.value = list.toList()

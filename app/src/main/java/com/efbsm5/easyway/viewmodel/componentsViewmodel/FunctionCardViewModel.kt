@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.amap.api.maps.model.LatLng
 import com.amap.api.services.core.PoiItemV2
-import com.efbsm5.easyway.data.Repository.DataRepository
+import com.efbsm5.easyway.data.repository.DataRepository
 import com.efbsm5.easyway.data.models.EasyPoint
 import com.efbsm5.easyway.map.MapPoiSearchUtil
 import com.efbsm5.easyway.map.MapUtil

@@ -1,13 +1,12 @@
 package com.efbsm5.easyway.viewmodel.pageViewmodel
 
 import android.content.Context
-import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.efbsm5.easyway.data.UserManager
 import com.efbsm5.easyway.data.models.DynamicPost
 import com.efbsm5.easyway.data.models.User
-import com.efbsm5.easyway.data.Repository.DataRepository
+import com.efbsm5.easyway.data.repository.DataRepository
 import com.efbsm5.easyway.data.models.Comment
 import com.efbsm5.easyway.data.models.assistModel.CommentAndUser
 import com.efbsm5.easyway.map.MapUtil
@@ -19,14 +18,12 @@ import kotlinx.coroutines.launch
 
 class DetailPageViewModel(context: Context) : ViewModel() {
     private val repository = DataRepository(context)
-    private val _dynamicPost = MutableStateFlow<DynamicPost?>(null)
+    private lateinit var _dynamicPost: MutableStateFlow<DynamicPost>
     private var _postUser = MutableStateFlow(getInitUser())
     private val _commentAndUsers = MutableStateFlow(emptyList<CommentAndUser>().toMutableList())
-    private val _photos = MutableStateFlow(emptyList<Uri>().toMutableList())
     private val userManager = UserManager(context)
     val postUser: StateFlow<User> = _postUser
     val commentAndUser: StateFlow<MutableList<CommentAndUser>> = _commentAndUsers
-    val photos: StateFlow<MutableList<Uri>> = _photos
     val post: StateFlow<DynamicPost?> = _dynamicPost
 
     fun getPost(dynamicPost: DynamicPost) {
@@ -36,8 +33,8 @@ class DetailPageViewModel(context: Context) : ViewModel() {
 
     private fun getData() {
         viewModelScope.launch(Dispatchers.IO) {
-            _postUser.value = repository.getUserById(_dynamicPost.value!!.userId)
-            repository.getAllCommentsById(commentId = _dynamicPost.value!!.commentId)
+            _postUser.value = repository.getUserById(_dynamicPost.value.userId)
+            repository.getAllCommentsById(commentId = _dynamicPost.value.commentId)
                 .collect { comments ->
                     _commentAndUsers.value.clear()
                     comments.forEach {
@@ -47,11 +44,18 @@ class DetailPageViewModel(context: Context) : ViewModel() {
                             )
                         )
                     }
-                    repository.getAllPhotosById(_dynamicPost.value!!.photoId).forEach {
-                        _photos.value = _photos.value.add(it.uri)
-                    }
                 }
 
+        }
+    }
+
+    fun likePost(boolean: Boolean) {
+        if (boolean) {
+            _dynamicPost.value.like + 1
+            repository.addLikeForPost(_dynamicPost.value.id)
+        } else {
+            _dynamicPost.value.like - 1
+            repository.decreaseLikeForPost(_dynamicPost.value.id)
         }
     }
 
@@ -71,7 +75,7 @@ class DetailPageViewModel(context: Context) : ViewModel() {
         }
     }
 
-    fun dislikeComment(commentIndex: Int, boolean: Boolean) {
+    fun dislikeComment(boolean: Boolean, commentIndex: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             if (boolean) {
                 _commentAndUsers.value.find { commentAndUser ->

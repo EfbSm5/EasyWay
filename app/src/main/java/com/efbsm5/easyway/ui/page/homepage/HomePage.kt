@@ -13,24 +13,19 @@ fun HomePage(viewModel: HomePageViewModel) {
     val posts by viewModel.post.collectAsState()
     val user = viewModel.user
     val state by viewModel.content.collectAsState()
-    HomePageScreen(onUpdate = {
-        viewModel.updateData()
-    }, user = user, state = state, onChangeState = { viewModel.changeState(it) })
-}
-
-@Composable
-private fun HomePageScreen(
-    user: User, onUpdate: () -> Unit, state: HomePageState, onChangeState: (HomePageState) -> Unit
-) {
     when (state) {
         HomePageState.Main -> {
-            HomePageMain(
-                onUpdate = onUpdate, user = user, changeState = { onChangeState(it) })
+            MainPageScreen(user = user, changeState = { viewModel.changeState(it) })
         }
 
         HomePageState.Point -> TODO()
         HomePageState.Post -> TODO()
         HomePageState.Comment -> TODO()
+        HomePageState.EditUser -> TODO()
+        HomePageState.Help -> TODO()
+        HomePageState.Reg -> TODO()
+        HomePageState.Settings -> TODO()
+        HomePageState.Version -> TODO()
     }
 }
 

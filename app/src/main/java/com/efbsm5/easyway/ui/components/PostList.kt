@@ -51,7 +51,6 @@ private fun PostsItem(dynamicPostAndUser: DynamicPostAndUser, onClick: () -> Uni
     val user = dynamicPostAndUser.user
     val commentsCount = dynamicPostAndUser.commentCount
     val dynamicPost = dynamicPostAndUser.dynamicPost
-    val photoList = dynamicPostAndUser.photo
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -89,10 +88,10 @@ private fun PostsItem(dynamicPostAndUser: DynamicPostAndUser, onClick: () -> Uni
                     .padding(top = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                photoList.forEach {
+                dynamicPost.photo.forEach {
                     Image(
                         rememberAsyncImagePainter(
-                            it.uri
+                            it
                         ),
                         contentDescription = "评论图片",
                         modifier = Modifier

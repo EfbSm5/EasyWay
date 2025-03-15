@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.efbsm5.easyway.data.UserManager
-import com.efbsm5.easyway.data.Repository.DataRepository
+import com.efbsm5.easyway.data.repository.DataRepository
 import com.efbsm5.easyway.data.models.Comment
 import com.efbsm5.easyway.data.models.DynamicPost
 import com.efbsm5.easyway.data.models.EasyPoint
@@ -22,7 +22,8 @@ class HomePageViewModel(context: Context) : ViewModel() {
     private val repo = IntentRepository(context)
     private val userManager = UserManager(context)
     lateinit var user: User
-//    private val _points = MutableStateFlow(emptyList<EasyPoint>())
+
+    //    private val _points = MutableStateFlow(emptyList<EasyPoint>())
 //    private val _post = MutableStateFlow(emptyList<DynamicPost>())
     private val _content = MutableStateFlow<HomePageState>(HomePageState.Main)
     val points: StateFlow<List<EasyPoint>> = repository.getPointByUserId(userManager.userId)
@@ -77,4 +78,9 @@ sealed interface HomePageState {
     data object Post : HomePageState
     data object Point : HomePageState
     data object Comment : HomePageState
+    data object EditUser : HomePageState
+    data object Reg : HomePageState
+    data object Version : HomePageState
+    data object Help : HomePageState
+    data object Settings : HomePageState
 }

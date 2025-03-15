@@ -43,18 +43,16 @@ import com.efbsm5.easyway.viewmodel.pageViewmodel.DetailPageViewModel
 fun DetailPage(onBack: () -> Unit, viewModel: DetailPageViewModel) {
     val postUser by viewModel.postUser.collectAsState()
     val commentAndUser by viewModel.commentAndUser.collectAsState()
-    val photos by viewModel.photos.collectAsState()
     val post by viewModel.post.collectAsState()
     DetailPageScreen(
-        onAddComment = { viewModel.changeText(it) },
-        postUser = postUser,
-        onBack = { onBack() },
-        commentAndUser = commentAndUser,
-        onLikeComment = { viewModel.addLike(it) },
-        photos = photos,
+        onBack = onBack,
         post = post!!,
-        comment = { viewModel.comment() },
-        like = viewModel
+        postUser = postUser,
+        commentAndUser = commentAndUser,
+        comment = { viewModel.comment(it) },
+        like = { boolean, index -> viewModel.likeComment(boolean, index) },
+        dislike = { boolean, index -> viewModel.dislikeComment(boolean, index) },
+        likePost = { viewModel.likePost(it) }
     )
 }
 
@@ -63,14 +61,12 @@ fun DetailPage(onBack: () -> Unit, viewModel: DetailPageViewModel) {
 private fun DetailPageScreen(
     onBack: () -> Unit = {},
     post: DynamicPost = MapUtil.getInitPost(),
-    onAddComment: (String) -> Unit = {},
     postUser: User = MapUtil.getInitUser(),
     commentAndUser: List<CommentAndUser> = emptyList(),
-    onLikeComment: (Int) -> Unit = {},
-    photos: List<Uri> = emptyList(),
-    comment: () -> Unit = {},
+    comment: (String) -> Unit = {},
     like: (Boolean, Int) -> Unit = { _, _ -> },
-    dislike: (Boolean, Int) -> Unit = { _, _ -> }
+    dislike: (Boolean, Int) -> Unit = { _, _ -> },
+    likePost: (Boolean) -> Unit = {}
 ) {
     var showTextField by remember { mutableStateOf(false) }
     Surface {
@@ -82,22 +78,18 @@ private fun DetailPageScreen(
             TopBar { onBack() }
             Spacer(modifier = Modifier.height(16.dp))
             DetailsContent(
-                post = post, user = postUser, photos = photos, like = like
+                post = post, user = postUser, like = likePost
             )
             HorizontalDivider(thickness = 1.dp, color = Color.Gray)
             Comments(
-                list = commentAndUser, onLike = { onLikeComment(it) },
-                like =,
-                dislike = TODO()
+                list = commentAndUser, like = like, dislike = dislike
             )
             CommentSection(comment = { showTextField = true })
             if (showTextField) {
                 AddCommentField(
-                    commentText = newCommentText,
-                    onAddComment = { onAddComment(it) },
                     onClickButton = {
-                        changeIfShowTextField(false)
-                        comment()
+                        showTextField = false
+                        comment(it)
                     })
             }
         }
@@ -121,11 +113,9 @@ private fun TopBar(back: () -> Unit) {
 private fun DetailsContent(
     post: DynamicPost,
     user: User,
-    photos: List<Uri>,
     like: (Boolean) -> Unit,
 ) {
     var isLiked by remember { mutableStateOf(false) }
-    var isDisliked by remember { mutableStateOf(false) }
     val likeColor by animateColorAsState(targetValue = if (isLiked) Color.Red else Color.Gray)
     val likeSize by animateFloatAsState(targetValue = if (isLiked) 36f else 24f)
     Row(
@@ -146,9 +136,9 @@ private fun DetailsContent(
     }
     Text(post.content)
     Spacer(modifier = Modifier.height(8.dp))
-    if (photos.isNotEmpty()) {
+    if (post.photo.isNotEmpty()) {
         Image(
-            painter = rememberAsyncImagePainter(photos.first()),
+            painter = rememberAsyncImagePainter(post.photo.first()),
             contentDescription = "Post Image",
             modifier = Modifier
                 .fillMaxWidth()
@@ -164,7 +154,6 @@ private fun DetailsContent(
                 .clickable {
                     like(isLiked)
                     isLiked = !isLiked
-                    if (isDisliked) isDisliked = false
                 }, contentDescription = "Dislike", tint = likeColor
         )
         Text(post.like.toString())

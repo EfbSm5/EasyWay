@@ -37,4 +37,9 @@ interface DynamicPostDao {
     @Query("SELECT * FROM dynamicposts WHERE userId = :userId")
     fun getAllDynamicPostsByUserId(userId: Int): Flow<List<DynamicPost>>
 
+    @Query("UPDATE dynamicposts SET `like` = `like` + 1 WHERE `id` = :id")
+    fun increaseLikes(id: Int)
+
+    @Query("UPDATE dynamicposts SET `like` = `like` - 1 WHERE id = :id")
+    fun decreaseLikes(id: Int)
 }

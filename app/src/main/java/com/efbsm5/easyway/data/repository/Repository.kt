@@ -1,9 +1,8 @@
-package com.efbsm5.easyway.data.Repository
+package com.efbsm5.easyway.data.repository
 
 
 import android.content.Context
 import android.net.Uri
-import androidx.core.net.toUri
 import com.amap.api.maps.model.LatLng
 import com.efbsm5.easyway.data.UserManager
 import com.efbsm5.easyway.data.models.Comment
@@ -13,7 +12,6 @@ import com.efbsm5.easyway.data.models.assistModel.EasyPointSimplify
 import com.efbsm5.easyway.data.models.User
 import com.efbsm5.easyway.data.database.AppDataBase
 import com.efbsm5.easyway.data.network.HttpClient
-import com.efbsm5.easyway.data.network.UrlForDatabase
 import com.efbsm5.easyway.map.MapUtil
 import com.efbsm5.easyway.map.MapUtil.getInitPoint
 import com.efbsm5.easyway.map.MapUtil.getInitUser
@@ -119,7 +117,7 @@ class DataRepository(private val context: Context) {
             httpClient.uploadImage(
                 context, uri,
                 callback = {
-                    photoUri = it?.toUri()
+                    photoUri = it
                 },
             )
         }
@@ -146,9 +144,6 @@ class DataRepository(private val context: Context) {
         return database.commentDao().getCountById(commentId)
     }
 
-    fun getAllPhotosById(photoId: Int): List<Photo> {
-        return database.photoDao().getPhotoById(id = photoId)
-    }
 
     fun getPostByUserId(userId: Int): Flow<List<DynamicPost>> {
         return database.dynamicPostDao().getAllDynamicPostsByUserId(userId)
@@ -168,5 +163,13 @@ class DataRepository(private val context: Context) {
 
     fun getPointByName(string: String): Flow<List<EasyPoint>> {
         return database.pointsDao().searchEasyPointsByName(string)
+    }
+
+    fun addLikeForPost(postId: Int) {
+        database.dynamicPostDao().increaseLikes(postId)
+    }
+
+    fun decreaseLikeForPost(postId: Int) {
+        database.dynamicPostDao().decreaseLikes(postId)
     }
 }

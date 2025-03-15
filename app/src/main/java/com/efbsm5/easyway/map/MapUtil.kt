@@ -117,8 +117,8 @@ object MapUtil {
             userId = 1,
             commentId = 1,
             id = 1,
-            photoId = 1,
-            type = 1
+            type = 1,
+            photo = emptyList()
         )
     }
 

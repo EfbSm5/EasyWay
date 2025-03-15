@@ -9,7 +9,7 @@ import com.amap.api.maps.MapView
 import com.amap.api.maps.model.BitmapDescriptorFactory
 import com.amap.api.maps.model.LatLng
 import com.amap.api.maps.model.MarkerOptions
-import com.efbsm5.easyway.data.Repository.DataRepository
+import com.efbsm5.easyway.data.repository.DataRepository
 import com.efbsm5.easyway.map.LocationController
 import com.efbsm5.easyway.map.MapRouteSearchUtil
 import com.efbsm5.easyway.map.MapUtil
