@@ -23,8 +23,6 @@ import androidx.lifecycle.ViewModel
 @Composable
 fun LoginScreen(onLoginSuccess: () -> Unit) {
     val context = LocalContext.current
-//    val viewModel: LoginViewModel = viewModel()
-
     var phoneNumber by remember { mutableStateOf("") }
     var isAgreeChecked by remember { mutableStateOf(false) }
 
@@ -69,7 +67,6 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
         Button(
             onClick = {
                 if (isAgreeChecked && phoneNumber.isNotEmpty()) {
-//                    viewModel.sendVerificationCode(phoneNumber, context)
                 } else {
                     Toast.makeText(context, "请同意协议条款并输入手机号", Toast.LENGTH_SHORT).show()
                 }

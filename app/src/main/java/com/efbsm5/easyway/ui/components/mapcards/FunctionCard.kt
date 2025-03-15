@@ -53,6 +53,7 @@ import com.amap.api.maps.model.LatLng
 import com.amap.api.services.core.PoiItemV2
 import com.efbsm5.easyway.R
 import com.efbsm5.easyway.data.models.EasyPoint
+import com.efbsm5.easyway.map.MapUtil
 import com.efbsm5.easyway.map.MapUtil.calculateDistance
 import com.efbsm5.easyway.map.MapUtil.convertToLatLng
 import com.efbsm5.easyway.map.MapUtil.formatDistance
@@ -108,8 +109,8 @@ private fun FunctionCardScreen(
             SearchPart(
                 poiItemV2s = poiItemV2s,
                 easyPoints = easyPoints,
-                onPoiItemV2Selected = { changeScreen(Screen.Comment(null, it, null)) },
-                onPointSelected = { changeScreen(Screen.Comment(null, null, it)) },
+                onPoiItemV2Selected = { changeScreen(Screen.Comment(MapUtil.addPoiItem(it))) },
+                onPointSelected = { changeScreen(Screen.Comment(it)) },
                 location = location,
                 navigate = {
                     isShowDialog = true

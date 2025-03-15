@@ -2,8 +2,6 @@ package com.efbsm5.easyway.data.database
 
 import android.net.Uri
 import androidx.room.TypeConverter
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 
 class Converters {
     @TypeConverter
@@ -17,13 +15,12 @@ class Converters {
     }
 
     @TypeConverter
-    fun fromUriList(uriList: List<Uri>): String {
-        return Gson().toJson(uriList)
+    fun fromUriList(uriList: List<Uri>?): String {
+        return uriList?.joinToString(separator = ",") { it.toString() } ?: ""
     }
 
     @TypeConverter
-    fun toUriList(uriListString: String): List<Uri> {
-        val listType = object : TypeToken<List<Uri>>() {}.type
-        return Gson().fromJson(uriListString, listType)
+    fun toUriList(data: String?): List<Uri> {
+        return data?.split(",")?.map { Uri.parse(it) } ?: emptyList()
     }
 }

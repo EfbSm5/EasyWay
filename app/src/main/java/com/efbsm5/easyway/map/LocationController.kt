@@ -24,7 +24,7 @@ class LocationController(
 
     init {
         initLocation()
-        locationSource = getLocationSource()
+        locationSource = createLocationSource()
     }
 
     fun initLocation() {
@@ -38,7 +38,7 @@ class LocationController(
         }
     }
 
-    fun getLocationSource(): LocationSource = object : LocationSource {
+    private fun createLocationSource(): LocationSource = object : LocationSource {
         override fun activate(p0: OnLocationChangedListener?) {
             if (mListener == null) {
                 mListener = p0

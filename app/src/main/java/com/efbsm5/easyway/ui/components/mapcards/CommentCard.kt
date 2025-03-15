@@ -31,7 +31,6 @@ import androidx.compose.ui.res.painterResource
 import com.amap.api.maps.model.LatLng
 import com.efbsm5.easyway.data.models.assistModel.CommentAndUser
 import com.efbsm5.easyway.map.MapUtil
-import com.efbsm5.easyway.map.MapUtil.getLatlng
 import com.efbsm5.easyway.ui.components.TabSection
 import com.efbsm5.easyway.viewmodel.componentsViewmodel.CommentAndHistoryCardViewModel
 import com.efbsm5.easyway.viewmodel.componentsViewmodel.CommentCardScreen

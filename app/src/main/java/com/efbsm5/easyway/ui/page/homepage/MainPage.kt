@@ -26,7 +26,7 @@ import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -134,12 +134,7 @@ private fun ActionButton(label: String, imageVector: ImageVector, click: () -> U
         click,
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier.padding(8.dp),
-        colors = ButtonColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = TODO(),
-            disabledContainerColor = TODO(),
-            disabledContentColor = TODO()
-        )
+        colors = ButtonDefaults.buttonColors(disabledContentColor = MaterialTheme.colorScheme.onBackground)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,

@@ -3,7 +3,6 @@ package com.efbsm5.easyway.data.models
 import android.net.Uri
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.amap.api.maps.model.LatLng
 import com.google.gson.annotations.SerializedName
 
 @Entity(tableName = "dynamicposts")

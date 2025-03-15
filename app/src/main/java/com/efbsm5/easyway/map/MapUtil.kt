@@ -1,5 +1,6 @@
 package com.efbsm5.easyway.map
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.location.Location
@@ -9,6 +10,8 @@ import com.amap.api.services.core.LatLonPoint
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import androidx.core.net.toUri
+import com.amap.api.maps.model.Poi
+import com.amap.api.services.core.PoiItemV2
 import com.efbsm5.easyway.data.models.DynamicPost
 import com.efbsm5.easyway.data.models.EasyPoint
 import com.efbsm5.easyway.data.models.User
@@ -45,6 +48,7 @@ object MapUtil {
         return location1.distanceTo(location2)
     }
 
+    @SuppressLint("QueryPermissionsNeeded")
     fun onNavigate(context: Context, latLng: LatLng) {
         val uri = "geo:${latLng.latitude},${latLng.longitude}".toUri()
         val intent = Intent(Intent.ACTION_VIEW, uri)
@@ -115,4 +119,39 @@ object MapUtil {
         return LatLng(this.lat, this.lng)
     }
 
+    fun poiToEasyPoint(poi: Poi): EasyPoint {
+        return EasyPoint(
+            pointId = 0,
+            name = poi.name,
+            type = "一般点",
+            info = "无详细描述",
+            location = "无详细描述",
+            photo = null,
+            refreshTime = "未知",
+            likes = 0,
+            dislikes = 0,
+            lat = poi.coordinate.latitude,
+            lng = poi.coordinate.longitude,
+            userId = 0,
+            commentId = 0
+        )
+    }
+
+    fun addPoiItem(poiItemV2: PoiItemV2): EasyPoint {
+        return EasyPoint(
+            pointId = 0,
+            name = poiItemV2.title,
+            type = "一般点",
+            info = poiItemV2.snippet,
+            location = "无详细描述",
+            photo = poiItemV2.photos.first().url.toUri(),
+            refreshTime = "未知",
+            likes = 0,
+            dislikes = 0,
+            lat = poiItemV2.latLonPoint.latitude,
+            lng = poiItemV2.latLonPoint.longitude,
+            userId = 0,
+            commentId = 0
+        )
+    }
 }

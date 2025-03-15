@@ -10,7 +10,8 @@
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="32" />
+        android:maxSdkVersion="32"
+        tools:ignore="ScopedStorage" />
     <uses-permission
         android:name="android.permission.WRITE_SETTINGS"
         tools:ignore="ProtectedPermissions" />
@@ -31,7 +32,7 @@
         tools:targetApi="31">
         <meta-data
             android:name="com.amap.api.v2.apikey"
-            android:value="1669ed24e1fa490936d8c412cd9c9c5b" />
+            android:value="7061fac06dc435bddfa8d8299573feac" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

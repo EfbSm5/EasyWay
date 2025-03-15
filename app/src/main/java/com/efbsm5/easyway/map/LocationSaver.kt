@@ -12,8 +12,8 @@ class LocationSaver(context: Context) {
     var location: LatLng
         get() = with(sharedPreferences) {
             LatLng(
-                getFloat("last_lat", Float.NaN).toDouble(),
-                getFloat("last_lng", Float.NaN).toDouble()
+                getFloat("last_lat", 30.512537.toFloat()).toDouble(),
+                getFloat("last_lng", 114.413622.toFloat()).toDouble()
             )
         }
         set(value) {

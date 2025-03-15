@@ -18,7 +18,7 @@ import com.efbsm5.easyway.viewmodel.componentsViewmodel.FunctionCardViewModel
 import com.efbsm5.easyway.viewmodel.pageViewmodel.ShowPageViewModel
 
 class ViewModelFactory(
-    private val context: Context
+    context: Context
 ) : ViewModelProvider.Factory {
     private val repository: DataRepository = DataRepository(context)
     private val userManager: UserManager = UserManager(context)
@@ -26,9 +26,7 @@ class ViewModelFactory(
     private val locationSaver = LocationSaver(context)
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(MapPageViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST") return MapPageViewModel(
-                context, repository, locationSaver
-            ) as T
+            @Suppress("UNCHECKED_CAST") return MapPageViewModel(repository) as T
         }
         if (modelClass.isAssignableFrom(DetailPageViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST") return DetailPageViewModel(repository, userManager) as T

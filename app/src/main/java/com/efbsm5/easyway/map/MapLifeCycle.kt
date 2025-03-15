@@ -14,7 +14,6 @@ import com.amap.api.maps.AMap
 import com.amap.api.maps.AMap.MAP_TYPE_NIGHT
 import com.amap.api.maps.AMap.MAP_TYPE_NORMAL
 import com.amap.api.maps.AMapOptions
-import com.amap.api.maps.LocationSource
 import com.amap.api.maps.MapView
 import com.amap.api.maps.model.MyLocationStyle
 import com.efbsm5.easyway.ui.theme.isDarkTheme

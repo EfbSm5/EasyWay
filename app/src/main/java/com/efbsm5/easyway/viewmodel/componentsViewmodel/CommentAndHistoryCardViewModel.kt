@@ -1,11 +1,7 @@
 package com.efbsm5.easyway.viewmodel.componentsViewmodel
 
-import android.content.Context
-import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.amap.api.maps.model.Poi
-import com.amap.api.services.core.PoiItemV2
 import com.efbsm5.easyway.data.UserManager
 import com.efbsm5.easyway.data.models.EasyPoint
 import com.efbsm5.easyway.data.repository.DataRepository
@@ -53,41 +49,7 @@ class CommentAndHistoryCardViewModel(val repository: DataRepository, val userMan
         }
     }
 
-    fun addPoiItem(poiItemV2: PoiItemV2) {
-        _point.value = EasyPoint(
-            pointId = 0,
-            name = poiItemV2.title,
-            type = "一般点",
-            info = poiItemV2.snippet,
-            location = "无详细描述",
-            photo = poiItemV2.photos.first().url.toUri(),
-            refreshTime = "未知",
-            likes = 0,
-            dislikes = 0,
-            lat = poiItemV2.latLonPoint.latitude,
-            lng = poiItemV2.latLonPoint.longitude,
-            userId = 0,
-            commentId = 0
-        )
-    }
 
-    fun addPoi(poi: Poi) {
-        _point.value = EasyPoint(
-            pointId = 0,
-            name = poi.name,
-            type = "一般点",
-            info = "无详细描述",
-            location = "无详细描述",
-            photo = null,
-            refreshTime = "未知",
-            likes = 0,
-            dislikes = 0,
-            lat = poi.coordinate.latitude,
-            lng = poi.coordinate.longitude,
-            userId = 0,
-            commentId = 0
-        )
-    }
 
     fun addEasyPoint(easyPoint: EasyPoint) {
         _point.value = easyPoint

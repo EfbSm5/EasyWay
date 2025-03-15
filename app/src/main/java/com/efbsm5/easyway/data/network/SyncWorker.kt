@@ -10,7 +10,7 @@ class SyncWorker(context: Context, workerParams: WorkerParameters) : Worker(cont
         return try {
             intentRepository.syncData()
             Result.success()
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             Result.failure()
         }
     }

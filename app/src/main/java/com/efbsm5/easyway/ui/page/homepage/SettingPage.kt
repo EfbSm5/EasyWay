@@ -7,41 +7,48 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
+import com.efbsm5.easyway.viewmodel.pageViewmodel.HomePageState
 
-
+@Preview
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen(changeState: (HomePageState) -> Unit = {}) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF5F5F5))
+            .background(MaterialTheme.colorScheme.background)
     ) {
-        TopBar(title = "设置")
+        TopBar(title = "设置", back = { changeState(HomePageState.Main) })
         Spacer(modifier = Modifier.height(8.dp))
         SettingGroup(
             items = listOf(
-                SettingItem(Icons.Default.Apps, "通用设置"),
+                SettingItem(Icons.Default.Settings, "通用设置"),
                 SettingItem(Icons.Default.Notifications, "通知设置")
             )
         )
         Spacer(modifier = Modifier.height(16.dp))
         SettingGroup(
             items = listOf(
-                SettingItem(Icons.Default.Security, "账号安全"),
+                SettingItem(Icons.Default.Lock, "账号安全"),
                 SettingItem(Icons.Default.Info, "免责声明"),
-                SettingItem(Icons.Default.Help, "关于我们")
+                SettingItem(Icons.Default.Face, "关于我们")
             )
         )
         Spacer(modifier = Modifier.height(16.dp))
@@ -49,14 +56,14 @@ fun SettingsScreen() {
             items = listOf(
                 SettingItem(
                     Icons.AutoMirrored.Filled.ExitToApp, "注销账号", Color(0xFF1E88E5)
-                ) // 蓝色图标
+                )
             )
         )
     }
 }
 
 @Composable
-fun TopBar(title: String) {
+fun TopBar(title: String, back: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -67,13 +74,13 @@ fun TopBar(title: String) {
         Row(
             modifier = Modifier.fillMaxHeight(), verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = "Back",
-                modifier = Modifier
-                    .padding(start = 16.dp)
-                    .size(24.dp)
-            )
+            IconButton(back) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Back",
+                    modifier = Modifier.size(24.dp)
+                )
+            }
             Text(
                 text = title,
                 fontSize = 18.sp,
@@ -89,8 +96,9 @@ fun SettingGroup(items: List<SettingItem>) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.White, RoundedCornerShape(8.dp))
+            .background(MaterialTheme.colorScheme.surfaceContainer, RoundedCornerShape(8.dp))
             .padding(vertical = 8.dp, horizontal = 16.dp)
+            .clip(RoundedCornerShape(6.dp))
     ) {
         items.forEachIndexed { index, item ->
             SettingRow(item)
@@ -99,7 +107,7 @@ fun SettingGroup(items: List<SettingItem>) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(1.dp)
-                        .background(Color(0xFFE0E0E0)) // 分割线颜色
+                        .background(MaterialTheme.colorScheme.outlineVariant) // 分割线颜色
                 )
             }
         }
@@ -139,11 +147,5 @@ fun SettingRow(item: SettingItem) {
 data class SettingItem(
     val icon: androidx.compose.ui.graphics.vector.ImageVector,
     val title: String,
-    val iconTint: Color = Color(0xFF1E88E5) // 默认蓝色
+    val iconTint: Color = Color(0xFF1E88E5)
 )
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewSettingsScreen() {
-    SettingsScreen()
-}

@@ -1,18 +1,10 @@
 package com.efbsm5.easyway.viewmodel.pageViewmodel
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.amap.api.maps.AMap
-import com.amap.api.maps.CameraUpdateFactory
-import com.amap.api.maps.MapView
-import com.amap.api.maps.model.BitmapDescriptorFactory
-import com.amap.api.maps.model.LatLng
-import com.amap.api.maps.model.MarkerOptions
+import com.efbsm5.easyway.data.models.assistModel.EasyPointSimplify
 import com.efbsm5.easyway.data.repository.DataRepository
-import com.efbsm5.easyway.map.LocationController
-import com.efbsm5.easyway.map.LocationSaver
-import com.efbsm5.easyway.map.MapRouteSearchUtil
 import com.efbsm5.easyway.map.MapUtil
 import com.efbsm5.easyway.ui.components.mapcards.Screen
 import kotlinx.coroutines.Dispatchers
@@ -22,7 +14,7 @@ import kotlinx.coroutines.launch
 
 
 class MapPageViewModel(
-    context: Context, val repository: DataRepository, val locationSaver: LocationSaver
+    val repository: DataRepository
 ) : ViewModel() {
     private val _state = MutableStateFlow<Screen>(Screen.Function)
     val state: StateFlow<Screen> = _state
@@ -30,8 +22,6 @@ class MapPageViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             changeScreen(
                 Screen.Comment(
-                    poi = null,
-                    poiItemV2 = null,
                     easyPoint = repository.getPointFromLatlng(it.position)
                 )
             )
@@ -41,43 +31,28 @@ class MapPageViewModel(
     val onPoiClick = AMap.OnPOIClickListener {
         changeScreen(
             Screen.Comment(
-                poi = it, poiItemV2 = null, easyPoint = null
+                easyPoint = MapUtil.poiToEasyPoint(it)
             )
         )
     }
     val onMapClick = AMap.OnMapClickListener {}
+    private val _points = MutableStateFlow<List<EasyPointSimplify>>(emptyList())
+    val points: StateFlow<List<EasyPointSimplify>> = _points
 
-    fun drawPoints(mapView: MapView) {
+    init {
+        getPoints()
+    }
+
+    fun getPoints() {
         viewModelScope.launch(Dispatchers.IO) {
             repository.getAllPoints().collect {
-                mapView.map.clear()
-                it.forEach { point ->
-                    mapView.map.addMarker(
-                        MarkerOptions().title(
-                            point.name
-                        ).position(LatLng(point.lat, point.lng))
-                            .icon(BitmapDescriptorFactory.defaultMarker())
-                    )
-                }
+                _points.value = it
             }
         }
-        mapView.map.animateCamera(
-            CameraUpdateFactory.newLatLng(
-                locationSaver.location
-            )
-        )
     }
 
     fun changeScreen(screen: Screen) {
         _state.value = screen
     }
 
-    fun navigate(context: Context, destination: LatLng, mapView: MapView) {
-        MapRouteSearchUtil(
-            mapView = mapView,
-            context = context,
-            returnMsg = { MapUtil.showMsg(it, context) }).startRouteSearch(
-            mStartPoint = locationSaver.location, mEndPoint = destination
-        )
-    }
 }

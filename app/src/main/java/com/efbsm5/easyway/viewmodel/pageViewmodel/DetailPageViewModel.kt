@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 
 class DetailPageViewModel(val repository: DataRepository, val userManager: UserManager) :
     ViewModel() {
-    private lateinit var _dynamicPost: MutableStateFlow<DynamicPost>
+    private val _dynamicPost = MutableStateFlow<DynamicPost?>(null)
     private var _postUser = MutableStateFlow(getInitUser())
     private val _commentAndUsers = MutableStateFlow(emptyList<CommentAndUser>().toMutableList())
     val postUser: StateFlow<User> = _postUser
@@ -31,8 +31,8 @@ class DetailPageViewModel(val repository: DataRepository, val userManager: UserM
 
     private fun getData() {
         viewModelScope.launch(Dispatchers.IO) {
-            _postUser.value = repository.getUserById(_dynamicPost.value.userId)
-            repository.getAllCommentsById(commentId = _dynamicPost.value.commentId)
+            _postUser.value = repository.getUserById(_dynamicPost.value!!.userId)
+            repository.getAllCommentsById(commentId = _dynamicPost.value!!.commentId)
                 .collect { comments ->
                     _commentAndUsers.value.clear()
                     comments.forEach {
@@ -48,12 +48,14 @@ class DetailPageViewModel(val repository: DataRepository, val userManager: UserM
     }
 
     fun likePost(boolean: Boolean) {
-        if (boolean) {
-            _dynamicPost.value.like + 1
-            repository.addLikeForPost(_dynamicPost.value.id)
-        } else {
-            _dynamicPost.value.like - 1
-            repository.decreaseLikeForPost(_dynamicPost.value.id)
+        viewModelScope.launch(Dispatchers.IO) {
+            if (boolean) {
+                _dynamicPost.value!!.like + 1
+                repository.addLikeForPost(_dynamicPost.value!!.id)
+            } else {
+                _dynamicPost.value!!.like - 1
+                repository.decreaseLikeForPost(_dynamicPost.value!!.id)
+            }
         }
     }
 
@@ -93,7 +95,7 @@ class DetailPageViewModel(val repository: DataRepository, val userManager: UserM
         viewModelScope.launch(Dispatchers.IO) {
             val comment = Comment(
                 index = repository.getCommentCount() + 1,
-                commentId = _dynamicPost.value.commentId,
+                commentId = _dynamicPost.value!!.commentId,
                 userId = userManager.userId,
                 content = string,
                 like = 0,

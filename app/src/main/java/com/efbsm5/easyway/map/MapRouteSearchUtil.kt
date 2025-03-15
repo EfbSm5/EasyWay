@@ -12,67 +12,70 @@ import com.amap.api.services.route.RideRouteResult
 import com.amap.api.services.route.RouteSearch
 import com.amap.api.services.route.WalkRouteResult
 import com.efbsm5.easyway.R
+import com.efbsm5.easyway.map.MapUtil.showMsg
 import com.efbsm5.easyway.map.overlay.AMapServicesUtil.convertToLatLonPoint
 import com.efbsm5.easyway.map.overlay.WalkRouteOverlay
 
-class MapRouteSearchUtil(
-    private val mapView: MapView, val context: Context, val returnMsg: (String) -> Unit
-) : RouteSearch.OnRouteSearchListener {
 
-    fun startRouteSearch(
-        mStartPoint: LatLng, mEndPoint: LatLng
-    ) {
-        Thread {
-            try {
-                val routeSearch = RouteSearch(context)
-                routeSearch.setRouteSearchListener(this)
-                mapView.map.clear()
-                mapView.map.addMarker(
-                    MarkerOptions().position(mStartPoint)
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.start))
-                )
-                mapView.map.addMarker(
-                    MarkerOptions().position(mEndPoint)
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.end))
-                )
-                val query = RouteSearch.WalkRouteQuery(
-                    RouteSearch.FromAndTo(
-                        convertToLatLonPoint(mStartPoint), convertToLatLonPoint(mEndPoint)
-                    ), RouteSearch.WalkDefault
-                )
-                routeSearch.calculateWalkRouteAsyn(query)
-            } catch (e: Exception) {
-                throw RuntimeException(e)
-            }
-        }.start()
-    }
+fun startRouteSearch(
+    mEndPoint: LatLng,
+    mapView: MapView,
+    context: Context,
+) {
+    Thread {
+        try {
+            val routeSearch = RouteSearch(context)
+            val locationSaver = LocationSaver(context)
+            routeSearch.setRouteSearchListener(object : RouteSearch.OnRouteSearchListener {
 
-    override fun onBusRouteSearched(p0: BusRouteResult?, p1: Int) {}
+                override fun onBusRouteSearched(p0: BusRouteResult?, p1: Int) {}
+                override fun onDriveRouteSearched(p0: DriveRouteResult?, p1: Int) {}
+                override fun onWalkRouteSearched(walkRouteResult: WalkRouteResult?, p1: Int) {
+                    if (p1 != AMapException.CODE_AMAP_SUCCESS) {
+                        showMsg("出错了", context)
+                        return
+                    }
+                    if (walkRouteResult?.paths == null) {
+                        showMsg("没有搜索到相关数据", context)
+                        return
+                    }
+                    if (walkRouteResult.paths.isEmpty()) {
+                        showMsg("无路线", context)
+                        return
+                    }
+                    val walkPath = walkRouteResult.paths[0] ?: return
+                    val walkRouteOverlay = WalkRouteOverlay(
+                        context,
+                        mapView.map,
+                        walkPath,
+                        walkRouteResult.startPos,
+                        walkRouteResult.targetPos
+                    )
+                    walkRouteOverlay.removeFromMap()
+                    walkRouteOverlay.addToMap()
+                    walkRouteOverlay.zoomToSpan()
+                }
 
-    override fun onDriveRouteSearched(p0: DriveRouteResult?, p1: Int) {
-    }
+                override fun onRideRouteSearched(p0: RideRouteResult?, p1: Int) {}
 
-    override fun onWalkRouteSearched(walkRouteResult: WalkRouteResult?, p1: Int) {
-        if (p1 != AMapException.CODE_AMAP_SUCCESS) {
-            returnMsg("出错了")
-            return
+            })
+            mapView.map.clear()
+            mapView.map.addMarker(
+                MarkerOptions().position(locationSaver.location)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.start))
+            )
+            mapView.map.addMarker(
+                MarkerOptions().position(mEndPoint)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.end))
+            )
+            val query = RouteSearch.WalkRouteQuery(
+                RouteSearch.FromAndTo(
+                    convertToLatLonPoint(locationSaver.location), convertToLatLonPoint(mEndPoint)
+                ), RouteSearch.WalkDefault
+            )
+            routeSearch.calculateWalkRouteAsyn(query)
+        } catch (e: Exception) {
+            throw RuntimeException(e)
         }
-        if (walkRouteResult?.paths == null) {
-            returnMsg("没有搜索到相关数据")
-            return
-        }
-        if (walkRouteResult.paths.isEmpty()) {
-            returnMsg("无路线")
-            return
-        }
-        val walkPath = walkRouteResult.paths[0] ?: return
-        val walkRouteOverlay = WalkRouteOverlay(
-            context, mapView.map, walkPath, walkRouteResult.startPos, walkRouteResult.targetPos
-        )
-        walkRouteOverlay.removeFromMap()
-        walkRouteOverlay.addToMap()
-        walkRouteOverlay.zoomToSpan()
-    }
-
-    override fun onRideRouteSearched(p0: RideRouteResult?, p1: Int) {}
+    }.start()
 }

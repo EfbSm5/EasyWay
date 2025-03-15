@@ -1,6 +1,5 @@
 package com.efbsm5.easyway.ui
 
-import android.view.View
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -37,18 +36,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.amap.api.maps.AMapOptions
-import com.amap.api.maps.MapView
 import com.efbsm5.easyway.data.network.CheckUpdate
-import com.efbsm5.easyway.map.LocationController
-import com.efbsm5.easyway.map.MapLifecycle
 import com.efbsm5.easyway.ui.page.communityPage.CommunityPage
 import com.efbsm5.easyway.ui.page.homepage.HomePage
 import com.efbsm5.easyway.ui.page.MapPage
@@ -62,19 +56,10 @@ fun EasyWay() {
     val context = LocalContext.current
     val mapPageViewModel = viewModel<MapPageViewModel>(factory = ViewModelFactory(context))
     val homePageViewModel = viewModel<HomePageViewModel>(factory = ViewModelFactory(context))
-    val mapView = remember { MapView(context, AMapOptions().compassEnabled(true)) }
-    MapLifecycle(
-        mapView = mapView,
-        onPoiClick = mapPageViewModel.onPoiClick,
-        onMapClick = mapPageViewModel.onMapClick,
-        onMarkerClick = mapPageViewModel.onMarkerClick,
-    )
-    mapPageViewModel.drawPoints(mapView)
     CheckUpdate(context = context)
     AppSurface(
         mapPageViewModel = mapPageViewModel,
         homePageViewModel = homePageViewModel,
-        mapView = mapView,
     )
 }
 
@@ -82,7 +67,6 @@ fun EasyWay() {
 fun AppSurface(
     mapPageViewModel: MapPageViewModel,
     homePageViewModel: HomePageViewModel,
-    mapView: MapView,
 ) {
     val navController = rememberNavController()
     Scaffold(bottomBar = { HighlightButton(navController = navController) }) { innerPadding ->
@@ -93,23 +77,14 @@ fun AppSurface(
                 .imePadding(),
             contentAlignment = Alignment.Center
         ) {
-            AndroidView(modifier = Modifier.fillMaxSize(), factory = { mapView }, onRelease = {
-                mapView.onDestroy()
-                mapView.removeAllViews()
-            })
             NavHost(navController = navController, startDestination = "MapPage") {
                 composable("MapPage") {
-                    mapView.visibility = View.VISIBLE
-                    MapPage(
-                        viewModel = mapPageViewModel, mapView = mapView,
-                    )
+                    MapPage(viewModel = mapPageViewModel)
                 }
                 composable("Community") {
-                    mapView.visibility = View.GONE
                     CommunityPage()
                 }
                 composable("home") {
-                    mapView.visibility = View.GONE
                     HomePage(homePageViewModel)
                 }
             }
