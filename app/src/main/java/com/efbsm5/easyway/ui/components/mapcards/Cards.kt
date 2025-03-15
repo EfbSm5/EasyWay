@@ -14,7 +14,6 @@ import com.efbsm5.easyway.viewmodel.componentsViewmodel.FunctionCardViewModel
 
 @Composable
 fun MapPageCard(
-    location: LatLng,
     onNavigate: (LatLng) -> Unit,
     content: Screen,
     onChangeScreen: (Screen) -> Unit
@@ -43,12 +42,11 @@ fun MapPageCard(
         }
 
         Screen.Function -> FunctionCard(
-            viewModel = functionCardViewModel, location = location, changeScreen = onChangeScreen,
+            viewModel = functionCardViewModel, changeScreen = onChangeScreen,
             navigate = onNavigate,
         )
 
         is Screen.NewPoint -> NewPointCard(
-            location = content.location,
             viewModel = newPointCardViewModel,
             changeScreen = onChangeScreen,
             label = content.label
@@ -58,7 +56,7 @@ fun MapPageCard(
 
 sealed interface Screen {
     data object Function : Screen
-    data class NewPoint(val location: LatLng, val label: String) : Screen
+    data class NewPoint(val label: String) : Screen
     data class Comment(
         val poi: Poi?, val poiItemV2: PoiItemV2?, val easyPoint: EasyPoint?
     ) : Screen

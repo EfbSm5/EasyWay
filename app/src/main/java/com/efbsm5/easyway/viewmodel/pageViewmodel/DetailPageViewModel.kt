@@ -1,6 +1,5 @@
 package com.efbsm5.easyway.viewmodel.pageViewmodel
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.efbsm5.easyway.data.UserManager
@@ -16,12 +15,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class DetailPageViewModel(context: Context) : ViewModel() {
-    private val repository = DataRepository(context)
+class DetailPageViewModel(val repository: DataRepository, val userManager: UserManager) :
+    ViewModel() {
     private lateinit var _dynamicPost: MutableStateFlow<DynamicPost>
     private var _postUser = MutableStateFlow(getInitUser())
     private val _commentAndUsers = MutableStateFlow(emptyList<CommentAndUser>().toMutableList())
-    private val userManager = UserManager(context)
     val postUser: StateFlow<User> = _postUser
     val commentAndUser: StateFlow<MutableList<CommentAndUser>> = _commentAndUsers
     val post: StateFlow<DynamicPost?> = _dynamicPost
@@ -95,7 +93,7 @@ class DetailPageViewModel(context: Context) : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             val comment = Comment(
                 index = repository.getCommentCount() + 1,
-                commentId = _dynamicPost.value!!.commentId,
+                commentId = _dynamicPost.value.commentId,
                 userId = userManager.userId,
                 content = string,
                 like = 0,

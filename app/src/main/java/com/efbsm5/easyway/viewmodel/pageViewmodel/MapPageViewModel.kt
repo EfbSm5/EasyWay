@@ -11,6 +11,7 @@ import com.amap.api.maps.model.LatLng
 import com.amap.api.maps.model.MarkerOptions
 import com.efbsm5.easyway.data.repository.DataRepository
 import com.efbsm5.easyway.map.LocationController
+import com.efbsm5.easyway.map.LocationSaver
 import com.efbsm5.easyway.map.MapRouteSearchUtil
 import com.efbsm5.easyway.map.MapUtil
 import com.efbsm5.easyway.ui.components.mapcards.Screen
@@ -20,13 +21,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 
-class MapPageViewModel(context: Context) : ViewModel() {
-    private val repository = DataRepository(context)
-    private val locationController = LocationController(context)
+class MapPageViewModel(
+    context: Context, val repository: DataRepository, val locationSaver: LocationSaver
+) : ViewModel() {
     private val _state = MutableStateFlow<Screen>(Screen.Function)
-    val location = locationController.location
     val state: StateFlow<Screen> = _state
-    val locationSource = locationController.getLocationSource()
     val onMarkerClick = AMap.OnMarkerClickListener {
         viewModelScope.launch(Dispatchers.IO) {
             changeScreen(
@@ -46,10 +45,9 @@ class MapPageViewModel(context: Context) : ViewModel() {
             )
         )
     }
-    val onMapClick = AMap.OnMapClickListener {
-    }
+    val onMapClick = AMap.OnMapClickListener {}
 
-    fun drawPointsAndInitLocation(mapView: MapView) {
+    fun drawPoints(mapView: MapView) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.getAllPoints().collect {
                 mapView.map.clear()
@@ -63,7 +61,11 @@ class MapPageViewModel(context: Context) : ViewModel() {
                 }
             }
         }
-        mapView.map.animateCamera(CameraUpdateFactory.newLatLng(locationController.getLastKnownLocation()))
+        mapView.map.animateCamera(
+            CameraUpdateFactory.newLatLng(
+                locationSaver.location
+            )
+        )
     }
 
     fun changeScreen(screen: Screen) {
@@ -75,7 +77,7 @@ class MapPageViewModel(context: Context) : ViewModel() {
             mapView = mapView,
             context = context,
             returnMsg = { MapUtil.showMsg(it, context) }).startRouteSearch(
-            mStartPoint = location.value, mEndPoint = destination
+            mStartPoint = locationSaver.location, mEndPoint = destination
         )
     }
 }

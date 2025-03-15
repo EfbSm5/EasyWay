@@ -61,7 +61,7 @@ fun CommentAndHistoryCard(
         update = {
             changeScreen(
                 Screen.NewPoint(
-                    label = "更新点位", location = point.getLatlng()
+                    label = "更新点位"
                 )
             )
         },

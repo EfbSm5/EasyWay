@@ -12,8 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class NewPostPageViewModel(context: Context) : ViewModel() {
-    private val repository = DataRepository(context)
+class NewPostPageViewModel(val repository: DataRepository) : ViewModel() {
     private var _newPost = MutableStateFlow(getInitPost())
     private var _selectedButton = MutableStateFlow("")
     private val _chosenPhotos = MutableStateFlow(emptyList<Uri>())

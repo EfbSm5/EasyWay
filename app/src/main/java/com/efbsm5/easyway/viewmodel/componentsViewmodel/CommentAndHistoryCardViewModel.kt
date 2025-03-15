@@ -18,12 +18,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 
-class CommentAndHistoryCardViewModel(context: Context) : ViewModel() {
-    private val repository = DataRepository(context)
+class CommentAndHistoryCardViewModel(val repository: DataRepository, val userManager: UserManager) :
+    ViewModel() {
     private var _state = MutableStateFlow<CommentCardScreen>(CommentCardScreen.Comment)
     private val _point = MutableStateFlow(MapUtil.getInitPoint())
     private var _pointComments = MutableStateFlow<List<CommentAndUser>>(emptyList())
-    private val userManager = UserManager(context)
     val point: StateFlow<EasyPoint> = _point
     val state: StateFlow<CommentCardScreen> = _state
     val pointComments: StateFlow<List<CommentAndUser>> = _pointComments
@@ -31,6 +30,7 @@ class CommentAndHistoryCardViewModel(context: Context) : ViewModel() {
     fun changeState(commentCardScreen: CommentCardScreen) {
         _state.value = commentCardScreen
     }
+
     fun publish(string: String) {
         viewModelScope.launch(Dispatchers.IO) {
             val comment = Comment(

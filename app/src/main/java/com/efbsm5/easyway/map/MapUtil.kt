@@ -3,26 +3,15 @@ package com.efbsm5.easyway.map
 import android.content.Context
 import android.content.Intent
 import android.location.Location
-import android.net.Uri
-import android.os.Bundle
 import android.widget.Toast
 import com.amap.api.maps.model.LatLng
 import com.amap.api.services.core.LatLonPoint
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import androidx.core.net.toUri
-import com.amap.api.maps.AMap.MAP_TYPE_NIGHT
-import com.amap.api.maps.AMap.MAP_TYPE_NORMAL
-import com.amap.api.maps.AMapOptions
-import com.amap.api.maps.MapView
-import com.amap.api.maps.model.BitmapDescriptorFactory
-import com.amap.api.maps.model.MarkerOptions
-import com.amap.api.maps.model.MyLocationStyle
 import com.efbsm5.easyway.data.models.DynamicPost
 import com.efbsm5.easyway.data.models.EasyPoint
 import com.efbsm5.easyway.data.models.User
-import com.efbsm5.easyway.data.models.assistModel.EasyPointSimplify
-import com.efbsm5.easyway.ui.theme.isDarkTheme
 
 
 object MapUtil {

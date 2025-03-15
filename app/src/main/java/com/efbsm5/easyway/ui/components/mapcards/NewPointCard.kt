@@ -23,7 +23,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import coil.compose.rememberAsyncImagePainter
-import com.amap.api.maps.model.LatLng
 import com.efbsm5.easyway.data.models.EasyPoint
 import com.efbsm5.easyway.map.MapUtil
 import com.efbsm5.easyway.viewmodel.componentsViewmodel.NewPointCardViewModel
@@ -32,7 +31,6 @@ import java.io.FileOutputStream
 
 @Composable
 fun NewPointCard(
-    location: LatLng?,
     changeScreen: (Screen) -> Unit,
     viewModel: NewPointCardViewModel,
     label: String
@@ -62,11 +60,14 @@ fun NewPointCard(
         },
         callback = {
             if (it) {
-                viewModel.changeTempPoint(
-                    newPoint.copy(
-                        lat = location!!.latitude, lng = location.longitude
+                viewModel.getLocation().apply {
+                    viewModel.changeTempPoint(
+                        newPoint.copy(
+                            lat = latitude, lng = longitude
+                        )
                     )
-                )
+                }
+
                 viewModel.publishPoint()
                 changeScreen(Screen.Function)
             } else {

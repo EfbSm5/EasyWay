@@ -1,6 +1,5 @@
 package com.efbsm5.easyway.ui.page.communityPage
 
-import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState

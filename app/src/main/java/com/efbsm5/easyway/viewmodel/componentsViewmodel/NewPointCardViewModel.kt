@@ -1,18 +1,22 @@
 package com.efbsm5.easyway.viewmodel.componentsViewmodel
 
-import android.content.Context
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.amap.api.maps.model.LatLng
 import com.efbsm5.easyway.data.models.EasyPoint
 import com.efbsm5.easyway.data.repository.DataRepository
+import com.efbsm5.easyway.map.LocationSaver
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class NewPointCardViewModel(context: Context) : ViewModel() {
-    private val repository = DataRepository(context)
+class NewPointCardViewModel(
+    private val repository: DataRepository,
+    private val locationSaver: LocationSaver
+) :
+    ViewModel() {
     private var _tempPoint = MutableStateFlow(
         EasyPoint(
             commentId = 0,
@@ -37,6 +41,9 @@ class NewPointCardViewModel(context: Context) : ViewModel() {
         _tempPoint.value = easyPoint
     }
 
+    fun getLocation(): LatLng {
+        return locationSaver.location
+    }
 
     fun publishPoint() {
         viewModelScope.launch(Dispatchers.IO) {

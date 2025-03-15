@@ -36,7 +36,6 @@ import kotlinx.coroutines.launch
 fun MapPage(viewModel: MapPageViewModel, mapView: MapView) {
     val context = LocalContext.current
     val state by viewModel.state.collectAsState()
-    val location by viewModel.location.collectAsState()
     val sheetState = rememberBottomSheetScaffoldState(
         bottomSheetState = rememberStandardBottomSheetState(initialValue = SheetValue.PartiallyExpanded)
     )
@@ -47,12 +46,11 @@ fun MapPage(viewModel: MapPageViewModel, mapView: MapView) {
     MapScreen(
         state = state,
         onChangeScreen = { viewModel.changeScreen(it) },
-        location = location,
         navigate = { viewModel.navigate(context, it, mapView) },
         sheetState = sheetState,
         onAdd = {
             viewModel.changeScreen(
-                Screen.NewPoint(label = "新增点位", location = location)
+                Screen.NewPoint(label = "新增点位")
             )
         },
     )
@@ -67,7 +65,6 @@ fun MapPage(viewModel: MapPageViewModel, mapView: MapView) {
 private fun MapScreen(
     state: Screen,
     onChangeScreen: (Screen) -> Unit,
-    location: LatLng,
     sheetState: BottomSheetScaffoldState,
     navigate: (LatLng) -> Unit,
     onAdd: () -> Unit
@@ -76,7 +73,6 @@ private fun MapScreen(
         MapPageCard(
             content = state,
             onChangeScreen = { onChangeScreen(it) },
-            location = location,
             onNavigate = navigate
         )
     }, scaffoldState = sheetState, sheetPeekHeight = 128.dp) {

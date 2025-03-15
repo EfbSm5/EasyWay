@@ -16,7 +16,7 @@ import com.alibaba.idst.nui.BuildConfig
 import com.efbsm5.easyway.data.models.assistModel.UpdateInfo
 
 @Composable
-fun CheckUpdateUI(context: Context) {
+fun CheckUpdate(context: Context) {
     var updateInfo by remember { mutableStateOf<UpdateInfo?>(null) }
     LaunchedEffect(Unit) {
         HttpClient().checkForUpdate { info ->

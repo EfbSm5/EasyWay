@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -39,14 +40,14 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.amap.api.maps.AMapOptions
 import com.amap.api.maps.MapView
-import com.efbsm5.easyway.data.network.CheckUpdateUI
+import com.efbsm5.easyway.data.network.CheckUpdate
+import com.efbsm5.easyway.map.LocationController
 import com.efbsm5.easyway.map.MapLifecycle
 import com.efbsm5.easyway.ui.page.communityPage.CommunityPage
 import com.efbsm5.easyway.ui.page.homepage.HomePage
@@ -58,15 +59,19 @@ import com.efbsm5.easyway.viewmodel.pageViewmodel.MapPageViewModel
 
 @Composable
 fun EasyWay() {
-    val navControl = rememberNavController()
     val context = LocalContext.current
     val mapPageViewModel = viewModel<MapPageViewModel>(factory = ViewModelFactory(context))
     val homePageViewModel = viewModel<HomePageViewModel>(factory = ViewModelFactory(context))
     val mapView = remember { MapView(context, AMapOptions().compassEnabled(true)) }
-    mapPageViewModel.drawPointsAndInitLocation(mapView)
-    CheckUpdateUI(context = context)
+    MapLifecycle(
+        mapView = mapView,
+        onPoiClick = mapPageViewModel.onPoiClick,
+        onMapClick = mapPageViewModel.onMapClick,
+        onMarkerClick = mapPageViewModel.onMarkerClick,
+    )
+    mapPageViewModel.drawPoints(mapView)
+    CheckUpdate(context = context)
     AppSurface(
-        navController = navControl,
         mapPageViewModel = mapPageViewModel,
         homePageViewModel = homePageViewModel,
         mapView = mapView,
@@ -75,16 +80,17 @@ fun EasyWay() {
 
 @Composable
 fun AppSurface(
-    navController: NavHostController,
     mapPageViewModel: MapPageViewModel,
     homePageViewModel: HomePageViewModel,
     mapView: MapView,
 ) {
+    val navController = rememberNavController()
     Scaffold(bottomBar = { HighlightButton(navController = navController) }) { innerPadding ->
         Box(
             modifier = Modifier
                 .padding(innerPadding)
-                .fillMaxSize(),
+                .fillMaxSize()
+                .imePadding(),
             contentAlignment = Alignment.Center
         ) {
             AndroidView(modifier = Modifier.fillMaxSize(), factory = { mapView }, onRelease = {
@@ -109,13 +115,7 @@ fun AppSurface(
             }
         }
     }
-    MapLifecycle(
-        mapView = mapView,
-        onPoiClick = mapPageViewModel.onPoiClick,
-        onMapClick = mapPageViewModel.onMapClick,
-        onMarkerClick = mapPageViewModel.onMarkerClick,
-        locationSource = mapPageViewModel.locationSource
-    )
+
 }
 
 @Composable

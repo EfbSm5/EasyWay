@@ -12,8 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class ShowPageViewModel(context: Context) : ViewModel() {
-    private val repository = DataRepository(context)
+class ShowPageViewModel(val repository: DataRepository) : ViewModel() {
     private var _posts = MutableStateFlow<List<DynamicPostAndUser>>(emptyList())
     private var _showPosts = MutableStateFlow<List<DynamicPostAndUser>>(emptyList())
     private val _selectedTab = MutableStateFlow(0)

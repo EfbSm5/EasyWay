@@ -17,10 +17,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class HomePageViewModel(context: Context) : ViewModel() {
-    private val repository = DataRepository(context)
-    private val repo = IntentRepository(context)
-    private val userManager = UserManager(context)
+class HomePageViewModel(
+    val repository: DataRepository,
+    val userManager: UserManager,
+    val intentRepository: IntentRepository
+) : ViewModel() {
     lateinit var user: User
 
     //    private val _points = MutableStateFlow(emptyList<EasyPoint>())
@@ -64,7 +65,7 @@ class HomePageViewModel(context: Context) : ViewModel() {
 
     fun updateData() {
         viewModelScope.launch(Dispatchers.IO) {
-            repo.syncData()
+            intentRepository.syncData()
         }
     }
 

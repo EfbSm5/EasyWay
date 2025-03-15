@@ -62,7 +62,6 @@ import com.efbsm5.easyway.viewmodel.componentsViewmodel.FunctionCardViewModel
 
 @Composable
 fun FunctionCard(
-    location: LatLng,
     changeScreen: (Screen) -> Unit,
     viewModel: FunctionCardViewModel,
     navigate: (LatLng) -> Unit
@@ -71,10 +70,10 @@ fun FunctionCard(
     val poiList by viewModel.poiList.collectAsState()
     val context = LocalContext.current
     FunctionCardScreen(
-        onclick = { viewModel.search(it) },
+        onclick = { viewModel.search(context = context, string = it) },
         poiItemV2s = poiList,
         changeScreen = changeScreen,
-        location = location,
+        location = viewModel.locationSaver.location,
         navigate = { isNavigate, destination ->
             if (isNavigate) navigate(destination)
             else viewModel.navigate(context, destination)
@@ -109,7 +108,7 @@ private fun FunctionCardScreen(
             SearchPart(
                 poiItemV2s = poiItemV2s,
                 easyPoints = easyPoints,
-                onPoiItemV2Selected = { changeScreen(Screen.Comment( null, it, null)) },
+                onPoiItemV2Selected = { changeScreen(Screen.Comment(null, it, null)) },
                 onPointSelected = { changeScreen(Screen.Comment(null, null, it)) },
                 location = location,
                 navigate = {
@@ -221,8 +220,7 @@ fun SearchPart(
     ) {
         item {
             TabSection(
-                tabs = listOf("无障碍地点", "全部地点"),
-                onSelect = {
+                tabs = listOf("无障碍地点", "全部地点"), onSelect = {
                     selectedTabIndex = it
                 })
         }

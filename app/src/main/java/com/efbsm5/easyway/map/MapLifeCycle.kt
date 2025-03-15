@@ -27,10 +27,10 @@ fun MapLifecycle(
     onMapClick: AMap.OnMapClickListener,
     onPoiClick: AMap.OnPOIClickListener,
     onMarkerClick: AMap.OnMarkerClickListener,
-    locationSource: LocationSource
 ) {
     val context = LocalContext.current
     val lifecycle = LocalLifecycleOwner.current.lifecycle
+    val locationController = LocationController(context)
     DisposableEffect(context, lifecycle, mapView) {
         val mapLifecycleObserver = mapView.lifecycleObserver(onResume = {
             mapView.map.apply {
@@ -46,7 +46,7 @@ fun MapLifecycle(
                 setOnMapClickListener(onMapClick)
                 setOnPOIClickListener(onPoiClick)
                 setOnMarkerClickListener(onMarkerClick)
-                setLocationSource(locationSource)
+                setLocationSource(locationController.locationSource)
             }
         }, onPause = {
             mapView.map.apply {
