@@ -28,7 +28,7 @@ class IntentRepository(val context: Context) {
                 val toInsert = networkComments.filter { it !in localComments }
                 val toDelete = localComments.filter { it !in networkComments }.map { it.commentId }
                 db.runInTransaction {
-                    commentDao.deleteAll(toDelete)
+//                    commentDao.deleteAll(toDelete)
                     commentDao.insertAll(toInsert)
                 }
             }
@@ -42,7 +42,7 @@ class IntentRepository(val context: Context) {
                 val toInsert = networkUsers.filter { it !in localUsers }
                 val toDelete = localUsers.filter { it !in networkUsers }.map { it.id }
                 db.runInTransaction {
-                    userDao.deleteAll(toDelete)
+//                    userDao.deleteAll(toDelete)
                     userDao.insertAll(toInsert)
                 }
             }
@@ -56,7 +56,7 @@ class IntentRepository(val context: Context) {
                 val toInsert = networkPosts.filter { it !in localPosts }
                 val toDelete = localPosts.filter { it !in networkPosts }.map { it.id }
                 db.runInTransaction {
-                    dynamicPostDao.deleteAll(toDelete)
+//                    dynamicPostDao.deleteAll(toDelete)
                     dynamicPostDao.insertAll(toInsert)
                 }
             }
@@ -73,7 +73,7 @@ class IntentRepository(val context: Context) {
                     localPoints.filter { localPoint -> networkPoints.none { it.pointId == localPoint.pointId } }
                         .map { it.pointId }
                 db.runInTransaction {
-                    pointsDao.deleteAll(toDelete)
+//                    pointsDao.deleteAll(toDelete)
                     pointsDao.insertAll(toInsert)
                 }
             }

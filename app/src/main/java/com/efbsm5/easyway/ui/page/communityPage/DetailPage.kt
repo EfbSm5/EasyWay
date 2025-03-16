@@ -51,8 +51,7 @@ fun DetailPage(onBack: () -> Unit, viewModel: DetailPageViewModel) {
         comment = { viewModel.comment(it) },
         like = { boolean, index -> viewModel.likeComment(boolean, index) },
         dislike = { boolean, index -> viewModel.dislikeComment(boolean, index) },
-        likePost = { viewModel.likePost(it) }
-    )
+        likePost = { viewModel.likePost(it) })
 }
 
 @Preview

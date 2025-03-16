@@ -36,7 +36,7 @@ fun CommunityPage() {
         }
 
         State.NewPost -> NewDynamicPostPage(
-            navigate = { state = State.Community }, viewModel = newPostPageViewModel
+            back = { state = State.Community }, viewModel = newPostPageViewModel
         )
     }
 }

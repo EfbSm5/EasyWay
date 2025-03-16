@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
@@ -38,14 +39,12 @@ import com.efbsm5.easyway.viewmodel.pageViewmodel.NewPostPageViewModel
 
 
 @Composable
-fun NewDynamicPostPage(navigate: () -> Unit, viewModel: NewPostPageViewModel) {
+fun NewDynamicPostPage(back: () -> Unit, viewModel: NewPostPageViewModel) {
     val newPost by viewModel.newPost.collectAsState()
-    val selectedButton by viewModel.selectedButton.collectAsState()
     val photos by viewModel.chosenPhotos.collectAsState()
     DynamicPostScreen(
         dynamicPost = newPost,
-        selectedButton = selectedButton,
-        onSelected = { viewModel.changeSelectedButton(it) },
+        onSelected = { viewModel.editPost(newPost.copy(type = it)) },
         onTitleChanged = { viewModel.editPost(newPost.copy(title = it)) },
         onContentChanged = { viewModel.editPost(newPost.copy(content = it)) },
         photos = photos,
@@ -56,31 +55,33 @@ fun NewDynamicPostPage(navigate: () -> Unit, viewModel: NewPostPageViewModel) {
         },
         publish = {
             viewModel.push()
-            navigate()
+            back()
         },
-        back = { navigate() })
+        back = { back() },
+        getLocation = { viewModel.getLocation() })
 }
 
+@Preview
 @Composable
 fun DynamicPostScreen(
     dynamicPost: DynamicPost = MapUtil.getInitPost(),
-    selectedButton: String = "",
     photos: List<Uri> = emptyList(),
-    onSelected: (String) -> Unit = {},
+    onSelected: (Int) -> Unit = {},
     onTitleChanged: (String) -> Unit = {},
     onContentChanged: (String) -> Unit = {},
     onSelectedPhoto: (Uri?) -> Unit = {},
     publish: () -> Unit = {},
-    back: () -> Unit = {}
+    back: () -> Unit = {},
+    getLocation: () -> String = { "" }
 ) {
     Surface {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(horizontal = 16.dp, vertical = 6.dp)
         ) {
             TopBar(back = { back() })
-            PublishToSection(selectedButton = selectedButton, onSelected = { onSelected(it) })
+            PublishToSection(onSelected = { onSelected(it) })
             Spacer(modifier = Modifier.height(16.dp))
             AddTitleAndContentSection(
                 dynamicPost = dynamicPost,
@@ -89,7 +90,10 @@ fun DynamicPostScreen(
             Spacer(modifier = Modifier.height(16.dp))
             Spacer(modifier = Modifier.height(16.dp))
             AddLocationAndImagesSection(
-                selectedPhotos = photos, onSelectedPhoto = { it?.let { onSelectedPhoto(it) } })
+                selectedPhotos = photos,
+                onSelectedPhoto = { it?.let { onSelectedPhoto(it) } },
+                getLocation =getLocation
+            )
             Spacer(modifier = Modifier.weight(1f))
             PublishButton(publish = { publish() })
         }
@@ -110,26 +114,57 @@ private fun TopBar(back: () -> Unit) {
 }
 
 @Composable
-private fun PublishToSection(selectedButton: String, onSelected: (String) -> Unit) {
+private fun PublishToSection(onSelected: (Int) -> Unit) {
+    var selectedButton by remember { mutableStateOf("") }
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text("发布到：", fontSize = 16.sp, fontWeight = FontWeight.Medium)
         Spacer(modifier = Modifier.width(8.dp))
         Row {
-            PublishButton("活动", selectedButton) { onSelected("活动") }
-            PublishButton("互助", selectedButton) { onSelected("互助") }
-            PublishButton("互动", selectedButton) { onSelected("互动") }
+            PublishButton("活动", selectedButton) {
+                if (it) {
+                    onSelected(1)
+                    selectedButton = "活动"
+                } else {
+                    onSelected(0)
+                    selectedButton = ""
+                }
+            }
+            PublishButton("互助", selectedButton) {
+                if (it) {
+                    onSelected(2)
+                    selectedButton = "互助"
+                } else {
+                    onSelected(0)
+                    selectedButton = ""
+                }
+            }
+            PublishButton("互动", selectedButton) {
+                if (it) {
+                    onSelected(3)
+                    selectedButton = "互动"
+                } else {
+                    onSelected(0)
+                    selectedButton = ""
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun PublishButton(label: String, selectedButton: String, onSelected: () -> Unit) {
+private fun PublishButton(label: String, selectedButton: String, onSelected: (Boolean) -> Unit) {
     val isSelected = selectedButton == label
     val backgroundColor by animateColorAsState(
-        targetValue = if (isSelected) Color.Blue else Color.Transparent, label = ""
+        targetValue = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
     )
     Button(
-        onClick = { onSelected() },
+        onClick = {
+            if (isSelected) {
+                onSelected(false)
+            } else {
+                onSelected(true)
+            }
+        },
         shape = RoundedCornerShape(16.dp),
         colors = ButtonDefaults.buttonColors(containerColor = backgroundColor),
         modifier = Modifier.padding(end = 8.dp)
@@ -164,8 +199,9 @@ private fun AddTitleAndContentSection(
 
 @Composable
 private fun AddLocationAndImagesSection(
-    selectedPhotos: List<Uri>, onSelectedPhoto: (Uri?) -> Unit
+    selectedPhotos: List<Uri>, onSelectedPhoto: (Uri?) -> Unit, getLocation: () -> String
 ) {
+    var location by remember { mutableStateOf("") }
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -176,15 +212,14 @@ private fun AddLocationAndImagesSection(
     var showDialog by remember { mutableStateOf<Uri?>(null) }
     Column {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = { /*TODO*/
-
-
+            IconButton(onClick = {
+                location = getLocation()
             }) {
                 Icon(
                     Icons.Default.LocationOn, contentDescription = "添加地点"
                 )
             }
-            Text("添加地点", fontSize = 16.sp)
+            Text(if (location.isNotEmpty()) location else "添加地点", fontSize = 16.sp)
         }
         Spacer(modifier = Modifier.height(8.dp))
         LazyVerticalGrid(
@@ -205,7 +240,7 @@ private fun AddLocationAndImagesSection(
                 Box(
                     modifier = Modifier
                         .size(100.dp)
-                        .background(MaterialTheme.colorScheme.onBackground)
+                        .background(MaterialTheme.colorScheme.onSecondary)
                         .border(1.dp, MaterialTheme.colorScheme.primary)
                         .clickable {
                             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {

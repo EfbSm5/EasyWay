@@ -5,23 +5,22 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.efbsm5.easyway.data.models.DynamicPost
 import com.efbsm5.easyway.data.repository.DataRepository
+import com.efbsm5.easyway.map.LocationSaver
 import com.efbsm5.easyway.map.MapUtil.getInitPost
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class NewPostPageViewModel(val repository: DataRepository) : ViewModel() {
+class NewPostPageViewModel(
+    private val repository: DataRepository,
+    val locationSaver: LocationSaver
+) :
+    ViewModel() {
     private var _newPost = MutableStateFlow(getInitPost())
-    private var _selectedButton = MutableStateFlow("")
     private val _chosenPhotos = MutableStateFlow(emptyList<Uri>())
     val newPost: StateFlow<DynamicPost> = _newPost
-    val selectedButton: StateFlow<String> = _selectedButton
     val chosenPhotos: StateFlow<List<Uri>> = _chosenPhotos
-
-    fun changeSelectedButton(string: String) {
-        _selectedButton.value = string
-    }
 
     fun editPost(dynamicPost: DynamicPost) {
         _newPost.value = dynamicPost
@@ -39,5 +38,9 @@ class NewPostPageViewModel(val repository: DataRepository) : ViewModel() {
 
     private fun updatePhotos(newPhotos: List<Uri>) {
         _chosenPhotos.value = newPhotos
+    }
+
+    fun getLocation(): String {
+        return locationSaver.locationDetail
     }
 }

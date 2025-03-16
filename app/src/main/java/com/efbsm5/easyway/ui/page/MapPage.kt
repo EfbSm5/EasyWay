@@ -38,6 +38,9 @@ fun MapPage(viewModel: MapPageViewModel) {
     LaunchedEffect(state) {
         if (state != Screen.Function) scope.launch { sheetState.bottomSheetState.expand() }
     }
+    LaunchedEffect(points) {
+        mapState = MapState.Point(points)
+    }
     MapScreen(
         state = state,
         onChangeScreen = { viewModel.changeScreen(it) },
@@ -78,18 +81,6 @@ private fun MapScreen(
             onMarkerClick = onMarkerClick,
             mapState = mapState
         )
-//        IconButton(
-//            onClick = onAdd,
-//            modifier = Modifier
-//                .size(50.dp)
-//                .alpha(0.7f)
-//                .clip(RoundedCornerShape(11))
-//        ) {
-//            Icon(
-//                imageVector = Icons.Default.Add,
-//                contentDescription = "新加无障碍点",
-//            )
-//        }
     }
     BackHandler(enabled = state != Screen.Function, onBack = { onChangeScreen(Screen.Function) })
 }

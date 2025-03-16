@@ -32,7 +32,10 @@ class ViewModelFactory(
             @Suppress("UNCHECKED_CAST") return DetailPageViewModel(repository, userManager) as T
         }
         if (modelClass.isAssignableFrom(NewPostPageViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST") return NewPostPageViewModel(repository) as T
+            @Suppress("UNCHECKED_CAST") return NewPostPageViewModel(
+                repository,
+                locationSaver = locationSaver
+            ) as T
         }
         if (modelClass.isAssignableFrom(CommentAndHistoryCardViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST") return CommentAndHistoryCardViewModel(

@@ -22,16 +22,11 @@ class HomePageViewModel(
     val intentRepository: IntentRepository
 ) : ViewModel() {
     lateinit var user: User
-
-    //    private val _points = MutableStateFlow(emptyList<EasyPoint>())
-//    private val _post = MutableStateFlow(emptyList<DynamicPost>())
+    private val _points = MutableStateFlow(emptyList<EasyPoint>())
+    private val _post = MutableStateFlow(emptyList<DynamicPost>())
     private val _content = MutableStateFlow<HomePageState>(HomePageState.Main)
-    val points: StateFlow<List<EasyPoint>> = repository.getPointByUserId(userManager.userId)
-        .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
-    val post: StateFlow<List<DynamicPost>> = repository.getPostByUserId(userManager.userId)
-        .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
-    val comment: StateFlow<List<Comment>> = repository.getCommentByUserId(userManager.userId)
-        .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+    val points: StateFlow<List<EasyPoint>> = _points
+    val post: StateFlow<List<DynamicPost>> = _post
     val content: StateFlow<HomePageState> = _content
 
     init {
@@ -40,21 +35,21 @@ class HomePageViewModel(
         }
     }
 
-//    fun getUserPoint() {
-//        viewModelScope.launch(Dispatchers.IO) {
-//            repository.getPointByUserId(user.id).collect {
-//                _points.value = it
-//            }
-//        }
-//    }
-//
-//    fun getUserPost() {
-//        viewModelScope.launch(Dispatchers.IO) {
-//            repository.getPostByUserId(user.id).collect {
-//                _post.value = it
-//            }
-//        }
-//    }
+    fun getUserPoint() {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.getPointByUserId(user.id).collect {
+                _points.value = it
+            }
+        }
+    }
+
+    fun getUserPost() {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.getPostByUserId(user.id).collect {
+                _post.value = it
+            }
+        }
+    }
 
     fun editUser(user: User) {
         viewModelScope.launch(Dispatchers.IO) {

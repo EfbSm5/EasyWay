@@ -14,6 +14,7 @@ import com.amap.api.maps.AMap
 import com.amap.api.maps.AMap.MAP_TYPE_NIGHT
 import com.amap.api.maps.AMap.MAP_TYPE_NORMAL
 import com.amap.api.maps.AMapOptions
+import com.amap.api.maps.CameraUpdateFactory
 import com.amap.api.maps.MapView
 import com.amap.api.maps.model.MyLocationStyle
 import com.efbsm5.easyway.ui.theme.isDarkTheme
@@ -29,7 +30,9 @@ fun MapLifecycle(
 ) {
     val context = LocalContext.current
     val lifecycle = LocalLifecycleOwner.current.lifecycle
-    val locationController = LocationController(context)
+    val locationSaver = LocationSaver(context)
+    val locationController = LocationController(locationSaver)
+    locationController.initLocation(context)
     DisposableEffect(context, lifecycle, mapView) {
         val mapLifecycleObserver = mapView.lifecycleObserver(onResume = {
             mapView.map.apply {
@@ -46,6 +49,7 @@ fun MapLifecycle(
                 setOnPOIClickListener(onPoiClick)
                 setOnMarkerClickListener(onMarkerClick)
                 setLocationSource(locationController.locationSource)
+                animateCamera(CameraUpdateFactory.newLatLng(locationSaver.location))
             }
         }, onPause = {
             mapView.map.apply {
