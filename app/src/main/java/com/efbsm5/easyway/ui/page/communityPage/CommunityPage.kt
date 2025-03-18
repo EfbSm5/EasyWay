@@ -5,22 +5,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.efbsm5.easyway.data.models.DynamicPost
-import com.efbsm5.easyway.viewmodel.ViewModelFactory
 import com.efbsm5.easyway.viewmodel.pageViewmodel.DetailPageViewModel
 import com.efbsm5.easyway.viewmodel.pageViewmodel.NewPostPageViewModel
 import com.efbsm5.easyway.viewmodel.pageViewmodel.ShowPageViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun CommunityPage() {
     var state: State by remember { mutableStateOf(State.Community) }
-    val context = LocalContext.current
-    val showPageViewModel =
-        viewModel<ShowPageViewModel>(factory = ViewModelFactory(context = context))
-    val detailPageViewModel = viewModel<DetailPageViewModel>(factory = ViewModelFactory(context))
-    val newPostPageViewModel = viewModel<NewPostPageViewModel>(factory = ViewModelFactory(context))
+    val showPageViewModel: ShowPageViewModel = koinViewModel()
+    val detailPageViewModel: DetailPageViewModel = koinViewModel()
+    val newPostPageViewModel: NewPostPageViewModel = koinViewModel()
     when (state) {
         State.Community -> ShowPage(
             onChangeState = { state = State.NewPost },

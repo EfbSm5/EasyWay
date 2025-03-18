@@ -20,6 +20,9 @@ import com.amap.apis.utils.core.api.AMapUtilCoreApi
 import com.efbsm5.easyway.data.UserManager
 import com.efbsm5.easyway.data.network.SyncWorker
 import com.efbsm5.easyway.ui.EasyWay
+import com.efbsm5.easyway.viewmodel.appModule
+import org.koin.android.ext.koin.androidContext
+import org.koin.core.context.GlobalContext.startKoin
 import java.util.concurrent.TimeUnit
 
 class MainActivity : ComponentActivity() {
@@ -30,6 +33,10 @@ class MainActivity : ComponentActivity() {
         handlePermission()
         setupPeriodicSync()
         setUser()
+        startKoin {
+            androidContext(this@MainActivity) // 提供 Android 上下文
+            modules(appModule) // 加载 Koin 模块
+        }
         setContent {
             EasyWayTheme {
                 EasyWay()

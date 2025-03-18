@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.amap.api.maps.AMap
 import com.efbsm5.easyway.data.models.assistModel.EasyPointSimplify
 import com.efbsm5.easyway.data.repository.DataRepository
+import com.efbsm5.easyway.map.MapState
 import com.efbsm5.easyway.map.MapUtil
 import com.efbsm5.easyway.ui.components.mapcards.Screen
 import kotlinx.coroutines.Dispatchers
@@ -17,6 +18,7 @@ class MapPageViewModel(
     val repository: DataRepository
 ) : ViewModel() {
     private val _state = MutableStateFlow<Screen>(Screen.Function)
+    private val _mapState = MutableStateFlow<MapState>(MapState.Point(emptyList()))
     val state: StateFlow<Screen> = _state
     val onMarkerClick = AMap.OnMarkerClickListener {
         viewModelScope.launch(Dispatchers.IO) {
@@ -37,7 +39,7 @@ class MapPageViewModel(
     }
     val onMapClick = AMap.OnMapClickListener {}
     private val _points = MutableStateFlow<List<EasyPointSimplify>>(emptyList())
-    val points: StateFlow<List<EasyPointSimplify>> = _points
+    val mapState: StateFlow<MapState> = _mapState
 
     init {
         getPoints()
@@ -47,12 +49,17 @@ class MapPageViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             repository.getAllPoints().collect {
                 _points.value = it
+                _mapState.value = MapState.Point(it)
             }
         }
     }
 
     fun changeScreen(screen: Screen) {
         _state.value = screen
+    }
+
+    fun changeState(mapState: MapState) {
+        _mapState.value = mapState
     }
 
 }

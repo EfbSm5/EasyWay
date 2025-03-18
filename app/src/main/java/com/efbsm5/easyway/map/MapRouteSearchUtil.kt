@@ -15,19 +15,18 @@ import com.efbsm5.easyway.R
 import com.efbsm5.easyway.map.MapUtil.showMsg
 import com.efbsm5.easyway.map.overlay.AMapServicesUtil.convertToLatLonPoint
 import com.efbsm5.easyway.map.overlay.WalkRouteOverlay
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 fun startRouteSearch(
-    mEndPoint: LatLng,
-    mapView: MapView,
-    context: Context,
+    mEndPoint: LatLng, mapView: MapView, context: Context, locationSaver: LocationSaver
 ) {
-    Thread {
+    CoroutineScope(Dispatchers.IO).launch {
         try {
             val routeSearch = RouteSearch(context)
-            val locationSaver = LocationSaver(context)
             routeSearch.setRouteSearchListener(object : RouteSearch.OnRouteSearchListener {
-
                 override fun onBusRouteSearched(p0: BusRouteResult?, p1: Int) {}
                 override fun onDriveRouteSearched(p0: DriveRouteResult?, p1: Int) {}
                 override fun onWalkRouteSearched(walkRouteResult: WalkRouteResult?, p1: Int) {
@@ -59,15 +58,17 @@ fun startRouteSearch(
                 override fun onRideRouteSearched(p0: RideRouteResult?, p1: Int) {}
 
             })
-            mapView.map.clear()
-            mapView.map.addMarker(
-                MarkerOptions().position(locationSaver.location)
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.start))
-            )
-            mapView.map.addMarker(
-                MarkerOptions().position(mEndPoint)
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.end))
-            )
+            mapView.map.apply {
+                clear()
+                addMarker(
+                    MarkerOptions().position(locationSaver.location)
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.start))
+                )
+                addMarker(
+                    MarkerOptions().position(mEndPoint)
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.end))
+                )
+            }
             val query = RouteSearch.WalkRouteQuery(
                 RouteSearch.FromAndTo(
                     convertToLatLonPoint(locationSaver.location), convertToLatLonPoint(mEndPoint)
@@ -77,5 +78,5 @@ fun startRouteSearch(
         } catch (e: Exception) {
             throw RuntimeException(e)
         }
-    }.start()
+    }
 }

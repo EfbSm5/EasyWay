@@ -11,12 +11,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.net.toUri
 import com.alibaba.idst.nui.BuildConfig
 import com.efbsm5.easyway.data.models.assistModel.UpdateInfo
 
 @Composable
-fun CheckUpdate(context: Context) {
+fun CheckUpdate() {
+    val context = LocalContext.current
     var updateInfo by remember { mutableStateOf<UpdateInfo?>(null) }
     LaunchedEffect(Unit) {
         HttpClient().checkForUpdate { info ->

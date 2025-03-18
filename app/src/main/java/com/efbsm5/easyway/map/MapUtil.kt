@@ -144,7 +144,7 @@ object MapUtil {
             type = "一般点",
             info = poiItemV2.snippet,
             location = "无详细描述",
-            photo = poiItemV2.photos.first().url.toUri(),
+            photo = poiItemV2.photos.firstOrNull()?.url?.toUri(),
             refreshTime = "未知",
             likes = 0,
             dislikes = 0,

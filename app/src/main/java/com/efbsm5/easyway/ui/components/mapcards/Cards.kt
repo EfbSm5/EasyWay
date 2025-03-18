@@ -2,25 +2,20 @@ package com.efbsm5.easyway.ui.components.mapcards
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.amap.api.maps.model.LatLng
 import com.efbsm5.easyway.data.models.EasyPoint
-import com.efbsm5.easyway.viewmodel.ViewModelFactory
 import com.efbsm5.easyway.viewmodel.componentsViewmodel.CommentAndHistoryCardViewModel
 import com.efbsm5.easyway.viewmodel.componentsViewmodel.NewPointCardViewModel
 import com.efbsm5.easyway.viewmodel.componentsViewmodel.FunctionCardViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun MapPageCard(
     onNavigate: (LatLng) -> Unit, content: Screen, onChangeScreen: (Screen) -> Unit
 ) {
-    val context = LocalContext.current
-    val commentAndHistoryCardViewModel =
-        viewModel<CommentAndHistoryCardViewModel>(factory = ViewModelFactory(context))
-    val newPointCardViewModel =
-        viewModel<NewPointCardViewModel>(factory = ViewModelFactory(context))
-    val functionCardViewModel =
-        viewModel<FunctionCardViewModel>(factory = ViewModelFactory(context))
+    val commentAndHistoryCardViewModel: CommentAndHistoryCardViewModel = koinViewModel()
+    val newPointCardViewModel: NewPointCardViewModel = koinViewModel()
+    val functionCardViewModel: FunctionCardViewModel = koinViewModel()
     when (content) {
         is Screen.Comment -> {
             commentAndHistoryCardViewModel.addEasyPoint(content.easyPoint)

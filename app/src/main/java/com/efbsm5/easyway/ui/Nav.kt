@@ -36,7 +36,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -46,17 +45,16 @@ import com.efbsm5.easyway.data.network.CheckUpdate
 import com.efbsm5.easyway.ui.page.communityPage.CommunityPage
 import com.efbsm5.easyway.ui.page.homepage.HomePage
 import com.efbsm5.easyway.ui.page.MapPage
-import com.efbsm5.easyway.viewmodel.ViewModelFactory
 import com.efbsm5.easyway.viewmodel.pageViewmodel.HomePageViewModel
 import com.efbsm5.easyway.viewmodel.pageViewmodel.MapPageViewModel
+import org.koin.androidx.compose.koinViewModel
 
 
 @Composable
 fun EasyWay() {
-    val context = LocalContext.current
-    val mapPageViewModel = viewModel<MapPageViewModel>(factory = ViewModelFactory(context))
-    val homePageViewModel = viewModel<HomePageViewModel>(factory = ViewModelFactory(context))
-    CheckUpdate(context = context)
+    val mapPageViewModel: MapPageViewModel = koinViewModel()
+    val homePageViewModel: HomePageViewModel = koinViewModel()
+    CheckUpdate()
     AppSurface(
         mapPageViewModel = mapPageViewModel,
         homePageViewModel = homePageViewModel,

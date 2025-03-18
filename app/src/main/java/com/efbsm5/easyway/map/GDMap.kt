@@ -7,37 +7,47 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.viewinterop.AndroidView
 import com.amap.api.maps.AMap
+import com.amap.api.maps.AMap.MAP_TYPE_NIGHT
+import com.amap.api.maps.AMap.MAP_TYPE_NORMAL
 import com.amap.api.maps.AMapOptions
 import com.amap.api.maps.CameraUpdateFactory
+import com.amap.api.maps.LocationSource
 import com.amap.api.maps.MapView
 import com.amap.api.maps.model.BitmapDescriptorFactory
 import com.amap.api.maps.model.LatLng
 import com.amap.api.maps.model.MarkerOptions
+import com.amap.api.maps.model.MyLocationStyle
 import com.efbsm5.easyway.data.models.assistModel.EasyPointSimplify
+import com.efbsm5.easyway.ui.theme.isDarkTheme
 
 @Composable
 fun GDMap(
     onMapClick: AMap.OnMapClickListener,
     onPoiClick: AMap.OnPOIClickListener,
     onMarkerClick: AMap.OnMarkerClickListener,
+    locationSource: LocationSource,
     mapState: MapState
 ) {
+    if (LocalInspectionMode.current) {
+        return
+    }
     val context = LocalContext.current
-    val mapView = remember { MapView(context, AMapOptions().compassEnabled(true)) }
     val locationSaver = LocationSaver(context)
+    val mapView = remember { MapView(context, AMapOptions().compassEnabled(true)) }.apply {
+        setMap(
+            onMapClick, onMarkerClick, onPoiClick, locationSource, locationSaver.location
+        )
+    }
+    AndroidView(modifier = Modifier.fillMaxSize(), factory = { mapView }, onRelease = {
+        it.onDestroy()
+        it.removeAllViews()
+    })
     MapLifecycle(
         mapView = mapView,
-        onPoiClick = onPoiClick,
-        onMapClick = onMapClick,
-        onMarkerClick = onMarkerClick,
     )
-    AndroidView(modifier = Modifier.fillMaxSize(), factory = { mapView }, onRelease = {
-        mapView.onDestroy()
-        mapView.removeAllViews()
-    })
-
     LaunchedEffect(mapState) {
         mapView.map.animateCamera(CameraUpdateFactory.newLatLng(locationSaver.location))
         when (mapState) {
@@ -50,7 +60,10 @@ fun GDMap(
             }
 
             is MapState.Route -> {
-                startRouteSearch(mapState.endPoint, mapView, context)
+                startRouteSearch(
+                    mapState.endPoint, mapView, context,
+                    locationSaver = locationSaver
+                )
             }
         }
     }
@@ -64,6 +77,31 @@ fun drawPoints(mapView: MapView, points: List<EasyPointSimplify>) {
                 point.name
             ).position(LatLng(point.lat, point.lng)).icon(BitmapDescriptorFactory.defaultMarker())
         )
+    }
+}
+
+private fun MapView.setMap(
+    onMapClick: AMap.OnMapClickListener,
+    onMarkerClick: AMap.OnMarkerClickListener,
+    onPoiClick: AMap.OnPOIClickListener,
+    locationSource: LocationSource,
+    location: LatLng
+) {
+    this.map.apply {
+        mapType = if (isDarkTheme(context)) MAP_TYPE_NIGHT else MAP_TYPE_NORMAL
+        isMyLocationEnabled = true
+        myLocationStyle = MyLocationStyle().interval(2000)
+            .myLocationType(MyLocationStyle.LOCATION_TYPE_LOCATION_ROTATE)
+        showMapText(true)
+        uiSettings.apply {
+            isMyLocationButtonEnabled = true
+            zoomPosition = AMapOptions.ZOOM_POSITION_RIGHT_CENTER
+        }
+        setOnMapClickListener(onMapClick)
+        setOnPOIClickListener(onPoiClick)
+        setOnMarkerClickListener(onMarkerClick)
+        setLocationSource(locationSource)
+        animateCamera(CameraUpdateFactory.newLatLng(location))
     }
 }
 

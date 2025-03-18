@@ -6,58 +6,29 @@ import android.os.Bundle
 import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.amap.api.maps.AMap
-import com.amap.api.maps.AMap.MAP_TYPE_NIGHT
-import com.amap.api.maps.AMap.MAP_TYPE_NORMAL
-import com.amap.api.maps.AMapOptions
-import com.amap.api.maps.CameraUpdateFactory
 import com.amap.api.maps.MapView
-import com.amap.api.maps.model.MyLocationStyle
-import com.efbsm5.easyway.ui.theme.isDarkTheme
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 private const val TAG = "MapLifeCycle"
 
 @Composable
 fun MapLifecycle(
     mapView: MapView,
-    onMapClick: AMap.OnMapClickListener,
-    onPoiClick: AMap.OnPOIClickListener,
-    onMarkerClick: AMap.OnMarkerClickListener,
 ) {
     val context = LocalContext.current
     val lifecycle = LocalLifecycleOwner.current.lifecycle
-    val locationSaver = LocationSaver(context)
-    val locationController = LocationController(locationSaver)
-    locationController.initLocation(context)
+    val previousState = remember { mutableStateOf(Lifecycle.Event.ON_CREATE) }
     DisposableEffect(context, lifecycle, mapView) {
-        val mapLifecycleObserver = mapView.lifecycleObserver(onResume = {
-            mapView.map.apply {
-                mapType = if (isDarkTheme(context)) MAP_TYPE_NIGHT else MAP_TYPE_NORMAL
-                isMyLocationEnabled = true
-                myLocationStyle = MyLocationStyle().interval(2000)
-                    .myLocationType(MyLocationStyle.LOCATION_TYPE_LOCATION_ROTATE)
-                showMapText(true)
-                uiSettings.apply {
-                    isMyLocationButtonEnabled = true
-                    zoomPosition = AMapOptions.ZOOM_POSITION_RIGHT_CENTER
-                }
-                setOnMapClickListener(onMapClick)
-                setOnPOIClickListener(onPoiClick)
-                setOnMarkerClickListener(onMarkerClick)
-                setLocationSource(locationController.locationSource)
-                animateCamera(CameraUpdateFactory.newLatLng(locationSaver.location))
-            }
-        }, onPause = {
-            mapView.map.apply {
-                removeOnMapClickListener(onMapClick)
-                removeOnPOIClickListener(onPoiClick)
-                removeOnMarkerClickListener(onMarkerClick)
-            }
-        })
+        val mapLifecycleObserver = mapView.lifecycleObserver(previousState = previousState)
         val callbacks = mapView.componentCallbacks()
         lifecycle.addObserver(mapLifecycleObserver)
         context.registerComponentCallbacks(callbacks)
@@ -67,25 +38,35 @@ fun MapLifecycle(
             context.unregisterComponentCallbacks(callbacks)
         }
     }
+    DisposableEffect(mapView) {
+        onDispose {
+            mapView.onDestroy()
+            mapView.removeAllViews()
+        }
+    }
+}
+
+internal suspend inline fun MapView.awaitMap(): AMap = suspendCoroutine { continuation ->
+    continuation.resume(map)
 }
 
 private fun MapView.lifecycleObserver(
-    onResume: () -> Unit, onPause: () -> Unit,
+    previousState: MutableState<Lifecycle.Event>,
 ): LifecycleEventObserver = LifecycleEventObserver { _, event ->
     when (event) {
         Lifecycle.Event.ON_CREATE -> {
-            this.onCreate(Bundle())
-            Log.e(TAG, "lifecycleObserver:     oncreate view")
+            if (previousState.value != Lifecycle.Event.ON_STOP) {
+                this.onCreate(Bundle())
+                Log.e(TAG, "lifecycleObserver:     oncreate view")
+            }
         }
 
         Lifecycle.Event.ON_RESUME -> {
-            onResume()
             this.onResume()
             Log.e(TAG, "lifecycleObserver:           onresume view")
         }
 
         Lifecycle.Event.ON_PAUSE -> {
-            onPause()
             this.onPause()
             Log.e(TAG, "lifecycleObserver:                on pause view")
         }
@@ -96,6 +77,7 @@ private fun MapView.lifecycleObserver(
         } // 销毁地图
         else -> {}
     }
+    previousState.value = event
 }
 
 private fun MapView.componentCallbacks(): ComponentCallbacks = object : ComponentCallbacks {
