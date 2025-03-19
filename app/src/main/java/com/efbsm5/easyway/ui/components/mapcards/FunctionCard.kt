@@ -75,9 +75,9 @@ fun FunctionCard(
         poiItemV2s = poiList,
         changeScreen = changeScreen,
         location = viewModel.locationSaver.location,
-        navigate = { isNavigate, destination ->
+        navigate = { isNavigate, destination, name ->
             if (isNavigate) navigate(destination)
-            else viewModel.navigate(context, destination)
+            else viewModel.navigate(context, destination, name)
         },
         easyPoints = pointList
     )
@@ -90,11 +90,12 @@ private fun FunctionCardScreen(
     easyPoints: List<EasyPoint> = emptyList(),
     changeScreen: (Screen) -> Unit,
     location: LatLng,
-    navigate: (Boolean, LatLng) -> Unit
+    navigate: (Boolean, LatLng, String) -> Unit
 ) {
     var isSearching by rememberSaveable { mutableStateOf(false) }
     var isShowDialog by rememberSaveable { mutableStateOf(false) }
     var destination: LatLng? = null
+    var name = ""
     Column(
         Modifier
             .fillMaxWidth()
@@ -112,9 +113,10 @@ private fun FunctionCardScreen(
                 onPoiItemV2Selected = { changeScreen(Screen.Comment(MapUtil.addPoiItem(it))) },
                 onPointSelected = { changeScreen(Screen.Comment(it)) },
                 location = location,
-                navigate = {
+                navigate = { _destination, _name ->
                     isShowDialog = true
-                    destination = it
+                    destination = _destination
+                    name = _name
                 })
         } else IconGrid {
             onclick(it)
@@ -123,10 +125,10 @@ private fun FunctionCardScreen(
         if (isShowDialog) ShowDialog(
             callBack = {
                 isShowDialog = if (it) {
-                    navigate(true, destination!!)
+                    navigate(true, destination!!, name)
                     false
                 } else {
-                    navigate(false, destination!!)
+                    navigate(false, destination!!, name)
                     false
                 }
             })
@@ -213,7 +215,7 @@ fun SearchPart(
     onPointSelected: (point: EasyPoint) -> Unit,
     location: LatLng,
     easyPoints: List<EasyPoint> = emptyList(),
-    navigate: (LatLng) -> Unit
+    navigate: (LatLng, String) -> Unit
 ) {
     var selectedTabIndex by rememberSaveable { mutableIntStateOf(0) }
     LazyColumn(
@@ -234,7 +236,7 @@ fun SearchPart(
                     distance = calculateDistance(
                         location, convertToLatLng(poiItem.latLonPoint)
                     ),
-                    navigate = { navigate(convertToLatLng(poiItem.latLonPoint)) },
+                    navigate = { navigate(convertToLatLng(poiItem.latLonPoint), poiItem.title) },
                     select = { onPoiItemV2Selected(poiItem) })
             }
         } else {
@@ -245,7 +247,7 @@ fun SearchPart(
                     distance = calculateDistance(
                         location, easyPoint.getLatlng()
                     ),
-                    navigate = { navigate(easyPoint.getLatlng()) },
+                    navigate = { navigate(easyPoint.getLatlng(), easyPoint.name) },
                     select = { onPointSelected(easyPoint) })
             }
         }

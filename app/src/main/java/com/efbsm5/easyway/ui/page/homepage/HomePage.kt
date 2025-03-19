@@ -1,6 +1,6 @@
 package com.efbsm5.easyway.ui.page.homepage
 
-import androidx.compose.animation.Crossfade
+import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -16,66 +16,46 @@ fun HomePage(viewModel: HomePageViewModel) {
     val user = viewModel.user
     val state by viewModel.content.collectAsState()
     val context = LocalContext.current
-    Crossfade(
-        targetState = state
-    ) {
-        when (it) {
-            HomePageState.Main -> {
-                MainPageScreen(user = user, changeState = { viewModel.changeState(it) })
-            }
-
-            HomePageState.Point -> {
-                MainPageScreen(user = user, changeState = { viewModel.changeState(it) })
-                showMsg(
-                    context = context, text = "待开发"
-                )
-            }
-
-            HomePageState.Post -> {
-                MainPageScreen(user = user, changeState = { viewModel.changeState(it) })
-                showMsg(
-                    context = context, text = "待开发"
-                )
-            }
-
-            HomePageState.Comment -> {
-                MainPageScreen(user = user, changeState = { viewModel.changeState(it) })
-                showMsg(
-                    context = context, text = "待开发"
-                )
-            }
-
-            HomePageState.EditUser -> {
-                MainPageScreen(user = user, changeState = { viewModel.changeState(it) })
-                showMsg(
-                    context = context, text = "待开发"
-                )
-            }
-
-            HomePageState.Help -> {
-                MainPageScreen(user = user, changeState = { viewModel.changeState(it) })
-                showMsg(
-                    context = context, text = "待开发"
-                )
-            }
-
-            HomePageState.Reg -> {
-                MainPageScreen(user = user, changeState = { viewModel.changeState(it) })
-                showMsg(
-                    context = context, text = "待开发"
-                )
-            }
-
-            HomePageState.Settings -> SettingsScreen()
-            HomePageState.Version -> {
-                MainPageScreen(user = user, changeState = { viewModel.changeState(it) })
-                showMsg(
-                    context = context, text = "待开发"
-                )
-            }
+    when (state) {
+        HomePageState.Comment -> {
+            MainPageScreen(user, viewModel::changeState)
+            showMsg("仍在开发", context)
         }
 
+        HomePageState.EditUser -> {
+            MainPageScreen(user, viewModel::changeState)
+            showMsg("仍在开发", context)
+        }
+
+        HomePageState.Help -> InfoScreen()
+        HomePageState.Main -> MainPageScreen(user, viewModel::changeState)
+
+        HomePageState.Point -> {
+            MainPageScreen(user, viewModel::changeState)
+            showMsg("仍在开发", context)
+        }
+
+        HomePageState.Post -> {
+            viewModel.getUserPost()
+            ShowPostPage(posts)
+        }
+
+        HomePageState.Reg -> {
+            MainPageScreen(user, viewModel::changeState)
+            showMsg("仍在开发", context)
+        }
+
+        HomePageState.Settings -> SettingsScreen(viewModel::changeState)
+        HomePageState.Version -> {
+            MainPageScreen(user, viewModel::changeState)
+            showMsg("仍在开发,预计实现关爱版", context)
+        }
     }
+    BackHandler(
+        enabled = state != HomePageState.Main, onBack = {
+            viewModel.changeState(HomePageState.Main)
+        })
+
 }
 
 

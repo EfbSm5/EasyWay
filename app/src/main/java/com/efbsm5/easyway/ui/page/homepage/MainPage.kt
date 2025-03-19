@@ -202,7 +202,7 @@ fun BottomMenu(change: () -> Unit, help: () -> Unit, settings: () -> Unit) {
         shape = RoundedCornerShape(12.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
+            .padding(6.dp)
     ) {
         Column {
             MenuItem("版本切换", Icons.Default.Build, change)
@@ -222,7 +222,7 @@ fun MenuItem(label: String, imageVector: ImageVector, click: () -> Unit) {
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .padding( vertical = 8.dp)
             .clickable(
                 onClick = click,
             )

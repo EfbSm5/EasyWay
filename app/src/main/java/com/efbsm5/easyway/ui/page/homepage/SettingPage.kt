@@ -68,7 +68,7 @@ fun TopBar(title: String, back: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .height(56.dp)
-            .background(Color.White),
+            .background(MaterialTheme.colorScheme.background),
         contentAlignment = Alignment.CenterStart
     ) {
         Row(

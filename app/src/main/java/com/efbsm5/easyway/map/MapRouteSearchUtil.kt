@@ -1,6 +1,7 @@
 package com.efbsm5.easyway.map
 
 import android.content.Context
+import android.util.Log
 import com.amap.api.maps.MapView
 import com.amap.api.maps.model.BitmapDescriptorFactory
 import com.amap.api.maps.model.LatLng
@@ -19,6 +20,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+private const val TAG = "MapRouteSearchUtil"
 
 fun startRouteSearch(
     mEndPoint: LatLng, mapView: MapView, context: Context, locationSaver: LocationSaver
@@ -31,6 +33,7 @@ fun startRouteSearch(
                 override fun onDriveRouteSearched(p0: DriveRouteResult?, p1: Int) {}
                 override fun onWalkRouteSearched(walkRouteResult: WalkRouteResult?, p1: Int) {
                     if (p1 != AMapException.CODE_AMAP_SUCCESS) {
+                        Log.e(TAG, "onWalkRouteSearched: $p1")
                         showMsg("出错了", context)
                         return
                     }
@@ -53,22 +56,23 @@ fun startRouteSearch(
                     walkRouteOverlay.removeFromMap()
                     walkRouteOverlay.addToMap()
                     walkRouteOverlay.zoomToSpan()
+                    mapView.map.apply {
+                        clear()
+                        addMarker(
+                            MarkerOptions().position(locationSaver.location)
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.start))
+                        )
+                        addMarker(
+                            MarkerOptions().position(mEndPoint)
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.end))
+                        )
+                    }
                 }
 
                 override fun onRideRouteSearched(p0: RideRouteResult?, p1: Int) {}
 
             })
-            mapView.map.apply {
-                clear()
-                addMarker(
-                    MarkerOptions().position(locationSaver.location)
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.start))
-                )
-                addMarker(
-                    MarkerOptions().position(mEndPoint)
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.end))
-                )
-            }
+
             val query = RouteSearch.WalkRouteQuery(
                 RouteSearch.FromAndTo(
                     convertToLatLonPoint(locationSaver.location), convertToLatLonPoint(mEndPoint)

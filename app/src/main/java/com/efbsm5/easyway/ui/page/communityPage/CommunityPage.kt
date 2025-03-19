@@ -10,30 +10,35 @@ import com.efbsm5.easyway.viewmodel.pageViewmodel.DetailPageViewModel
 import com.efbsm5.easyway.viewmodel.pageViewmodel.NewPostPageViewModel
 import com.efbsm5.easyway.viewmodel.pageViewmodel.ShowPageViewModel
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Composable
 fun CommunityPage() {
     var state: State by remember { mutableStateOf(State.Community) }
-    val showPageViewModel: ShowPageViewModel = koinViewModel()
-    val detailPageViewModel: DetailPageViewModel = koinViewModel()
-    val newPostPageViewModel: NewPostPageViewModel = koinViewModel()
     when (state) {
-        State.Community -> ShowPage(
-            onChangeState = { state = State.NewPost },
-            onSelectedPost = { state = State.Detail(it) },
-            viewModel = showPageViewModel
-        )
+        State.Community -> {
+            val showPageViewModel: ShowPageViewModel = koinViewModel()
+            ShowPage(
+                onChangeState = { state = State.NewPost },
+                onSelectedPost = { state = State.Detail(it) },
+                viewModel = showPageViewModel
+            )
+        }
 
         is State.Detail -> {
-            detailPageViewModel.getPost((state as State.Detail).dynamicPost)
+            val detailPageViewModel: DetailPageViewModel =
+                koinViewModel(parameters = { parametersOf((state as State.Detail).dynamicPost) })
             DetailPage(
                 onBack = { state = State.Community }, viewModel = detailPageViewModel
             )
         }
 
-        State.NewPost -> NewDynamicPostPage(
-            back = { state = State.Community }, viewModel = newPostPageViewModel
-        )
+        State.NewPost -> {
+            val newPostPageViewModel: NewPostPageViewModel = koinViewModel()
+            NewDynamicPostPage(
+                back = { state = State.Community }, viewModel = newPostPageViewModel
+            )
+        }
     }
 }
 

@@ -4,16 +4,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.efbsm5.easyway.data.UserManager
 import com.efbsm5.easyway.data.repository.DataRepository
-import com.efbsm5.easyway.data.models.Comment
-import com.efbsm5.easyway.data.models.DynamicPost
 import com.efbsm5.easyway.data.models.EasyPoint
 import com.efbsm5.easyway.data.models.User
+import com.efbsm5.easyway.data.models.assistModel.DynamicPostAndUser
 import com.efbsm5.easyway.data.network.IntentRepository
+import com.efbsm5.easyway.map.MapUtil.getInitUser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class HomePageViewModel(
@@ -21,12 +19,12 @@ class HomePageViewModel(
     val userManager: UserManager,
     val intentRepository: IntentRepository
 ) : ViewModel() {
-    lateinit var user: User
+    var user: User = getInitUser()
     private val _points = MutableStateFlow(emptyList<EasyPoint>())
-    private val _post = MutableStateFlow(emptyList<DynamicPost>())
+    private val _post = MutableStateFlow(emptyList<DynamicPostAndUser>())
     private val _content = MutableStateFlow<HomePageState>(HomePageState.Main)
     val points: StateFlow<List<EasyPoint>> = _points
-    val post: StateFlow<List<DynamicPost>> = _post
+    val post: StateFlow<List<DynamicPostAndUser>> = _post
     val content: StateFlow<HomePageState> = _content
 
     init {
@@ -37,7 +35,7 @@ class HomePageViewModel(
 
     fun getUserPoint() {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.getPointByUserId(user.id).collect {
+            repository.getPointByUserId(user!!.id).collect {
                 _points.value = it
             }
         }
@@ -45,8 +43,20 @@ class HomePageViewModel(
 
     fun getUserPost() {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.getPostByUserId(user.id).collect {
-                _post.value = it
+            repository.getAllDynamicPosts().collect { dynamicPosts ->
+                val list = emptyList<DynamicPostAndUser>().toMutableList()
+                dynamicPosts.forEach { post ->
+                    repository.getCommentCount(post.commentId).collect {
+                        list.add(
+                            DynamicPostAndUser(
+                                dynamicPost = post,
+                                user = repository.getUserById(post.userId),
+                                commentCount = it,
+                            )
+                        )
+                        _post.value = list.toList()
+                    }
+                }
             }
         }
     }
