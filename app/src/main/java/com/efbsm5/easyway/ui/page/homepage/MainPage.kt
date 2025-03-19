@@ -25,10 +25,10 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -38,7 +38,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -55,7 +54,7 @@ import com.efbsm5.easyway.viewmodel.pageViewmodel.HomePageState
 fun MainPageScreen(
     user: User = MapUtil.getInitUser(), changeState: (HomePageState) -> Unit = {}
 ) {
-    Surface {
+    Surface(color = MaterialTheme.colorScheme.background) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -78,7 +77,6 @@ fun MainPageScreen(
                 settings = { changeState(HomePageState.Settings) })
         }
     }
-
 }
 
 @Composable
@@ -92,26 +90,32 @@ private fun UserProfileHeader(user: User, edit: () -> Unit) {
         Box(
             modifier = Modifier
                 .size(64.dp)
-                .background(Color.Gray, CircleShape)
+                .background(MaterialTheme.colorScheme.primaryContainer, CircleShape)
         ) {
             Image(
-                rememberAsyncImagePainter(user.avatar),
+                painter = rememberAsyncImagePainter(user.avatar),
                 contentDescription = "User Avatar",
                 modifier = Modifier
                     .size(64.dp)
+                    .clip(CircleShape)
                     .align(Alignment.Center)
             )
         }
         Spacer(modifier = Modifier.width(16.dp))
         Column {
             Text(
-                text = user.name, fontSize = 20.sp, fontWeight = FontWeight.Bold
+                text = user.name,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground
             )
         }
         Spacer(modifier = Modifier.weight(1f))
-        IconButton(onClick = { edit() }) {
+        IconButton(onClick = edit) {
             Icon(
-                imageVector = Icons.Default.Edit, contentDescription = "edit"
+                imageVector = Icons.Default.Edit,
+                contentDescription = "Edit",
+                tint = MaterialTheme.colorScheme.primary
             )
         }
     }
@@ -130,92 +134,124 @@ private fun UserActionButtons(reg: () -> Unit, point: () -> Unit, manage: () -> 
 
 @Composable
 private fun ActionButton(label: String, imageVector: ImageVector, click: () -> Unit) {
-    Button(
-        click,
+    ElevatedButton(
+        onClick = click,
         shape = RoundedCornerShape(16.dp),
-        modifier = Modifier.padding(8.dp),
-        colors = ButtonDefaults.buttonColors(disabledContentColor = MaterialTheme.colorScheme.onBackground)
+        colors = ButtonDefaults.elevatedButtonColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+        ),
+        modifier = Modifier.padding(8.dp)
     ) {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.clip(RoundedCornerShape(16))
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Icon(
                 imageVector = imageVector,
                 contentDescription = label,
                 modifier = Modifier
                     .size(40.dp)
-                    .background(Color(0xFFEFEFEF), CircleShape)
-                    .padding(8.dp)
+                    .background(MaterialTheme.colorScheme.secondaryContainer, CircleShape)
+                    .padding(8.dp),
+                tint = MaterialTheme.colorScheme.onSecondaryContainer
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(text = label, fontSize = 14.sp)
         }
     }
-
 }
 
 @Composable
 fun UserStats() {
-    Card(colors = CardDefaults.cardColors()) {
+    Card(
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        ), modifier = Modifier.fillMaxWidth()
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            Spacer(modifier = Modifier.weight(2f))
             StatItem("关注", "2")
             StatItem("粉丝", "3+")
-            Spacer(modifier = Modifier.weight(2f))
         }
     }
-
 }
 
 @Composable
 fun StatItem(label: String, value: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(text = value, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-        Text(text = label, fontSize = 14.sp, color = Color.Gray)
+        Text(
+            text = value,
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Text(
+            text = label, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 
 @Composable
 fun BottomMenu(change: () -> Unit, help: () -> Unit, settings: () -> Unit) {
-    Column(
+    Card(
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        shape = RoundedCornerShape(12.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.White, RoundedCornerShape(12.dp))
             .padding(16.dp)
     ) {
-        MenuItem("版本切换", Icons.Default.Build, change)
-        MenuItem("帮助中心", Icons.Default.Face, help)
-        MenuItem("设置", Icons.Default.Settings, settings)
+        Column {
+            MenuItem("版本切换", Icons.Default.Build, change)
+            MenuItem("帮助中心", Icons.Default.Face, help)
+            MenuItem("设置", Icons.Default.Settings, settings)
+        }
     }
 }
 
 @Composable
 fun MenuItem(label: String, imageVector: ImageVector, click: () -> Unit) {
-    Row(
+    Card(
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        ),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 12.dp)
-            .clickable { click },
-        verticalAlignment = Alignment.CenterVertically
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .clickable(
+                onClick = click,
+            )
     ) {
-        Icon(
-            imageVector = imageVector,
-            contentDescription = label,
-            tint = Color.Blue,
-            modifier = Modifier.size(24.dp)
-        )
-        Spacer(modifier = Modifier.width(16.dp))
-        Text(text = label, fontSize = 16.sp, color = Color.Black)
-        Spacer(modifier = Modifier.weight(1f))
-        Icon(
-            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight, // 替换为右箭头图标资源
-            contentDescription = "Arrow", tint = Color.Gray
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = imageVector,
+                contentDescription = label,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(24.dp)
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Text(
+                text = label,
+                fontSize = 16.sp,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.weight(1f)
+            )
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = "Arrow",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }
+

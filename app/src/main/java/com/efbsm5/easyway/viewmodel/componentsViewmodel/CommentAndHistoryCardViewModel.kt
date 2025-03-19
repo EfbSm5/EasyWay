@@ -14,10 +14,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 
-class CommentAndHistoryCardViewModel(val repository: DataRepository, val userManager: UserManager) :
-    ViewModel() {
+class CommentAndHistoryCardViewModel(
+    val repository: DataRepository,
+    val userManager: UserManager,
+    initialPoint: EasyPoint,
+) : ViewModel() {
     private var _state = MutableStateFlow<CommentCardScreen>(CommentCardScreen.Comment)
-    private val _point = MutableStateFlow(MapUtil.getInitPoint())
+    private val _point = MutableStateFlow(initialPoint)
     private var _pointComments = MutableStateFlow<List<CommentAndUser>>(emptyList())
     val point: StateFlow<EasyPoint> = _point
     val state: StateFlow<CommentCardScreen> = _state
@@ -49,11 +52,6 @@ class CommentAndHistoryCardViewModel(val repository: DataRepository, val userMan
         }
     }
 
-
-
-    fun addEasyPoint(easyPoint: EasyPoint) {
-        _point.value = easyPoint
-    }
 
     fun likePost(boolean: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {

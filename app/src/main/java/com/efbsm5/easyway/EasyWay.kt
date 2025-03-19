@@ -34,8 +34,8 @@ class MainActivity : ComponentActivity() {
         setupPeriodicSync()
         setUser()
         startKoin {
-            androidContext(this@MainActivity) // 提供 Android 上下文
-            modules(appModule) // 加载 Koin 模块
+            androidContext(this@MainActivity)
+            modules(appModule)
         }
         setContent {
             EasyWayTheme {

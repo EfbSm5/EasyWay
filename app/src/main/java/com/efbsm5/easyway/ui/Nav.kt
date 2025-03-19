@@ -33,7 +33,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -52,20 +51,7 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun EasyWay() {
-    val mapPageViewModel: MapPageViewModel = koinViewModel()
-    val homePageViewModel: HomePageViewModel = koinViewModel()
     CheckUpdate()
-    AppSurface(
-        mapPageViewModel = mapPageViewModel,
-        homePageViewModel = homePageViewModel,
-    )
-}
-
-@Composable
-fun AppSurface(
-    mapPageViewModel: MapPageViewModel,
-    homePageViewModel: HomePageViewModel,
-) {
     val navController = rememberNavController()
     Scaffold(bottomBar = { HighlightButton(navController = navController) }) { innerPadding ->
         Box(
@@ -77,18 +63,19 @@ fun AppSurface(
         ) {
             NavHost(navController = navController, startDestination = "MapPage") {
                 composable("MapPage") {
+                    val mapPageViewModel: MapPageViewModel = koinViewModel()
                     MapPage(viewModel = mapPageViewModel)
                 }
                 composable("Community") {
                     CommunityPage()
                 }
                 composable("home") {
+                    val homePageViewModel: HomePageViewModel = koinViewModel()
                     HomePage(homePageViewModel)
                 }
             }
         }
     }
-
 }
 
 @Composable

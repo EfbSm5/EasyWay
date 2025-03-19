@@ -2,6 +2,7 @@ package com.efbsm5.easyway.viewmodel
 
 
 import com.efbsm5.easyway.data.UserManager
+import com.efbsm5.easyway.data.models.EasyPoint
 import com.efbsm5.easyway.data.network.IntentRepository
 import com.efbsm5.easyway.data.repository.DataRepository
 import com.efbsm5.easyway.map.LocationSaver
@@ -26,7 +27,7 @@ val appModule = module {
     viewModel { MapPageViewModel(get()) }
     viewModel { DetailPageViewModel(get(), get()) }
     viewModel { NewPostPageViewModel(get(), get()) }
-    viewModel { CommentAndHistoryCardViewModel(get(), get()) }
+    viewModel {(initialPoint:EasyPoint)->  CommentAndHistoryCardViewModel(get(), get(), initialPoint) }
     viewModel { NewPointCardViewModel(get(), get()) }
     viewModel { ShowPageViewModel(get()) }
     viewModel { HomePageViewModel(get(), get(), get()) }
