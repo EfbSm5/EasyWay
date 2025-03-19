@@ -1,9 +1,15 @@
 package com.efbsm5.easyway.ui.page
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
@@ -12,7 +18,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.dp
 import com.amap.api.maps.AMap
 import com.amap.api.maps.LocationSource
@@ -51,7 +60,7 @@ fun MapPage(viewModel: MapPageViewModel) {
         mapState = mapState,
         onChangeMapState = viewModel::changeState,
         locationSource = locationController.locationSource,
-    )
+        onAdd = { viewModel.changeScreen(Screen.NewPoint("新加标点")) })
     BackHandler(
         enabled = sheetState.bottomSheetState.currentValue == SheetValue.Expanded, onBack = {
             scope.launch { sheetState.bottomSheetState.partialExpand() }
@@ -69,7 +78,8 @@ private fun MapScreen(
     onMarkerClick: AMap.OnMarkerClickListener,
     onMapClick: AMap.OnMapClickListener,
     onPoiClick: AMap.OnPOIClickListener,
-    locationSource: LocationSource
+    locationSource: LocationSource,
+    onAdd: () -> Unit
 ) {
     BottomSheetScaffold(sheetContent = {
         MapPageCard(
@@ -77,6 +87,11 @@ private fun MapScreen(
             onChangeScreen = onChangeScreen,
             onNavigate = { onChangeMapState(MapState.Route(it)) })
     }, scaffoldState = sheetState, sheetPeekHeight = 128.dp) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopEnd) {
+            IconButton(onAdd) {
+                Icon(Icons.Default.Add, contentDescription = "add")
+            }
+        }
         GDMap(
             onMapClick = onMapClick,
             onPoiClick = onPoiClick,

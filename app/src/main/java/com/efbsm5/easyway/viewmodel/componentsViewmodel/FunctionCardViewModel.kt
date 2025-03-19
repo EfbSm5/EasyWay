@@ -32,15 +32,6 @@ class FunctionCardViewModel(val repository: DataRepository, val locationSaver: L
         }
     }
 
-    fun navigate(context: Context, latLng: LatLng, name: String) {
-        MapUtil.apply {
-            context.startMapApp(
-                dstLat = latLng.latitude,
-                dstLon = latLng.longitude,
-                dstName = name
-            )
-        }
-    }
 
 }
 

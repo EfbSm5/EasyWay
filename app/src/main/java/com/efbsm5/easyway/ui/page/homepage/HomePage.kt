@@ -13,7 +13,7 @@ import com.efbsm5.easyway.viewmodel.pageViewmodel.HomePageViewModel
 fun HomePage(viewModel: HomePageViewModel) {
     val points by viewModel.points.collectAsState()
     val posts by viewModel.post.collectAsState()
-    val user = viewModel.user
+    val user by viewModel.user.collectAsState()
     val state by viewModel.content.collectAsState()
     val context = LocalContext.current
     when (state) {

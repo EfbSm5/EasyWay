@@ -19,7 +19,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -28,7 +27,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -58,6 +56,7 @@ import com.efbsm5.easyway.map.MapUtil.calculateDistance
 import com.efbsm5.easyway.map.MapUtil.convertToLatLng
 import com.efbsm5.easyway.map.MapUtil.formatDistance
 import com.efbsm5.easyway.map.MapUtil.getLatlng
+import com.efbsm5.easyway.ui.components.NavigationDialog
 import com.efbsm5.easyway.ui.components.TabSection
 import com.efbsm5.easyway.viewmodel.componentsViewmodel.FunctionCardViewModel
 
@@ -75,10 +74,7 @@ fun FunctionCard(
         poiItemV2s = poiList,
         changeScreen = changeScreen,
         location = viewModel.locationSaver.location,
-        navigate = { isNavigate, destination, name ->
-            if (isNavigate) navigate(destination)
-            else viewModel.navigate(context, destination, name)
-        },
+        navigate = navigate,
         easyPoints = pointList
     )
 }
@@ -90,11 +86,10 @@ private fun FunctionCardScreen(
     easyPoints: List<EasyPoint> = emptyList(),
     changeScreen: (Screen) -> Unit,
     location: LatLng,
-    navigate: (Boolean, LatLng, String) -> Unit
+    navigate: (LatLng) -> Unit
 ) {
     var isSearching by rememberSaveable { mutableStateOf(false) }
-    var isShowDialog by rememberSaveable { mutableStateOf(false) }
-    var destination: LatLng? = null
+    var destination by rememberSaveable { mutableStateOf(LatLng(0.0, 0.0)) }
     var name = ""
     Column(
         Modifier
@@ -114,7 +109,6 @@ private fun FunctionCardScreen(
                 onPointSelected = { changeScreen(Screen.Comment(it)) },
                 location = location,
                 navigate = { _destination, _name ->
-                    isShowDialog = true
                     destination = _destination
                     name = _name
                 })
@@ -122,16 +116,14 @@ private fun FunctionCardScreen(
             onclick(it)
             isSearching = true
         }
-        if (isShowDialog) ShowDialog(
-            callBack = {
-                isShowDialog = if (it) {
-                    navigate(true, destination!!, name)
-                    false
-                } else {
-                    navigate(false, destination!!, name)
-                    false
-                }
-            })
+        if (LatLng(0.0, 0.0) != destination) NavigationDialog(
+            location = destination,
+            name = name,
+            navigate = {
+                navigate
+                destination = LatLng(0.0, 0.0)
+            }
+        )
     }
 }
 
@@ -304,20 +296,3 @@ private fun AccessiblePlaceItem(
     }
 }
 
-@Composable
-private fun ShowDialog(callBack: (Boolean) -> Unit) {
-    AlertDialog(
-        onDismissRequest = { callBack(false) },
-        title = { Text(text = "注意") },
-        text = { Text("提供两种导航方式,确认则使用本软件进行导航,否则使用手机自带的app进行导航") },
-        confirmButton = {
-            TextButton(onClick = { callBack(true) }) {
-                Text("确认")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = { callBack(false) }) {
-                Text("取消")
-            }
-        })
-}

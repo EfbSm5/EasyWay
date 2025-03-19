@@ -30,7 +30,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import com.amap.api.maps.model.LatLng
 import com.efbsm5.easyway.data.models.assistModel.CommentAndUser
-import com.efbsm5.easyway.map.MapUtil
+import com.efbsm5.easyway.map.MapUtil.getLatlng
+import com.efbsm5.easyway.ui.components.NavigationDialog
 import com.efbsm5.easyway.ui.components.TabSection
 import com.efbsm5.easyway.viewmodel.componentsViewmodel.CommentAndHistoryCardViewModel
 import com.efbsm5.easyway.viewmodel.componentsViewmodel.CommentCardScreen
@@ -45,7 +46,6 @@ fun CommentAndHistoryCard(
     val state by viewModel.state.collectAsState()
     val pointComment by viewModel.pointComments.collectAsState()
     val point by viewModel.point.collectAsState()
-    val context = LocalContext.current
     CommentAndHistoryCardScreen(
         point = point,
         onSelect = {
@@ -64,13 +64,7 @@ fun CommentAndHistoryCard(
                 )
             )
         },
-        navigate = {
-            if (point.pointId != 0) {
-                navigate(LatLng(point.lat, point.lng))
-            } else {
-                MapUtil.showMsg("出错了", context = context)
-            }
-        },
+        navigate = navigate,
         like = { viewModel.likePost(it) },
         dislike = { viewModel.dislikePost(it) },
         likeComment = { index, boolean ->
@@ -93,19 +87,24 @@ private fun CommentAndHistoryCardScreen(
     pointComments: List<CommentAndUser>,
     publish: (String) -> Unit,
     update: () -> Unit,
-    navigate: () -> Unit,
+    navigate: (LatLng) -> Unit,
     like: (Boolean) -> Unit,
     dislike: (Boolean) -> Unit,
     likeComment: (Int, Boolean) -> Unit,
     dislikeComment: (Int, Boolean) -> Unit
 ) {
     var comment by rememberSaveable { mutableStateOf(false) }
+    var destination by rememberSaveable { mutableStateOf(LatLng(0.0, 0.0)) }
+    var name = ""
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        PointInfo(easyPoint = point, onNavigate = navigate, like = like, dislike = dislike)
+        PointInfo(easyPoint = point, onNavigate = { destination1, name1 ->
+            destination = destination1
+            name = name1
+        }, like = like, dislike = dislike)
         Spacer(modifier = Modifier.height(16.dp))
         TabSection(
             onSelect = onSelect,
@@ -124,13 +123,19 @@ private fun CommentAndHistoryCardScreen(
                 publish(it)
             }, cancel = { comment = false })
         } else BottomActionBar(comment = { comment = true }, update = update)
+        if (destination != LatLng(0.0, 0.0)) NavigationDialog(destination, name) {
+            navigate(
+                destination
+            )
+            destination = LatLng(0.0, 0.0)
+        }
     }
 }
 
 @Composable
 fun PointInfo(
     easyPoint: EasyPoint,
-    onNavigate: () -> Unit,
+    onNavigate: (LatLng, String) -> Unit,
     like: (Boolean) -> Unit,
     dislike: (Boolean) -> Unit
 ) {
@@ -161,7 +166,7 @@ fun PointInfo(
         ) {
             Text(easyPoint.name, fontSize = 20.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.weight(1f))
-            Button(onClick = { onNavigate() }) {
+            Button(onClick = { onNavigate(easyPoint.getLatlng(), easyPoint.name) }) {
                 Text("导航")
             }
         }

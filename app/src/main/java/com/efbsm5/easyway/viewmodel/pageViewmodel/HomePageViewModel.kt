@@ -19,23 +19,24 @@ class HomePageViewModel(
     val userManager: UserManager,
     val intentRepository: IntentRepository
 ) : ViewModel() {
-    var user: User = getInitUser()
+    private val _user = MutableStateFlow(getInitUser())
     private val _points = MutableStateFlow(emptyList<EasyPoint>())
     private val _post = MutableStateFlow(emptyList<DynamicPostAndUser>())
     private val _content = MutableStateFlow<HomePageState>(HomePageState.Main)
     val points: StateFlow<List<EasyPoint>> = _points
     val post: StateFlow<List<DynamicPostAndUser>> = _post
     val content: StateFlow<HomePageState> = _content
+    val user: StateFlow<User> = _user
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            user = repository.getUserById(userManager.userId)
+            _user.value = repository.getUserById(userManager.userId)
         }
     }
 
     fun getUserPoint() {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.getPointByUserId(user!!.id).collect {
+            repository.getPointByUserId(_user.value.id).collect {
                 _points.value = it
             }
         }
