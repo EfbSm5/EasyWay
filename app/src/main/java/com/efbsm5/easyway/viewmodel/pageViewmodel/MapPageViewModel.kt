@@ -48,7 +48,6 @@ class MapPageViewModel(
     fun getPoints() {
         viewModelScope.launch(Dispatchers.IO) {
             repository.getAllPoints().collect {
-                _points.value = it
                 _mapState.value = MapState.Point(it)
             }
         }

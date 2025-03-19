@@ -209,9 +209,10 @@ private fun CommentItems(
             Icons.Default.ThumbUp, modifier = Modifier
                 .size(likeSize.dp)
                 .clickable {
-                    like(isLiked, comment.index)
                     isLiked = !isLiked
                     if (isDisliked) isDisliked = false
+                    like(isLiked, comment.index)
+
                 }, contentDescription = "Dislike", tint = likeColor
         )
         Text(comment.like.toString())
@@ -219,9 +220,9 @@ private fun CommentItems(
             modifier = Modifier
                 .size(dislikeSize.dp)
                 .clickable {
-                    dislike(isDisliked, comment.index)
                     isDisliked = !isDisliked
                     if (isLiked) isLiked = false
+                    dislike(isDisliked, comment.index)
                 },
             painter = painterResource(id = R.drawable.thumb_down),
             contentDescription = "Dislike",

@@ -21,7 +21,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.dp
 import com.amap.api.maps.AMap
 import com.amap.api.maps.LocationSource
@@ -58,11 +57,15 @@ fun MapPage(viewModel: MapPageViewModel) {
         onMapClick = viewModel.onMapClick,
         onPoiClick = viewModel.onPoiClick,
         mapState = mapState,
-        onChangeMapState = viewModel::changeState,
+        onChangeMapState = {
+            viewModel::changeState
+            scope.launch { sheetState.bottomSheetState.partialExpand() }
+        },
         locationSource = locationController.locationSource,
         onAdd = { viewModel.changeScreen(Screen.NewPoint("新加标点")) })
     BackHandler(
-        enabled = sheetState.bottomSheetState.currentValue == SheetValue.Expanded, onBack = {
+        enabled = sheetState.bottomSheetState.currentValue != SheetValue.PartiallyExpanded,
+        onBack = {
             scope.launch { sheetState.bottomSheetState.partialExpand() }
         })
 }

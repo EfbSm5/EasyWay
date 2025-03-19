@@ -23,12 +23,15 @@ private const val TAG = "MapLifeCycle"
 @Composable
 fun MapLifecycle(
     mapView: MapView,
+    onResume: () -> Unit,
+    onPause: () -> Unit
 ) {
     val context = LocalContext.current
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val previousState = remember { mutableStateOf(Lifecycle.Event.ON_CREATE) }
     DisposableEffect(context, lifecycle, mapView) {
-        val mapLifecycleObserver = mapView.lifecycleObserver(previousState = previousState)
+        val mapLifecycleObserver =
+            mapView.lifecycleObserver(previousState = previousState, onResume, onPause)
         val callbacks = mapView.componentCallbacks()
         lifecycle.addObserver(mapLifecycleObserver)
         context.registerComponentCallbacks(callbacks)
@@ -52,6 +55,8 @@ internal suspend inline fun MapView.awaitMap(): AMap = suspendCoroutine { contin
 
 private fun MapView.lifecycleObserver(
     previousState: MutableState<Lifecycle.Event>,
+    onPause: () -> Unit,
+    onResume: () -> Unit
 ): LifecycleEventObserver = LifecycleEventObserver { _, event ->
     when (event) {
         Lifecycle.Event.ON_CREATE -> {
@@ -63,11 +68,13 @@ private fun MapView.lifecycleObserver(
 
         Lifecycle.Event.ON_RESUME -> {
             this.onResume()
+            onResume
             Log.e(TAG, "lifecycleObserver:           onresume view")
         }
 
         Lifecycle.Event.ON_PAUSE -> {
             this.onPause()
+            onPause
             Log.e(TAG, "lifecycleObserver:                on pause view")
         }
 

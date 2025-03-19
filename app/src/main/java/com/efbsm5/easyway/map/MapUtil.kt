@@ -103,7 +103,7 @@ object MapUtil {
     fun getInitUser(): User {
         return User(
             id = 0,
-            name = "用户不存在",
+            name = "小明",
             avatar = null,
         )
     }

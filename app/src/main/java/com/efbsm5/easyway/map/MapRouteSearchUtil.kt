@@ -23,7 +23,11 @@ import kotlinx.coroutines.launch
 private const val TAG = "MapRouteSearchUtil"
 
 fun startRouteSearch(
-    mEndPoint: LatLng, mapView: MapView, context: Context, locationSaver: LocationSaver
+    mEndPoint: LatLng,
+    mapView: MapView,
+    context: Context,
+    locationSaver: LocationSaver,
+    callBack: (Boolean) -> Unit
 ) {
     CoroutineScope(Dispatchers.IO).launch {
         try {
@@ -35,14 +39,17 @@ fun startRouteSearch(
                     if (p1 != AMapException.CODE_AMAP_SUCCESS) {
                         Log.e(TAG, "onWalkRouteSearched: $p1")
                         showMsg("出错了", context)
+                        callBack(false)
                         return
                     }
                     if (walkRouteResult?.paths == null) {
                         showMsg("没有搜索到相关数据", context)
+                        callBack(false)
                         return
                     }
                     if (walkRouteResult.paths.isEmpty()) {
                         showMsg("无路线", context)
+                        callBack(false)
                         return
                     }
                     val walkPath = walkRouteResult.paths[0] ?: return
@@ -67,6 +74,7 @@ fun startRouteSearch(
                                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.end))
                         )
                     }
+                    callBack(true)
                 }
 
                 override fun onRideRouteSearched(p0: RideRouteResult?, p1: Int) {}
