@@ -65,15 +65,15 @@ fun MainPageScreen(
                 user = user, edit = { changeState(HomePageState.EditUser) })
             Spacer(modifier = Modifier.height(16.dp))
             UserActionButtons(
-                reg = { changeState(HomePageState.Reg) },
-                point = { changeState(HomePageState.Point) },
-                manage = { changeState(HomePageState.Comment) })
+                reg = { changeState(HomePageState.RegForActivity) },
+                point = { changeState(HomePageState.ShowPoint) },
+                manage = { changeState(HomePageState.ShowComment) })
             Spacer(modifier = Modifier.height(16.dp))
             UserStats()
             Spacer(modifier = Modifier.height(16.dp))
             BottomMenu(
                 change = { changeState(HomePageState.Version) },
-                help = { changeState(HomePageState.Help) },
+                help = { changeState(HomePageState.ShowVersionAndHelp) },
                 settings = { changeState(HomePageState.Settings) })
         }
     }

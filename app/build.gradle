@@ -39,17 +39,21 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField "String", "BASE_URL", "\"https://egret-knowing-chimp.ngrok-free.app\""
+        }
         release {
+            buildConfigField "String", "BASE_URL", "\"http://47.122.123.42:5000/\""
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_19
+        targetCompatibility JavaVersion.VERSION_19
     }
     kotlinOptions {
-        jvmTarget = '11'
+        jvmTarget = '19'
     }
     buildFeatures {
         compose true

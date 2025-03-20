@@ -33,6 +33,9 @@ import com.amap.api.maps.model.MarkerOptions
 import com.amap.api.maps.model.MyLocationStyle
 import com.efbsm5.easyway.data.models.assistModel.EasyPointSimplify
 import com.efbsm5.easyway.ui.theme.isDarkTheme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 private const val TAG = "GDMap"
 
@@ -49,11 +52,7 @@ fun GDMap(
     }
     val context = LocalContext.current
     val locationSaver = LocationSaver(context)
-    val mapView = remember { MapView(context, AMapOptions().compassEnabled(true)) }.apply {
-        setMap(
-            onMapClick, onMarkerClick, onPoiClick, locationSource, locationSaver.location
-        )
-    }
+    val mapView = remember { MapView(context, AMapOptions().compassEnabled(true)) }
     var isLoading by remember { mutableStateOf(false) }
     Box(
         modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
@@ -64,14 +63,17 @@ fun GDMap(
         })
         if (isLoading) {
             CircularProgressIndicator(
-                color = MaterialTheme.colorScheme.primary, // 进度条的颜色
-                strokeWidth = 4.dp // 进度条的宽度
+                color = MaterialTheme.colorScheme.primary, strokeWidth = 4.dp
             )
         }
     }
-    MapLifecycle(
-        mapView = mapView, {}, {}
-    )
+    MapLifecycle(mapView = mapView, {
+        mapView.apply {
+            setMap(
+                onMapClick, onMarkerClick, onPoiClick, locationSource, locationSaver.location
+            )
+        }
+    }, {})
     LaunchedEffect(mapState) {
         mapView.map.animateCamera(CameraUpdateFactory.newLatLng(locationSaver.location))
         when (mapState) {
@@ -80,8 +82,10 @@ fun GDMap(
             }
 
             is MapState.Point -> {
-                if (mapState.points.isEmpty()) isLoading = true
-                else {
+                if (mapState.points.isEmpty()) {
+                    isLoading = true
+                    executeAfterDelay(2000) { isLoading = false }
+                } else {
                     isLoading = false
                     Log.e(TAG, "GDMap: $mapState")
                     mapView.map.apply {
@@ -102,6 +106,13 @@ fun GDMap(
                     })
             }
         }
+    }
+}
+
+fun executeAfterDelay(delayMillis: Long, action: () -> Unit) {
+    CoroutineScope(Dispatchers.IO).launch {
+        kotlinx.coroutines.delay(delayMillis)
+        action()
     }
 }
 

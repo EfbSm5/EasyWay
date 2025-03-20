@@ -1,6 +1,7 @@
 package com.efbsm5.easyway.ui.page.homepage
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -21,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -39,24 +41,39 @@ fun SettingsScreen(changeState: (HomePageState) -> Unit = {}) {
         Spacer(modifier = Modifier.height(8.dp))
         SettingGroup(
             items = listOf(
-                SettingItem(Icons.Default.Settings, "通用设置"),
-                SettingItem(Icons.Default.Notifications, "通知设置")
-            )
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        SettingGroup(
-            items = listOf(
-                SettingItem(Icons.Default.Lock, "账号安全"),
-                SettingItem(Icons.Default.Info, "免责声明"),
-                SettingItem(Icons.Default.Face, "关于我们")
+                SettingItem(
+                    Icons.Default.Settings,
+                    "通用设置",
+                    onClick = { changeState(HomePageState.CommonSetting) }),
+                SettingItem(Icons.Default.Notifications, "通知设置", onClick = {
+                    changeState(HomePageState.InformSetting)
+                })
             )
         )
         Spacer(modifier = Modifier.height(16.dp))
         SettingGroup(
             items = listOf(
                 SettingItem(
-                    Icons.AutoMirrored.Filled.ExitToApp, "注销账号", Color(0xFF1E88E5)
-                )
+                    Icons.Default.Lock,
+                    "账号安全",
+                    onClick = { changeState(HomePageState.Safety) }),
+                SettingItem(
+                    Icons.Default.Info,
+                    "免责声明",
+                    onClick = { changeState(HomePageState.Declare) }),
+                SettingItem(Icons.Default.Face, "关于我们", onClick = {
+                    changeState(HomePageState.ShowVersionAndHelp)
+                })
+            ),
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        SettingGroup(
+            items = listOf(
+                SettingItem(
+                    Icons.AutoMirrored.Filled.ExitToApp,
+                    "注销账号",
+                    Color(0xFF1E88E5),
+                    onClick = { changeState(HomePageState.RegForActivity) })
             )
         )
     }
@@ -101,7 +118,9 @@ fun SettingGroup(items: List<SettingItem>) {
             .clip(RoundedCornerShape(6.dp))
     ) {
         items.forEachIndexed { index, item ->
-            SettingRow(item)
+            SettingRow(
+                item
+            )
             if (index != items.lastIndex) {
                 Spacer(
                     modifier = Modifier
@@ -119,8 +138,10 @@ fun SettingRow(item: SettingItem) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(vertical = 12.dp)
+            .clickable {
+                item.onClick
+            }, verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
             imageVector = item.icon,
@@ -145,7 +166,8 @@ fun SettingRow(item: SettingItem) {
 }
 
 data class SettingItem(
-    val icon: androidx.compose.ui.graphics.vector.ImageVector,
+    val icon: ImageVector,
     val title: String,
-    val iconTint: Color = Color(0xFF1E88E5)
+    val iconTint: Color = Color(0xFF1E88E5),
+    val onClick: () -> Unit
 )

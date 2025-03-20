@@ -2,6 +2,7 @@ package com.efbsm5.easyway.data.network
 
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -16,17 +17,19 @@ import androidx.core.net.toUri
 import com.alibaba.idst.nui.BuildConfig
 import com.efbsm5.easyway.data.models.assistModel.UpdateInfo
 
+private const val TAG = "Update"
+
 @Composable
 fun CheckUpdate() {
     val context = LocalContext.current
     var updateInfo by remember { mutableStateOf<UpdateInfo?>(null) }
     LaunchedEffect(Unit) {
         HttpClient().checkForUpdate { info ->
+            Log.e(TAG, "CheckUpdate: ${info.toString()}")
             if (info != null && shouldUpdate(info.versionCode)) {
                 updateInfo = info
             }
         }
-
     }
     updateInfo?.let {
         UpdateDialog(context, it) {

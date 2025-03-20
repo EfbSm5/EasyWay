@@ -2,7 +2,9 @@ package com.efbsm5.easyway.data.network
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.core.net.toUri
+import com.efbsm5.easyway.BuildConfig
 import com.efbsm5.easyway.data.models.Comment
 import com.efbsm5.easyway.data.models.DynamicPost
 import com.efbsm5.easyway.data.models.EasyPoint
@@ -24,14 +26,16 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.net.URL
 
+private const val TAG = "HttpClient"
+
 class HttpClient() {
     private val client = OkHttpClient()
-    private val baseUrl = UrlForDatabase.BASE_URL
+    private val baseUrl = BuildConfig.BASE_URL
     private val gson: Gson =
         GsonBuilder().registerTypeAdapter(Uri::class.java, UriTypeAdapter()).create()
 
     fun getAllComments(callback: (List<Comment>?) -> Unit) {
-        val request = Request.Builder().url("$baseUrl:5000/comments").build()
+        val request = Request.Builder().url("$baseUrl/comments").build()
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 callback(null)
@@ -50,7 +54,7 @@ class HttpClient() {
     }
 
     fun getAllUsers(callback: (List<User>?) -> Unit) {
-        val request = Request.Builder().url("$baseUrl:5000/users").build()
+        val request = Request.Builder().url("$baseUrl/users").build()
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 callback(null)
@@ -69,7 +73,7 @@ class HttpClient() {
     }
 
     fun getAllEasyPoints(callback: (List<EasyPoint>?) -> Unit) {
-        val request = Request.Builder().url("$baseUrl:5000/easypoints/full").build()
+        val request = Request.Builder().url("$baseUrl/easypoints/full").build()
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 callback(null)
@@ -89,7 +93,7 @@ class HttpClient() {
     }
 
     fun getAllDynamicPosts(callback: (List<DynamicPost>?) -> Unit) {
-        val request = Request.Builder().url("$baseUrl:5000/dynamicposts").build()
+        val request = Request.Builder().url("$baseUrl/dynamicposts").build()
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 callback(null)
@@ -125,7 +129,7 @@ class HttpClient() {
         val mediaType = "image/jpeg".toMediaType()
         val requestBody = MultipartBody.Builder().setType(MultipartBody.FORM)
             .addFormDataPart("photo", file.name, file.asRequestBody(mediaType)).build()
-        val request = Request.Builder().url("$baseUrl:5000/upload").post(requestBody).build()
+        val request = Request.Builder().url("$baseUrl/upload").post(requestBody).build()
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 callback(null)
@@ -168,14 +172,17 @@ class HttpClient() {
     }
 
     fun checkForUpdate(callback: (UpdateInfo?) -> Unit) {
-        val request = Request.Builder().url("$baseUrl:5000/checkUpdate").build()
+        val request = Request.Builder().url("$baseUrl/checkUpdate").build()
         client.newCall(request).enqueue(object : Callback {
+
             override fun onFailure(call: Call, e: IOException) {
+                Log.e(TAG, "onFailure: ${e.message}")
                 callback(null)
             }
 
             override fun onResponse(call: Call, response: Response) {
                 if (response.isSuccessful) {
+                    Log.e(TAG, "onResponse: ")
                     val responseData = response.body?.string()
                     val updateInfo = gson.fromJson(responseData, UpdateInfo::class.java)
                     callback(updateInfo)

@@ -81,12 +81,16 @@ class HomePageViewModel(
 
 sealed interface HomePageState {
     data object Main : HomePageState
-    data object Post : HomePageState
-    data object Point : HomePageState
-    data object Comment : HomePageState
+    data object ShowPost : HomePageState
+    data object ShowPoint : HomePageState
+    data object ShowComment : HomePageState
     data object EditUser : HomePageState
-    data object Reg : HomePageState
+    data object RegForActivity : HomePageState
     data object Version : HomePageState
-    data object Help : HomePageState
+    data object ShowVersionAndHelp : HomePageState
     data object Settings : HomePageState
+    data object Safety : HomePageState
+    data object Declare : HomePageState
+    data object CommonSetting : HomePageState
+    data object InformSetting : HomePageState
 }

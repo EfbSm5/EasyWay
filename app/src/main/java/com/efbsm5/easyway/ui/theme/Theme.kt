@@ -1,6 +1,5 @@
 package com.efbsm5.easyway.ui.theme
 
-import android.app.Activity
 import android.content.Context
 import android.content.res.Configuration
 import android.os.Build

@@ -53,6 +53,8 @@ import org.koin.androidx.compose.koinViewModel
 fun EasyWay() {
     CheckUpdate()
     val navController = rememberNavController()
+    val mapPageViewModel: MapPageViewModel = koinViewModel()
+    val homePageViewModel: HomePageViewModel = koinViewModel()
     Scaffold(bottomBar = { HighlightButton(navController = navController) }) { innerPadding ->
         Box(
             modifier = Modifier
@@ -63,14 +65,12 @@ fun EasyWay() {
         ) {
             NavHost(navController = navController, startDestination = "MapPage") {
                 composable("MapPage") {
-                    val mapPageViewModel: MapPageViewModel = koinViewModel()
                     MapPage(viewModel = mapPageViewModel)
                 }
                 composable("Community") {
                     CommunityPage()
                 }
                 composable("home") {
-                    val homePageViewModel: HomePageViewModel = koinViewModel()
                     HomePage(homePageViewModel)
                 }
             }

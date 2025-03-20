@@ -15,16 +15,10 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -36,7 +30,6 @@ import com.efbsm5.easyway.data.models.DynamicPost
 import com.efbsm5.easyway.data.models.User
 import com.efbsm5.easyway.map.MapUtil
 import com.efbsm5.easyway.viewmodel.pageViewmodel.DetailPageViewModel
-
 
 @Composable
 fun DetailPage(onBack: () -> Unit, viewModel: DetailPageViewModel) {
@@ -67,7 +60,7 @@ private fun DetailPageScreen(
     likePost: (Boolean) -> Unit = {}
 ) {
     var showTextField by remember { mutableStateOf(false) }
-    Surface {
+    Surface(color = MaterialTheme.colorScheme.background) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -78,7 +71,10 @@ private fun DetailPageScreen(
             DetailsContent(
                 post = post, user = postUser, like = likePost
             )
-            HorizontalDivider(thickness = 1.dp, color = Color.Gray)
+            Divider(
+                thickness = 1.dp,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
+            )
             Comments(
                 list = commentAndUser, like = like, dislike = dislike
             )
@@ -100,11 +96,18 @@ private fun DetailPageScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TopBar(back: () -> Unit) {
-    TopAppBar(title = { Text("详情页") }, navigationIcon = {
-        IconButton(onClick = { back() }) {
-            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-        }
-    })
+    TopAppBar(
+        title = { Text("详情页", style = MaterialTheme.typography.titleLarge) },
+        navigationIcon = {
+            IconButton(onClick = { back() }) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+            }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            titleContentColor = MaterialTheme.colorScheme.onPrimary
+        )
+    )
 }
 
 @Composable
@@ -114,7 +117,11 @@ private fun DetailsContent(
     like: (Boolean) -> Unit,
 ) {
     var isLiked by remember { mutableStateOf(false) }
-    val likeColor by animateColorAsState(targetValue = if (isLiked) Color.Red else Color.Gray)
+    val likeColor by animateColorAsState(
+        targetValue = if (isLiked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(
+            alpha = 0.6f
+        )
+    )
     val likeSize by animateFloatAsState(targetValue = if (isLiked) 36f else 24f)
     Row(
         modifier = Modifier.padding(bottom = 16.dp), verticalAlignment = Alignment.CenterVertically
@@ -128,11 +135,15 @@ private fun DetailsContent(
         )
         Spacer(modifier = Modifier.width(8.dp))
         Column {
-            Text(user.name, fontWeight = FontWeight.Bold)
-            Text(post.date, color = Color.Gray)
+            Text(
+                user.name,
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Text(post.date, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
         }
     }
-    Text(post.content)
+    Text(post.content, style = MaterialTheme.typography.bodyLarge)
     Spacer(modifier = Modifier.height(8.dp))
     if (post.photo.isNotEmpty()) {
         Image(
@@ -152,9 +163,10 @@ private fun DetailsContent(
                 .clickable {
                     like(isLiked)
                     isLiked = !isLiked
-                }, contentDescription = "Dislike", tint = likeColor
+                }, contentDescription = "Like", tint = likeColor
         )
-        Text(post.like.toString())
+        Spacer(modifier = Modifier.width(4.dp))
+        Text(post.like.toString(), style = MaterialTheme.typography.bodySmall)
         Spacer(modifier = Modifier.width(16.dp))
     }
 }
@@ -172,15 +184,22 @@ private fun Comments(
     }
 }
 
-
 @Composable
 private fun CommentItems(
     commentAndUser: CommentAndUser, like: (Boolean, Int) -> Unit, dislike: (Boolean, Int) -> Unit
 ) {
     var isLiked by remember { mutableStateOf(false) }
     var isDisliked by remember { mutableStateOf(false) }
-    val likeColor by animateColorAsState(targetValue = if (isLiked) Color.Red else Color.Gray)
-    val dislikeColor by animateColorAsState(targetValue = if (isDisliked) Color.Red else Color.Gray)
+    val likeColor by animateColorAsState(
+        targetValue = if (isLiked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(
+            alpha = 0.6f
+        )
+    )
+    val dislikeColor by animateColorAsState(
+        targetValue = if (isDisliked) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface.copy(
+            alpha = 0.6f
+        )
+    )
     val likeSize by animateFloatAsState(targetValue = if (isLiked) 36f else 24f)
     val dislikeSize by animateFloatAsState(targetValue = if (isDisliked) 36f else 24f)
     val user = commentAndUser.user
@@ -189,20 +208,24 @@ private fun CommentItems(
         modifier = Modifier.padding(bottom = 16.dp), verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
-            painter = rememberAsyncImagePainter(
-                user.avatar
-            ), contentDescription = "User Avatar", modifier = Modifier
+            painter = rememberAsyncImagePainter(user.avatar),
+            contentDescription = "User Avatar",
+            modifier = Modifier
                 .size(40.dp)
                 .clip(CircleShape)
         )
         Spacer(modifier = Modifier.width(8.dp))
         Column {
             Row {
-                Text(user.name, fontWeight = FontWeight.Bold)
+                Text(
+                    user.name,
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.bodyMedium
+                )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(comment.date, color = Color.Gray)
+                Text(comment.date, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
             }
-            Text(comment.content)
+            Text(comment.content, style = MaterialTheme.typography.bodySmall)
         }
         Spacer(modifier = Modifier.weight(1f))
         Icon(
@@ -212,10 +235,10 @@ private fun CommentItems(
                     isLiked = !isLiked
                     if (isDisliked) isDisliked = false
                     like(isLiked, comment.index)
-
-                }, contentDescription = "Dislike", tint = likeColor
+                }, contentDescription = "Like", tint = likeColor
         )
-        Text(comment.like.toString())
+        Spacer(modifier = Modifier.width(4.dp))
+        Text(comment.like.toString(), style = MaterialTheme.typography.bodySmall)
         Icon(
             modifier = Modifier
                 .size(dislikeSize.dp)
@@ -228,7 +251,8 @@ private fun CommentItems(
             contentDescription = "Dislike",
             tint = dislikeColor
         )
-        Text(comment.dislike.toString())
+        Spacer(modifier = Modifier.width(4.dp))
+        Text(comment.dislike.toString(), style = MaterialTheme.typography.bodySmall)
     }
 }
 
@@ -246,15 +270,25 @@ private fun CommentSection(comment: () -> Unit) {
                 .height(30.dp)
                 .width(80.dp)
                 .clip(RoundedCornerShape(10.dp))
-                .clickable { comment() }, verticalAlignment = Alignment.CenterVertically
+                .clickable { comment() },
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(Icons.Default.Edit, contentDescription = "Write Comment")
+            Icon(
+                Icons.Default.Edit,
+                contentDescription = "Write Comment",
+                tint = MaterialTheme.colorScheme.primary
+            )
             Spacer(modifier = Modifier.width(8.dp))
-            Text("写回复", color = Color.Gray)
+            Text(
+                "写回复",
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.bodySmall
+            )
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AddCommentField(
     onClickButton: (String) -> Unit
@@ -265,12 +299,17 @@ private fun AddCommentField(
             value = commentText,
             onValueChange = { commentText = it },
             modifier = Modifier.weight(1f),
-            placeholder = { Text("添加评论") })
+            placeholder = { Text("添加评论", style = MaterialTheme.typography.bodySmall) },
+        )
         Spacer(modifier = Modifier.width(8.dp))
         TextButton(onClick = {
             onClickButton(commentText)
         }) {
-            Text("发送")
+            Text(
+                "发送",
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.bodySmall
+            )
         }
     }
 }

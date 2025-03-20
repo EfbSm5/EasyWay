@@ -13,6 +13,7 @@ import com.amap.api.maps.model.MarkerOptions
 import com.amap.api.maps.model.Polyline
 import com.amap.api.maps.model.PolylineOptions
 import com.efbsm5.easyway.R
+import androidx.core.graphics.toColorInt
 
 open class RouteOverlay(private val mContext: Context) {
     protected var stationMarkers: MutableList<Marker>? = ArrayList()
@@ -191,7 +192,7 @@ open class RouteOverlay(private val mContext: Context) {
         get() = 18f
 
     protected val walkColor: Int
-        get() = Color.parseColor("#6db74d")
+        get() = "#6db74d".toColorInt()
 
     protected val busColor: Int
         /**
@@ -199,10 +200,10 @@ open class RouteOverlay(private val mContext: Context) {
          * return 自定义路线颜色。
          * @since V2.2.1
          */
-        get() = Color.parseColor("#537edc")
+        get() = "#537edc".toColorInt()
 
     protected val driveColor: Int
-        get() = Color.parseColor("#537edc") // protected int getShowRouteZoom() {
+        get() = "#537edc".toColorInt() // protected int getShowRouteZoom() {
     // return 15;
     // }
 }
