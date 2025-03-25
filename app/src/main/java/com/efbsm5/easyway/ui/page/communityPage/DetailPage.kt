@@ -15,6 +15,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material3.*
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,7 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.efbsm5.easyway.R
-import com.efbsm5.easyway.data.models.assistModel.CommentAndUser
+import com.efbsm5.easyway.data.models.Comment
 import com.efbsm5.easyway.data.models.DynamicPost
 import com.efbsm5.easyway.data.models.User
 import com.efbsm5.easyway.map.MapUtil
@@ -53,7 +54,7 @@ private fun DetailPageScreen(
     onBack: () -> Unit = {},
     post: DynamicPost = MapUtil.getInitPost(),
     postUser: User = MapUtil.getInitUser(),
-    commentAndUser: List<CommentAndUser> = emptyList(),
+    commentAndUser: List<Pair<Comment, User>> = emptyList(),
     comment: (String) -> Unit = {},
     like: (Boolean, Int) -> Unit = { _, _ -> },
     dislike: (Boolean, Int) -> Unit = { _, _ -> },
@@ -71,9 +72,8 @@ private fun DetailPageScreen(
             DetailsContent(
                 post = post, user = postUser, like = likePost
             )
-            Divider(
-                thickness = 1.dp,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
+            HorizontalDivider(
+                thickness = 1.dp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
             )
             Comments(
                 list = commentAndUser, like = like, dislike = dislike
@@ -136,9 +136,7 @@ private fun DetailsContent(
         Spacer(modifier = Modifier.width(8.dp))
         Column {
             Text(
-                user.name,
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.bodyMedium
+                user.name, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyMedium
             )
             Text(post.date, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
         }
@@ -173,7 +171,7 @@ private fun DetailsContent(
 
 @Composable
 private fun Comments(
-    list: List<CommentAndUser>, like: (Boolean, Int) -> Unit, dislike: (Boolean, Int) -> Unit
+    list: List<Pair<Comment, User>>, like: (Boolean, Int) -> Unit, dislike: (Boolean, Int) -> Unit
 ) {
     LazyColumn(modifier = Modifier.padding(vertical = 16.dp)) {
         items(list) { commentAndUser ->
@@ -186,7 +184,9 @@ private fun Comments(
 
 @Composable
 private fun CommentItems(
-    commentAndUser: CommentAndUser, like: (Boolean, Int) -> Unit, dislike: (Boolean, Int) -> Unit
+    commentAndUser: Pair<Comment, User>,
+    like: (Boolean, Int) -> Unit,
+    dislike: (Boolean, Int) -> Unit
 ) {
     var isLiked by remember { mutableStateOf(false) }
     var isDisliked by remember { mutableStateOf(false) }
@@ -202,8 +202,8 @@ private fun CommentItems(
     )
     val likeSize by animateFloatAsState(targetValue = if (isLiked) 36f else 24f)
     val dislikeSize by animateFloatAsState(targetValue = if (isDisliked) 36f else 24f)
-    val user = commentAndUser.user
-    val comment = commentAndUser.comment
+    val user = commentAndUser.second
+    val comment = commentAndUser.first
     Row(
         modifier = Modifier.padding(bottom = 16.dp), verticalAlignment = Alignment.CenterVertically
     ) {
@@ -270,8 +270,7 @@ private fun CommentSection(comment: () -> Unit) {
                 .height(30.dp)
                 .width(80.dp)
                 .clip(RoundedCornerShape(10.dp))
-                .clickable { comment() },
-            verticalAlignment = Alignment.CenterVertically
+                .clickable { comment() }, verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 Icons.Default.Edit,

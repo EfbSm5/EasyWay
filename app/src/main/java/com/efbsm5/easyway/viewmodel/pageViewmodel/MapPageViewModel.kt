@@ -38,7 +38,6 @@ class MapPageViewModel(
         )
     }
     val onMapClick = AMap.OnMapClickListener {}
-    private val _points = MutableStateFlow<List<EasyPointSimplify>>(emptyList())
     val mapState: StateFlow<MapState> = _mapState
 
     init {

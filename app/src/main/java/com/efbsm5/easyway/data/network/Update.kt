@@ -21,7 +21,6 @@ private const val TAG = "Update"
 
 @Composable
 fun CheckUpdate() {
-    val context = LocalContext.current
     var updateInfo by remember { mutableStateOf<UpdateInfo?>(null) }
     LaunchedEffect(Unit) {
         HttpClient().checkForUpdate { info ->
@@ -32,7 +31,7 @@ fun CheckUpdate() {
         }
     }
     updateInfo?.let {
-        UpdateDialog(context, it) {
+        UpdateDialog(it) {
             updateInfo = if (it) null
             else null
         }
@@ -41,7 +40,8 @@ fun CheckUpdate() {
 
 
 @Composable
-private fun UpdateDialog(context: Context, updateInfo: UpdateInfo, callback: (Boolean) -> Unit) {
+private fun UpdateDialog(updateInfo: UpdateInfo, callback: (Boolean) -> Unit) {
+    val context = LocalContext.current
     AlertDialog(
         onDismissRequest = { callback(false) },
         title = { Text(text = "发现新版本 ${updateInfo.versionName}") },

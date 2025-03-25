@@ -26,10 +26,10 @@ import com.efbsm5.easyway.R
 import com.efbsm5.easyway.data.models.EasyPoint
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import com.amap.api.maps.model.LatLng
-import com.efbsm5.easyway.data.models.assistModel.CommentAndUser
+import com.efbsm5.easyway.data.models.Comment
+import com.efbsm5.easyway.data.models.User
 import com.efbsm5.easyway.map.MapUtil.getLatlng
 import com.efbsm5.easyway.ui.components.NavigationDialog
 import com.efbsm5.easyway.ui.components.TabSection
@@ -84,7 +84,7 @@ private fun CommentAndHistoryCardScreen(
     point: EasyPoint,
     onSelect: (Int) -> Unit,
     state: CommentCardScreen,
-    pointComments: List<CommentAndUser>,
+    pointComments: List<Pair<Comment, User>>,
     publish: (String) -> Unit,
     update: () -> Unit,
     navigate: (LatLng) -> Unit,
@@ -224,7 +224,9 @@ fun PointInfo(
 
 @Composable
 private fun CommentCard(
-    comments: List<CommentAndUser>, like: (Int, Boolean) -> Unit, dislike: (Int, Boolean) -> Unit
+    comments: List<Pair<Comment, User>>,
+    like: (Int, Boolean) -> Unit,
+    dislike: (Int, Boolean) -> Unit
 ) {
     if (comments.isEmpty()) {
         Text("暂无")
@@ -232,8 +234,8 @@ private fun CommentCard(
         items(comments) { commentAndUser ->
             CommentItem(
                 commentAndUser = commentAndUser,
-                like = { like(commentAndUser.comment.index, it) },
-                dislike = { dislike(commentAndUser.comment.index, it) },
+                like = { like(commentAndUser.first.index, it) },
+                dislike = { dislike(commentAndUser.first.index, it) },
             )
         }
     }
@@ -241,7 +243,7 @@ private fun CommentCard(
 
 @Composable
 private fun CommentItem(
-    commentAndUser: CommentAndUser, like: (Boolean) -> Unit, dislike: (Boolean) -> Unit
+    commentAndUser: Pair<Comment, User>, like: (Boolean) -> Unit, dislike: (Boolean) -> Unit
 ) {
     var isLiked by remember { mutableStateOf(false) }
     var isDisliked by remember { mutableStateOf(false) }
@@ -249,8 +251,8 @@ private fun CommentItem(
     val dislikeColor by animateColorAsState(targetValue = if (isDisliked) Color.Red else Color.Gray)
     val likeSize by animateFloatAsState(targetValue = if (isLiked) 36f else 24f)
     val dislikeSize by animateFloatAsState(targetValue = if (isDisliked) 36f else 24f)
-    val user = commentAndUser.user
-    val comment = commentAndUser.comment
+    val user = commentAndUser.second
+    val comment = commentAndUser.first
     Row(
         modifier = Modifier
             .fillMaxWidth()

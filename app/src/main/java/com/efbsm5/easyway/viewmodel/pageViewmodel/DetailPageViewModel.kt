@@ -7,7 +7,6 @@ import com.efbsm5.easyway.data.models.DynamicPost
 import com.efbsm5.easyway.data.models.User
 import com.efbsm5.easyway.data.repository.DataRepository
 import com.efbsm5.easyway.data.models.Comment
-import com.efbsm5.easyway.data.models.assistModel.CommentAndUser
 import com.efbsm5.easyway.map.MapUtil
 import com.efbsm5.easyway.map.MapUtil.getInitUser
 import kotlinx.coroutines.Dispatchers
@@ -20,9 +19,10 @@ class DetailPageViewModel(
 ) : ViewModel() {
     private val _dynamicPost = MutableStateFlow<DynamicPost>(dynamicPost)
     private var _postUser = MutableStateFlow(getInitUser())
-    private val _commentAndUsers = MutableStateFlow(emptyList<CommentAndUser>().toMutableList())
+    private val _commentAndUsers =
+        MutableStateFlow(emptyList<Pair<Comment, User>>().toMutableList())
     val postUser: StateFlow<User> = _postUser
-    val commentAndUser: StateFlow<MutableList<CommentAndUser>> = _commentAndUsers
+    val commentAndUser: StateFlow<MutableList<Pair<Comment, User>>> = _commentAndUsers
     val post: StateFlow<DynamicPost?> = _dynamicPost
 
 
@@ -38,8 +38,8 @@ class DetailPageViewModel(
                     _commentAndUsers.value.clear()
                     comments.forEach {
                         _commentAndUsers.value.add(
-                            CommentAndUser(
-                                repository.getUserById(it.userId), it
+                            Pair<Comment, User>(
+                                it, repository.getUserById(it.userId)
                             )
                         )
                     }
@@ -64,13 +64,13 @@ class DetailPageViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             if (boolean) {
                 _commentAndUsers.value.find { commentAndUser ->
-                    commentAndUser.comment.index == commentIndex
-                }!!.comment.like + 1
+                    commentAndUser.first.index == commentIndex
+                }!!.first.like + 1
                 repository.addLikeForComment(commentIndex)
             } else {
                 _commentAndUsers.value.find { commentAndUser ->
-                    commentAndUser.comment.index == commentIndex
-                }!!.comment.like - 1
+                    commentAndUser.first.index == commentIndex
+                }!!.first.like - 1
                 repository.decreaseLikeForComment(commentIndex)
             }
         }
@@ -80,13 +80,13 @@ class DetailPageViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             if (boolean) {
                 _commentAndUsers.value.find { commentAndUser ->
-                    commentAndUser.comment.index == commentIndex
-                }!!.comment.dislike + 1
+                    commentAndUser.first.index == commentIndex
+                }!!.first.dislike + 1
                 repository.addDisLikeForComment(commentIndex)
             } else {
                 _commentAndUsers.value.find { commentAndUser ->
-                    commentAndUser.comment.index == commentIndex
-                }!!.comment.dislike - 1
+                    commentAndUser.first.index == commentIndex
+                }!!.first.dislike - 1
                 repository.decreaseDisLikeForComment(commentIndex)
             }
         }
@@ -105,8 +105,8 @@ class DetailPageViewModel(
             )
             repository.uploadComment(comment)
             _commentAndUsers.value.add(
-                CommentAndUser(
-                    user = repository.getUserById(userManager.userId), comment = comment
+                Pair<Comment, User>(
+                    comment, repository.getUserById(comment.userId)
                 )
             )
         }
