@@ -7,8 +7,7 @@ import com.efbsm5.easyway.data.models.assistModel.DynamicPostAndUser
 
 @Composable
 fun PostPage(postAndUser: DynamicPostAndUser) {
-    Surface(
-    ) {
+    Surface {
         Text("开发中")
     }
 

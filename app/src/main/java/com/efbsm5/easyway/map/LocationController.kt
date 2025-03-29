@@ -6,11 +6,10 @@ import com.amap.api.location.AMapLocationClientOption
 import com.amap.api.maps.LocationSource
 import com.amap.api.maps.LocationSource.OnLocationChangedListener
 import com.amap.api.maps.model.LatLng
+import com.efbsm5.easyway.Myapplication
 
 
-class LocationController(
-    private val locationSaver: LocationSaver
-) {
+class LocationController {
     private var mLocationClient: AMapLocationClient? = null
     private var mListener: OnLocationChangedListener? = null
     var locationSource: LocationSource = object : LocationSource {
@@ -30,16 +29,20 @@ class LocationController(
         }
     }
 
-    fun initLocation(context: Context) {
+    init {
+        initLocation()
+    }
+
+    fun initLocation() {
         if (mLocationClient == null) {
-            initClient(context = context)
+            initClient(context = Myapplication.getContext())
         }
         mLocationClient!!.setLocationListener { aMapLocation ->
             if (aMapLocation!!.errorCode == 0) {
                 mListener!!.onLocationChanged(aMapLocation)
-                locationSaver.location = LatLng(aMapLocation.latitude, aMapLocation.longitude)
-                locationSaver.locationDetail = aMapLocation.address
-                locationSaver.cityCode = aMapLocation.cityCode
+                LocationSaver.location = LatLng(aMapLocation.latitude, aMapLocation.longitude)
+                LocationSaver.locationDetail = aMapLocation.address
+                LocationSaver.cityCode = aMapLocation.cityCode
             }
         }
     }

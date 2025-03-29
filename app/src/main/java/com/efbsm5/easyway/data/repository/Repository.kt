@@ -1,26 +1,24 @@
 package com.efbsm5.easyway.data.repository
 
 
-import android.content.Context
 import android.net.Uri
 import com.amap.api.maps.model.LatLng
+import com.efbsm5.easyway.Myapplication
 import com.efbsm5.easyway.data.UserManager
+import com.efbsm5.easyway.data.database.AppDataBase
 import com.efbsm5.easyway.data.models.Comment
 import com.efbsm5.easyway.data.models.DynamicPost
 import com.efbsm5.easyway.data.models.EasyPoint
-import com.efbsm5.easyway.data.models.assistModel.EasyPointSimplify
 import com.efbsm5.easyway.data.models.User
-import com.efbsm5.easyway.data.database.AppDataBase
-import com.efbsm5.easyway.data.network.HttpClient
+import com.efbsm5.easyway.data.models.assistModel.EasyPointSimplify
 import com.efbsm5.easyway.map.MapUtil
 import com.efbsm5.easyway.map.MapUtil.getInitPoint
 import com.efbsm5.easyway.map.MapUtil.getInitUser
 import kotlinx.coroutines.flow.Flow
 
-class DataRepository(private val context: Context) {
+class DataRepository() {
+    val context = Myapplication.getContext()
     private val database = AppDataBase.getDatabase(context)
-    private val userManager = UserManager(context)
-    private val httpClient = HttpClient()
 
     fun getAllPoints(): Flow<List<EasyPointSimplify>> {
         return database.pointsDao().loadAllPoints()
@@ -94,7 +92,7 @@ class DataRepository(private val context: Context) {
             lng = dynamicPost.lng,
             lat = dynamicPost.lat,
             position = dynamicPost.position,
-            userId = userManager.userId,
+            userId = UserManager.userId,
             commentId = commentId,
             type = dynamicPost.type,
             photo = photo,
@@ -133,7 +131,7 @@ class DataRepository(private val context: Context) {
             dislikes = 0,
             lat = easyPoint.lat,
             lng = easyPoint.lng,
-            userId = userManager.userId,
+            userId = UserManager.userId,
             commentId = database.commentDao().getMaxCommentId() + 1
         ).let {
             database.pointsDao().insert(it)

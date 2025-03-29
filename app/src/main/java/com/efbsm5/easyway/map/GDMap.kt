@@ -51,7 +51,6 @@ fun GDMap(
         return
     }
     val context = LocalContext.current
-    val locationSaver = LocationSaver(context)
     val mapView = remember { MapView(context, AMapOptions().compassEnabled(true)) }
     var isLoading by remember { mutableStateOf(false) }
     Box(

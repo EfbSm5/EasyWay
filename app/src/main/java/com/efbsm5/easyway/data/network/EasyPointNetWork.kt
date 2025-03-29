@@ -25,7 +25,9 @@ object EasyPointNetWork {
 
             ModelNames.Users -> httpService.getData<User>(modelNames.replacePath()).await()
             ModelNames.Comments -> httpService.getData<Comment>(modelNames.replacePath()).await()
-            ModelNames.EasyPoints -> httpService.getData<EasyPoint>(modelNames.replacePath()).await()
+            ModelNames.EasyPoints -> httpService.getData<EasyPoint>(modelNames.replacePath())
+                .await()
+
             ModelNames.EasyPointSimplify -> httpService.getData<EasyPointSimplify>(modelNames.replacePath())
                 .await()
         }

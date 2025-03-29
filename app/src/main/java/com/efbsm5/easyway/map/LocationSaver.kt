@@ -4,10 +4,11 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
 import com.amap.api.maps.model.LatLng
+import com.efbsm5.easyway.Myapplication
 
-class LocationSaver(context: Context) {
+object LocationSaver {
     private val sharedPreferences: SharedPreferences =
-        context.getSharedPreferences("MapPreferences", Context.MODE_PRIVATE)
+        Myapplication.getContext().getSharedPreferences("MapPreferences", Context.MODE_PRIVATE)
 
     var location: LatLng
         get() = with(sharedPreferences) {

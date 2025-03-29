@@ -14,14 +14,14 @@ import com.efbsm5.easyway.viewmodel.pageViewmodel.HomePageViewModel
 import com.efbsm5.easyway.viewmodel.pageViewmodel.MapPageViewModel
 import com.efbsm5.easyway.viewmodel.pageViewmodel.NewPostPageViewModel
 import com.efbsm5.easyway.viewmodel.pageViewmodel.ShowPageViewModel
-import org.koin.dsl.module
 import org.koin.androidx.viewmodel.dsl.viewModel
+import org.koin.dsl.module
 
 val appModule = module {
-    single { DataRepository(get()) }
-    single { LocationSaver(get()) }
-    single { UserManager(get()) }
-    single { IntentRepository(get()) }
+    single { DataRepository }
+    single { LocationSaver }
+    single { UserManager }
+    single { IntentRepository }
 
     viewModel { MapPageViewModel(get()) }
     viewModel { (initialPost: DynamicPost) -> DetailPageViewModel(get(), get(), initialPost) }

@@ -1,7 +1,6 @@
 package com.efbsm5.easyway.map
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.util.Log
 import com.amap.api.services.core.AMapException
 import com.amap.api.services.core.PoiItemV2

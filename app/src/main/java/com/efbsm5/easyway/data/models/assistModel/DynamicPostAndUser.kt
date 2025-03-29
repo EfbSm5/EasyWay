@@ -1,6 +1,5 @@
 package com.efbsm5.easyway.data.models.assistModel
 
-import android.net.Uri
 import com.efbsm5.easyway.data.models.DynamicPost
 import com.efbsm5.easyway.data.models.User
 

@@ -4,10 +4,10 @@ import android.content.Context
 import android.net.Uri
 import androidx.core.net.toUri
 import com.efbsm5.easyway.BuildConfig
+import com.efbsm5.easyway.data.database.UriTypeAdapter
 import com.efbsm5.easyway.data.models.Comment
 import com.efbsm5.easyway.data.models.DynamicPost
 import com.efbsm5.easyway.data.models.EasyPoint
-import com.efbsm5.easyway.data.database.UriTypeAdapter
 import com.efbsm5.easyway.data.models.ModelNames
 import com.efbsm5.easyway.data.models.User
 import com.google.gson.Gson
@@ -22,7 +22,6 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
 import java.io.OutputStream
-import kotlin.jvm.java
 
 
 object HttpClient {

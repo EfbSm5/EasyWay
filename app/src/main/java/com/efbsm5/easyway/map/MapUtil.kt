@@ -6,22 +6,21 @@ import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.location.Location
-import android.net.Uri
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
-import com.amap.api.maps.model.LatLng
-import com.amap.api.services.core.LatLonPoint
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import androidx.core.net.toUri
+import com.amap.api.maps.model.LatLng
 import com.amap.api.maps.model.Poi
+import com.amap.api.services.core.LatLonPoint
 import com.amap.api.services.core.PoiItemV2
 import com.efbsm5.easyway.data.models.DynamicPost
 import com.efbsm5.easyway.data.models.EasyPoint
 import com.efbsm5.easyway.data.models.User
 import java.math.BigDecimal
 import java.math.RoundingMode
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import kotlin.math.cos
 import kotlin.math.sin
 

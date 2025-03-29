@@ -5,9 +5,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 
 @Composable
-fun CommentPage(){
-    Surface(
-    ) {
+fun CommentPage() {
+    Surface {
         Text("开发中")
     }
 }

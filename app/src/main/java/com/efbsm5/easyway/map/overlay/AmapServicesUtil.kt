@@ -1,9 +1,9 @@
 package com.efbsm5.easyway.map.overlay
 
 import android.graphics.Bitmap
+import androidx.core.graphics.scale
 import com.amap.api.maps.model.LatLng
 import com.amap.api.services.core.LatLonPoint
-import androidx.core.graphics.scale
 
 
 internal object AMapServicesUtil {

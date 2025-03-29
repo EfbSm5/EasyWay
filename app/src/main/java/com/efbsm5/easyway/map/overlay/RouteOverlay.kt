@@ -1,7 +1,8 @@
 package com.efbsm5.easyway.map.overlay
+
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.Color
+import androidx.core.graphics.toColorInt
 import com.amap.api.maps.AMap
 import com.amap.api.maps.CameraUpdateFactory
 import com.amap.api.maps.model.BitmapDescriptor
@@ -13,7 +14,6 @@ import com.amap.api.maps.model.MarkerOptions
 import com.amap.api.maps.model.Polyline
 import com.amap.api.maps.model.PolylineOptions
 import com.efbsm5.easyway.R
-import androidx.core.graphics.toColorInt
 
 open class RouteOverlay(private val mContext: Context) {
     protected var stationMarkers: MutableList<Marker>? = ArrayList()

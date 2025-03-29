@@ -3,7 +3,6 @@ package com.efbsm5.easyway.viewmodel.pageViewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.amap.api.maps.AMap
-import com.efbsm5.easyway.data.models.assistModel.EasyPointSimplify
 import com.efbsm5.easyway.data.repository.DataRepository
 import com.efbsm5.easyway.map.MapState
 import com.efbsm5.easyway.map.MapUtil

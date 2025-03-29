@@ -6,8 +6,7 @@ import androidx.compose.runtime.Composable
 
 @Composable
 fun DeclareScreen() {
-    Surface(
-    ) {
+    Surface {
         Text("开发中")
     }
 }

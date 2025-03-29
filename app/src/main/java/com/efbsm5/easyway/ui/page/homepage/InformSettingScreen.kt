@@ -5,9 +5,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 
 @Composable
-fun InformSettingScreen(){
-    Surface(
-    ) {
+fun InformSettingScreen() {
+    Surface {
         Text("开发中")
     }
 }

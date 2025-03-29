@@ -10,11 +10,10 @@ import com.efbsm5.easyway.viewmodel.pageViewmodel.HomePageViewModel
 
 @Composable
 fun HomePage(viewModel: HomePageViewModel) {
-    val points by viewModel.points.collectAsState()
     val posts by viewModel.post.collectAsState()
     val user by viewModel.user.collectAsState()
     val state by viewModel.content.collectAsState()
-    val context = LocalContext.current
+    LocalContext.current
     when (state) {
         HomePageState.RegForActivity -> RegScreen()
 

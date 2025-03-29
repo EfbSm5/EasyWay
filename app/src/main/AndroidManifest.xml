@@ -22,8 +22,8 @@
     <queries>
         <package android:name="com.baidu.BaiduMap" />
         <package android:name="com.autonavi.minimap" />
-
     </queries>
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -35,6 +35,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.EasyWay"
         tools:targetApi="31">
+        <service
+            android:name=".DataUpdateService"
+            android:enabled="true"
+            android:exported="true"></service>
+
         <meta-data
             android:name="com.amap.api.v2.apikey"
             android:value="7061fac06dc435bddfa8d8299573feac" />

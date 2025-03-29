@@ -3,10 +3,10 @@ package com.efbsm5.easyway.viewmodel.pageViewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.efbsm5.easyway.data.UserManager
+import com.efbsm5.easyway.data.models.Comment
 import com.efbsm5.easyway.data.models.DynamicPost
 import com.efbsm5.easyway.data.models.User
 import com.efbsm5.easyway.data.repository.DataRepository
-import com.efbsm5.easyway.data.models.Comment
 import com.efbsm5.easyway.map.MapUtil
 import com.efbsm5.easyway.map.MapUtil.getInitUser
 import kotlinx.coroutines.Dispatchers

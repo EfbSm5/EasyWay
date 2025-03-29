@@ -1,10 +1,10 @@
 package com.efbsm5.easyway.data.database
 
+import android.net.Uri
+import androidx.core.net.toUri
 import com.google.gson.TypeAdapter
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
-import android.net.Uri
-import androidx.core.net.toUri
 
 class UriTypeAdapter : TypeAdapter<Uri>() {
     override fun write(out: JsonWriter, value: Uri?) {

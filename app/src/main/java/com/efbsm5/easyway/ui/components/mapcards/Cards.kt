@@ -4,8 +4,8 @@ import androidx.compose.runtime.Composable
 import com.amap.api.maps.model.LatLng
 import com.efbsm5.easyway.data.models.EasyPoint
 import com.efbsm5.easyway.viewmodel.componentsViewmodel.CommentAndHistoryCardViewModel
-import com.efbsm5.easyway.viewmodel.componentsViewmodel.NewPointCardViewModel
 import com.efbsm5.easyway.viewmodel.componentsViewmodel.FunctionCardViewModel
+import com.efbsm5.easyway.viewmodel.componentsViewmodel.NewPointCardViewModel
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 

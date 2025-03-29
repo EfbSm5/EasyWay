@@ -6,8 +6,7 @@ import androidx.compose.runtime.Composable
 
 @Composable
 fun ShowPointScreen() {
-    Surface(
-    ) {
+    Surface {
         Text("开发中")
     }
 }

@@ -3,10 +3,11 @@ package com.efbsm5.easyway.data
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
+import com.efbsm5.easyway.Myapplication
 
-class UserManager(context: Context) {
+object UserManager {
     private val prefs: SharedPreferences =
-        context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+        Myapplication.getContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
 
     var userId: Int
         get() = prefs.getInt("user_id", 0)

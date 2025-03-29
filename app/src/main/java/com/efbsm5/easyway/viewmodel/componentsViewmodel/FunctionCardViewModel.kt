@@ -3,12 +3,10 @@ package com.efbsm5.easyway.viewmodel.componentsViewmodel
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.amap.api.maps.model.LatLng
 import com.amap.api.services.core.PoiItemV2
-import com.efbsm5.easyway.data.repository.DataRepository
 import com.efbsm5.easyway.data.models.EasyPoint
+import com.efbsm5.easyway.data.repository.DataRepository
 import com.efbsm5.easyway.map.LocationSaver
-import com.efbsm5.easyway.map.MapUtil
 import com.efbsm5.easyway.map.searchForPoi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow

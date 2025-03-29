@@ -98,4 +98,5 @@ dependencies {
     implementation(libs.koin.androidx.compose)
     implementation libs.retrofit
     implementation libs.converter.gson
+    implementation(libs.accompanist.permissions)
 }
