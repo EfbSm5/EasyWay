@@ -9,10 +9,14 @@ import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.efbsm5.easyway.data.network.SyncWorker
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import java.util.concurrent.TimeUnit
 
 class DataUpdateService : Service() {
-
+    private val job = Job()
+    private val scope = CoroutineScope(Dispatchers.IO + job)
     override fun onBind(intent: Intent): IBinder? {
         return null
     }
@@ -23,11 +27,12 @@ class DataUpdateService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         setupPeriodicSync()
-        return START_STICKY
+        return START_NOT_STICKY
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        job.cancel()
     }
 
     private fun setupPeriodicSync() {
@@ -40,4 +45,6 @@ class DataUpdateService : Service() {
             "SyncWork", ExistingPeriodicWorkPolicy.KEEP, syncWorkRequest
         )
     }
+
+
 }

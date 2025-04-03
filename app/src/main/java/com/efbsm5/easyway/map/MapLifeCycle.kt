@@ -13,18 +13,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import com.amap.api.maps.AMap
 import com.amap.api.maps.MapView
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 private const val TAG = "MapLifeCycle"
 
 @Composable
 fun MapLifecycle(
-    mapView: MapView,
-    onResume: () -> Unit,
-    onPause: () -> Unit
+    mapView: MapView, onResume: () -> Unit = {}, onPause: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val lifecycle = LocalLifecycleOwner.current.lifecycle
@@ -49,39 +44,34 @@ fun MapLifecycle(
     }
 }
 
-internal suspend inline fun MapView.awaitMap(): AMap = suspendCoroutine { continuation ->
-    continuation.resume(map)
-}
-
 private fun MapView.lifecycleObserver(
-    previousState: MutableState<Lifecycle.Event>,
-    onPause: () -> Unit,
-    onResume: () -> Unit
+    previousState: MutableState<Lifecycle.Event>, onPause: () -> Unit, onResume: () -> Unit
 ): LifecycleEventObserver = LifecycleEventObserver { _, event ->
     when (event) {
         Lifecycle.Event.ON_CREATE -> {
             if (previousState.value != Lifecycle.Event.ON_STOP) {
                 this.onCreate(Bundle())
-                Log.e(TAG, "lifecycleObserver:     oncreate view")
+                Log.e(TAG, "lifecycleObserver:create view")
             }
         }
 
         Lifecycle.Event.ON_RESUME -> {
             this.onResume()
             onResume
-            Log.e(TAG, "lifecycleObserver:           onresume view")
+            Log.e(TAG, "lifecycleObserver:resume view")
         }
 
         Lifecycle.Event.ON_PAUSE -> {
             this.onPause()
             onPause
-            Log.e(TAG, "lifecycleObserver:                on pause view")
+            Log.e(TAG, "lifecycleObserver:pause view")
         }
 
         Lifecycle.Event.ON_DESTROY -> {
             this.onDestroy()
-            Log.e(TAG, "lifecycleObserver:            on destory view")
-        } // 销毁地图
+            Log.e(TAG, "lifecycleObserver:destroy view")
+        }
+
         else -> {}
     }
     previousState.value = event
@@ -93,5 +83,6 @@ private fun MapView.componentCallbacks(): ComponentCallbacks = object : Componen
     @Deprecated("Deprecated in Java", ReplaceWith("this@componentCallbacks.onLowMemory()"))
     override fun onLowMemory() {
         this@componentCallbacks.onLowMemory()
+        this.onLowMemory()
     }
 }

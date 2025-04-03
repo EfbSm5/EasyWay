@@ -24,12 +24,10 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -37,7 +35,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -48,13 +45,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
+import com.efbsm5.easyway.R
 import com.efbsm5.easyway.data.models.DynamicPost
 import com.efbsm5.easyway.map.MapUtil
+import com.efbsm5.easyway.ui.components.TopBar
 import com.efbsm5.easyway.viewmodel.pageViewmodel.NewPostPageViewModel
 
 
@@ -83,7 +83,7 @@ fun NewDynamicPostPage(back: () -> Unit, viewModel: NewPostPageViewModel) {
 
 @Preview
 @Composable
-fun DynamicPostScreen(
+private fun DynamicPostScreen(
     dynamicPost: DynamicPost = MapUtil.getInitPost(),
     photos: List<Uri> = emptyList(),
     onSelected: (Int) -> Unit = {},
@@ -100,7 +100,7 @@ fun DynamicPostScreen(
                 .fillMaxSize()
                 .padding(horizontal = 16.dp, vertical = 6.dp)
         ) {
-            TopBar(back = { back() })
+            TopBar(back = back, text = stringResource(R.string.addPost))
             PublishToSection(onSelected = { onSelected(it) })
             Spacer(modifier = Modifier.height(16.dp))
             AddTitleAndContentSection(
@@ -118,19 +118,6 @@ fun DynamicPostScreen(
             PublishButton(publish = { publish() })
         }
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun TopBar(back: () -> Unit) {
-    TopAppBar(
-        navigationIcon = {
-            IconButton(onClick = { back() }) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "back")
-            }
-        },
-        title = { Text("动态发布", fontSize = 20.sp, fontWeight = FontWeight.Bold) },
-    )
 }
 
 @Composable

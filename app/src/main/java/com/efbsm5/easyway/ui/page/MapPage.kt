@@ -1,6 +1,7 @@
 package com.efbsm5.easyway.ui.page
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.BottomSheetScaffold
@@ -14,9 +15,13 @@ import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.amap.api.maps.AMap
 import com.amap.api.maps.LocationSource
+import com.efbsm5.easyway.Myapplication
+import com.efbsm5.easyway.R
 import com.efbsm5.easyway.map.GDMap
 import com.efbsm5.easyway.map.LocationController
 import com.efbsm5.easyway.map.MapState
@@ -47,7 +52,6 @@ fun MapPage(viewModel: MapPageViewModel) {
         enabled = state != Screen.Function, onBack = { viewModel.changeScreen(Screen.Function) })
 
     MapScreen(
-        state = state,
         onChangeScreen = viewModel::changeScreen,
         sheetState = sheetState,
         onMarkerClick = viewModel.onMarkerClick,
@@ -57,15 +61,20 @@ fun MapPage(viewModel: MapPageViewModel) {
         onChangeMapState = {
             viewModel::changeState
         },
-        locationSource = locationController.locationSource,
-        onAdd = { viewModel.changeScreen(Screen.NewPoint()) })
+        locationSource = locationController.getLocationSource(),
+        onAdd = {
+            viewModel.changeScreen(
+                Screen.NewPoint(
+                    label = Myapplication.getContext().getString(R.string.newPoint)
+                )
+            )
+        })
 
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MapScreen(
-    state: Screen,
     mapState: MapState,
     onChangeMapState: (MapState) -> Unit,
     onChangeScreen: (Screen) -> Unit,
@@ -79,7 +88,6 @@ private fun MapScreen(
     BottomSheetScaffold(
         sheetContent = {
             MapPageCard(
-                content = state,
                 onChangeScreen = onChangeScreen,
                 onNavigate = { onChangeMapState(MapState.Route(it)) })
         },
@@ -92,7 +100,8 @@ private fun MapScreen(
             onPoiClick = onPoiClick,
             onMarkerClick = onMarkerClick,
             mapState = mapState,
-            locationSource = locationSource
+            locationSource = locationSource,
+            modifier = Modifier.fillMaxSize()
         )
     }
 }

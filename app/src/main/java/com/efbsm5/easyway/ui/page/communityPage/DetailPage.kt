@@ -20,20 +20,16 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -53,6 +49,7 @@ import com.efbsm5.easyway.data.models.Comment
 import com.efbsm5.easyway.data.models.DynamicPost
 import com.efbsm5.easyway.data.models.User
 import com.efbsm5.easyway.map.MapUtil
+import com.efbsm5.easyway.ui.components.TopBar
 import com.efbsm5.easyway.viewmodel.pageViewmodel.DetailPageViewModel
 
 @Composable
@@ -90,7 +87,7 @@ private fun DetailPageScreen(
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            TopBar { onBack() }
+            TopBar(text = "详情页", back = onBack)
             Spacer(modifier = Modifier.height(16.dp))
             DetailsContent(
                 post = post, user = postUser, like = likePost
@@ -116,22 +113,6 @@ private fun DetailPageScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun TopBar(back: () -> Unit) {
-    TopAppBar(
-        title = { Text("详情页", style = MaterialTheme.typography.titleLarge) },
-        navigationIcon = {
-            IconButton(onClick = { back() }) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-            }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            titleContentColor = MaterialTheme.colorScheme.onPrimary
-        )
-    )
-}
 
 @Composable
 private fun DetailsContent(

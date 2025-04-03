@@ -11,7 +11,10 @@ import com.amap.api.maps.MapsInitializer
 import com.amap.apis.utils.core.api.AMapUtilCoreApi
 import com.efbsm5.easyway.data.UserManager
 import com.efbsm5.easyway.viewmodel.appModule
-import com.google.accompanist.permissions.*
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.PermissionState
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.GlobalContext.startKoin
 
@@ -38,8 +41,7 @@ class Myapplication : Activity() {
     }
 
     private fun setUser() {
-        val userManager = UserManager(context = this)
-        userManager.userId = 100
+        UserManager.userId = 100
     }
 
     private fun handlePrivacy() {

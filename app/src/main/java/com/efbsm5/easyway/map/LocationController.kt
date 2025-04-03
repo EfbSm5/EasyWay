@@ -1,6 +1,5 @@
 package com.efbsm5.easyway.map
 
-import android.content.Context
 import com.amap.api.location.AMapLocationClient
 import com.amap.api.location.AMapLocationClientOption
 import com.amap.api.maps.LocationSource
@@ -12,7 +11,7 @@ import com.efbsm5.easyway.Myapplication
 class LocationController {
     private var mLocationClient: AMapLocationClient? = null
     private var mListener: OnLocationChangedListener? = null
-    var locationSource: LocationSource = object : LocationSource {
+    private var locationSource: LocationSource = object : LocationSource {
         override fun activate(p0: OnLocationChangedListener?) {
             if (mListener == null) {
                 mListener = p0
@@ -29,14 +28,12 @@ class LocationController {
         }
     }
 
-    init {
-        initLocation()
+    fun getLocationSource(): LocationSource {
+        return locationSource
     }
 
-    fun initLocation() {
-        if (mLocationClient == null) {
-            initClient(context = Myapplication.getContext())
-        }
+    init {
+        initClient()
         mLocationClient!!.setLocationListener { aMapLocation ->
             if (aMapLocation!!.errorCode == 0) {
                 mListener!!.onLocationChanged(aMapLocation)
@@ -47,8 +44,8 @@ class LocationController {
         }
     }
 
-    private fun initClient(context: Context) {
-        mLocationClient = AMapLocationClient(context).apply {
+    private fun initClient() {
+        mLocationClient = AMapLocationClient(Myapplication.getContext()).apply {
             setLocationOption(
                 AMapLocationClientOption().setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy)
                     .setOnceLocation(true).setOnceLocationLatest(true).setNeedAddress(true)

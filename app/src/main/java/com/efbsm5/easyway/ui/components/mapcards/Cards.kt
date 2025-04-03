@@ -1,6 +1,10 @@
 package com.efbsm5.easyway.ui.components.mapcards
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import com.amap.api.maps.model.LatLng
 import com.efbsm5.easyway.data.models.EasyPoint
 import com.efbsm5.easyway.viewmodel.componentsViewmodel.CommentAndHistoryCardViewModel
@@ -11,12 +15,13 @@ import org.koin.core.parameter.parametersOf
 
 @Composable
 fun MapPageCard(
-    onNavigate: (LatLng) -> Unit, content: Screen, onChangeScreen: (Screen) -> Unit
+    onNavigate: (LatLng) -> Unit, onChangeScreen: (Screen) -> Unit
 ) {
+    var content by remember { mutableStateOf<Screen>(Screen.Function) }
     when (content) {
         is Screen.Comment -> {
             val commentAndHistoryCardViewModel: CommentAndHistoryCardViewModel =
-                koinViewModel(parameters = { parametersOf(content.easyPoint) })
+                koinViewModel(parameters = { parametersOf((content as Screen.Comment).easyPoint) })
             CommentAndHistoryCard(
                 viewModel = commentAndHistoryCardViewModel,
                 navigate = onNavigate,
@@ -37,7 +42,7 @@ fun MapPageCard(
             NewPointCard(
                 viewModel = newPointCardViewModel,
                 changeScreen = onChangeScreen,
-                label = content.label
+                label = (content as Screen.NewPoint).label
             )
         }
     }

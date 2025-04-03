@@ -1,13 +1,10 @@
 package com.efbsm5.easyway.data.network
 
-import androidx.room.Room
 import com.efbsm5.easyway.Myapplication
 import com.efbsm5.easyway.data.database.AppDataBase
 
 object IntentRepository {
-    private val db = Room.databaseBuilder(
-        Myapplication.getContext(), AppDataBase::class.java, "app_database"
-    ).build()
+    private val db = AppDataBase.getDatabase(Myapplication.getContext())
     private val commentDao = db.commentDao()
     private val userDao = db.userDao()
     private val dynamicPostDao = db.dynamicPostDao()

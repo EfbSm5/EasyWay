@@ -14,7 +14,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -31,6 +30,7 @@ import com.amap.api.maps.model.BitmapDescriptorFactory
 import com.amap.api.maps.model.LatLng
 import com.amap.api.maps.model.MarkerOptions
 import com.amap.api.maps.model.MyLocationStyle
+import com.efbsm5.easyway.Myapplication
 import com.efbsm5.easyway.data.models.assistModel.EasyPointSimplify
 import com.efbsm5.easyway.ui.theme.isDarkTheme
 import kotlinx.coroutines.CoroutineScope
@@ -45,16 +45,17 @@ fun GDMap(
     onPoiClick: AMap.OnPOIClickListener,
     onMarkerClick: AMap.OnMarkerClickListener,
     locationSource: LocationSource,
-    mapState: MapState
+    mapState: MapState,
+    modifier: Modifier
 ) {
     if (LocalInspectionMode.current) {
         return
     }
-    val context = LocalContext.current
-    val mapView = remember { MapView(context, AMapOptions().compassEnabled(true)) }
+    val mapView =
+        remember { MapView(Myapplication.getContext(), AMapOptions().compassEnabled(true)) }
     var isLoading by remember { mutableStateOf(false) }
     Box(
-        modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
+        modifier = modifier, contentAlignment = Alignment.Center
     ) {
         AndroidView(modifier = Modifier.fillMaxSize(), factory = { mapView }, onRelease = {
             it.onDestroy()
@@ -69,12 +70,12 @@ fun GDMap(
     MapLifecycle(mapView = mapView, {
         mapView.apply {
             setMap(
-                onMapClick, onMarkerClick, onPoiClick, locationSource, locationSaver.location
+                onMapClick, onMarkerClick, onPoiClick, locationSource, LocationSaver.location
             )
         }
     }, {})
     LaunchedEffect(mapState) {
-        mapView.map.animateCamera(CameraUpdateFactory.newLatLng(locationSaver.location))
+        mapView.map.animateCamera(CameraUpdateFactory.newLatLng(LocationSaver.location))
         when (mapState) {
             MapState.Gone -> {
                 mapView.visibility = View.GONE
@@ -100,7 +101,7 @@ fun GDMap(
                     mapType = if (isDarkTheme(context)) MAP_TYPE_NAVI_NIGHT else MAP_TYPE_NAVI
                 }
                 startRouteSearch(
-                    mapState.endPoint, mapView, context, locationSaver = locationSaver, callBack = {
+                    mapState.endPoint, mapView, context, locationSaver = LocationSaver, callBack = {
                         isLoading = false
                     })
             }

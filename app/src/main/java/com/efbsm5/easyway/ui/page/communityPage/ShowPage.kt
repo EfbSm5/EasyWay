@@ -34,33 +34,35 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.efbsm5.easyway.R
-import com.efbsm5.easyway.data.models.DynamicPost
 import com.efbsm5.easyway.data.models.assistModel.DynamicPostAndUser
 import com.efbsm5.easyway.ui.components.DynamicPostList
 import com.efbsm5.easyway.ui.components.TabSection
+import com.efbsm5.easyway.ui.components.TopBar
 import com.efbsm5.easyway.viewmodel.pageViewmodel.ShowPageViewModel
 
 @Composable
 fun ShowPage(
-    onChangeState: () -> Unit, onSelectedPost: (DynamicPost) -> Unit, viewModel: ShowPageViewModel
+    onChangeState: (State) -> Unit, viewModel: ShowPageViewModel, back: () -> Unit
 ) {
-    val postList = viewModel.posts.collectAsState().value
+    val postList by viewModel.posts.collectAsState()
     ShowPageScreen(
+        back = { back },
         posts = postList,
-        onChangeState = { onChangeState() },
+        onChangeState = { onChangeState(State.Community) },
         onSelect = { viewModel.changeTab(it) },
-        titleText = "心无距离，共享每一刻",
-        onClick = { onSelectedPost(it.dynamicPost) },
+        titleText = stringResource(R.string.postLabel),
+        onClick = { onChangeState(State.Detail(it.dynamicPost)) },
         search = { viewModel.search(it) })
 }
 
 @Preview
 @Composable
 fun ShowPageScreen(
+    back: () -> Unit = {},
     posts: List<DynamicPostAndUser> = emptyList(),
     titleText: String = "心无距离，共享每一刻",
     onChangeState: () -> Unit = {},
@@ -76,57 +78,46 @@ fun ShowPageScreen(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            TopBar(text = titleText)
-            BannerSection()
-            SearchBar(search)
+            TopBar(back = back, text = titleText)
+            BannerSection(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(150.dp)
+                    .clip(RoundedCornerShape(8.dp))
+            )
+            SearchBar(
+                search = search,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .background(
+                        MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(8.dp)
+                    ),
+            )
             TabSection(
                 onSelect = { onSelect(it) }, tabs = listOf("全部", "活动", "互助", "分享")
             )
             DynamicPostList(posts = posts, onClick = { onClick(it) })
         }
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomEnd) {
-            FloatingActionButton(
-                onClick = { onChangeState() },
-                modifier = Modifier.padding(bottom = 16.dp, end = 16.dp)
-            ) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "添加")
-            }
-        }
+        AddCommentButton(onChangeState)
     }
 }
 
-@Composable
-fun TopBar(text: String) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.titleLarge,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 16.dp),
-        textAlign = TextAlign.Center
-    )
-}
 
 @Composable
-fun BannerSection() {
+private fun BannerSection(modifier: Modifier) {
     Image(
         painter = painterResource(id = R.drawable.img),
         contentDescription = "活动横幅",
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(150.dp)
-            .clip(RoundedCornerShape(8.dp))
+        modifier = modifier
     )
 }
 
 @Composable
-fun SearchBar(search: (String) -> Unit) {
+private fun SearchBar(search: (String) -> Unit, modifier: Modifier) {
     var text by rememberSaveable { mutableStateOf("") }
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-            .background(MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(8.dp)),
+        modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start
     ) {
@@ -148,8 +139,18 @@ fun SearchBar(search: (String) -> Unit) {
             )
         }
     }
-
 }
 
-
+@Composable
+private fun AddCommentButton(onChangeState: () -> Unit) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomEnd) {
+        FloatingActionButton(
+            onClick = onChangeState, modifier = Modifier.padding(bottom = 16.dp, end = 16.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Add, contentDescription = stringResource(R.string.add)
+            )
+        }
+    }
+}
 

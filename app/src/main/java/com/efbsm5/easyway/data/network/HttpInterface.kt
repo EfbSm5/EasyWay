@@ -5,9 +5,7 @@ import retrofit2.http.GET
 import retrofit2.http.Path
 
 
-interface HttpService {
+interface HttpInterface {
     @GET("{path}")
     fun <E> getData(@Path("path") modelname: String): Call<List<E>>
-    val request = Request.Builder().url("$baseUrl/checkUpdate").build()
-
 }

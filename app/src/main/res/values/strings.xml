@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">行无碍</string>
     <string name="newPoint">新加标点</string>
+    <string name="postLabel">心无距离，共享每一刻</string>
+    <string name="add">添加</string>
+    <string name="addPost">添加动态</string>
 </resources>

@@ -7,8 +7,8 @@ import com.efbsm5.easyway.data.models.EasyPoint
 import com.efbsm5.easyway.data.models.ModelNames
 import com.efbsm5.easyway.data.models.User
 import com.efbsm5.easyway.data.models.assistModel.EasyPointSimplify
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -17,21 +17,20 @@ import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
 object EasyPointNetWork {
-    private val httpService = ServiceCreator.create<HttpService>()
-    private suspend fun <T> GetData(modelNames: ModelNames): List<T> {
+    private val network = ServiceCreator.create<HttpInterface>()
+    private suspend fun sendRequest(modelNames: ModelNames): List<Any> {
         val data = when (modelNames) {
-            ModelNames.DynamicPosts -> httpService.getData<DynamicPost>(modelNames.replacePath())
+            ModelNames.DynamicPosts -> network.getData<DynamicPost>(modelNames.replacePath())
                 .await()
 
-            ModelNames.Users -> httpService.getData<User>(modelNames.replacePath()).await()
-            ModelNames.Comments -> httpService.getData<Comment>(modelNames.replacePath()).await()
-            ModelNames.EasyPoints -> httpService.getData<EasyPoint>(modelNames.replacePath())
-                .await()
+            ModelNames.Users -> network.getData<User>(modelNames.replacePath()).await()
+            ModelNames.Comments -> network.getData<Comment>(modelNames.replacePath()).await()
+            ModelNames.EasyPoints -> network.getData<EasyPoint>(modelNames.replacePath()).await()
 
-            ModelNames.EasyPointSimplify -> httpService.getData<EasyPointSimplify>(modelNames.replacePath())
+            ModelNames.EasyPointSimplify -> network.getData<EasyPointSimplify>(modelNames.replacePath())
                 .await()
         }
-        return data as List<T>
+        return data
     }
 
     private suspend fun <T> Call<T>.await(): T {
@@ -52,14 +51,64 @@ object EasyPointNetWork {
         }
     }
 
-    private suspend fun start(block: () -> Unit) {
+    private fun start(block: suspend CoroutineScope.() -> Unit) {
         try {
-            withContext(Dispatchers.IO) {
-                block()
-            }
+            block
         } catch (e: Exception) {
-            Log.e("httpclient", "start: $e.message")
+            Log.e("httpclient", ": $e.message")
         }
     }
 
+    fun getData(modelNames: ModelNames) {
+        start {
+            launch { sendRequest(modelNames) }
+        }
+    }
+
+//    private val gson: Gson =
+//        GsonBuilder().registerTypeAdapter(Uri::class.java, UriTypeAdapter()).create()
+//
+//
+//    private fun uriToFile(context: Context, uri: Uri): File {
+//        val inputStream: InputStream? = context.contentResolver.openInputStream(uri)
+//        val tempFile = File(context.cacheDir, "temp_image")
+//        val outputStream: OutputStream = FileOutputStream(tempFile)
+//        inputStream?.use { input ->
+//            outputStream.use { output ->
+//                input.copyTo(output)
+//            }
+//        }
+//        return tempFile
+//    }
+//
+//    fun uploadImage(context: Context, uri: Uri, callback: (Uri?) -> Unit) {
+//        val file = uriToFile(context, uri)
+//        val mediaType = "image/jpeg".toMediaType()
+//        val requestBody = MultipartBody.Builder().setType(MultipartBody.FORM)
+//            .addFormDataPart("photo", file.name, file.asRequestBody(mediaType)).build()
+//        val request = Request.Builder().url("$baseUrl/upload").post(requestBody).build()
+//        client.newCall(request).enqueue(getCallback { json ->
+//            var url: Uri? = null
+//            if (json != null) {
+//                val json = JSONObject(json)
+//                url = json.getString("url").toUri()
+//            }
+//            callback(url)
+//        })
+//    }
+//
+//    fun uploadData(data: Any, callback: (Boolean) -> Unit) {
+//        val mediaType = "application/json; charset=utf-8".toMediaType()
+//        val requestBody = gson.toJson(data).toRequestBody(mediaType)
+//        var uploadType = when (data) {
+//            is User -> ModelNames.Users
+//            is Comment -> ModelNames.Comments
+//            is DynamicPost -> ModelNames.DynamicPosts
+//            is EasyPoint -> ModelNames.EasyPoints
+//            else -> throw IllegalArgumentException("unsupported data")
+//        }
+//        val request = Request.Builder().url("$baseUrl:5000/$uploadType").post(requestBody).build()
+//
+//        client.newCall(request).enqueue(getCallback { })
+//    }
 }

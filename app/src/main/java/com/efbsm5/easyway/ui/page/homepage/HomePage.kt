@@ -4,7 +4,6 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.platform.LocalContext
 import com.efbsm5.easyway.viewmodel.pageViewmodel.HomePageState
 import com.efbsm5.easyway.viewmodel.pageViewmodel.HomePageViewModel
 
@@ -13,7 +12,6 @@ fun HomePage(viewModel: HomePageViewModel) {
     val posts by viewModel.post.collectAsState()
     val user by viewModel.user.collectAsState()
     val state by viewModel.content.collectAsState()
-    LocalContext.current
     when (state) {
         HomePageState.RegForActivity -> RegScreen()
 
@@ -35,15 +33,13 @@ fun HomePage(viewModel: HomePageViewModel) {
 
         HomePageState.EditUser -> EditUserScreen()
 
-        HomePageState.CommonSetting -> CommonSettingScreen()
+        HomePageState.CommonSetting -> CommonSettingsScreen()
         HomePageState.InformSetting -> InformSettingScreen()
         HomePageState.Safety -> SafetyScreen()
 
         HomePageState.Declare -> DeclareScreen()
 
         HomePageState.Main -> MainPageScreen(user, viewModel::changeState)
-
-
     }
     BackHandler(
         enabled = state != HomePageState.Main, onBack = {

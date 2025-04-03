@@ -53,18 +53,26 @@ fun EasyWay() {
                 MapPage(viewModel = mapPageViewModel)
             }
             composable("Community") {
-                CommunityPage()
+                CommunityPage(back = {
+                    navController.navigate(
+                        navController.previousBackStackEntry?.id ?: "MapPage"
+                    )
+                })
             }
             composable("home") {
                 val homePageViewModel: HomePageViewModel = koinViewModel()
-                HomePage(homePageViewModel)
+                HomePage(viewModel = homePageViewModel)
             }
         }
     }
 }
 
 @Composable
-private fun AppBar(modifier: Modifier, onNavigate: (String) -> Unit, currentDestination: String) {
+private fun AppBar(
+    modifier: Modifier = Modifier,
+    onNavigate: (String) -> Unit = {},
+    currentDestination: String = ""
+) {
     NavigationBar(modifier = modifier) {
         NavigationBarItem(
             onClick = { onNavigate("MapPage") },
