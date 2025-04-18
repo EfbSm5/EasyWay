@@ -21,20 +21,20 @@ private const val TAG = "Update"
 @Composable
 fun CheckUpdate() {
     var updateInfo by remember { mutableStateOf<UpdateInfo?>(null) }
-    LaunchedEffect(Unit) {
-        HttpClient().checkForUpdate { info ->
-            Log.e(TAG, "CheckUpdate: ${info.toString()}")
-            if (info != null && shouldUpdate(info.versionCode)) {
-                updateInfo = info
-            }
-        }
-    }
-    updateInfo?.let {
-        UpdateDialog(it) {
-            updateInfo = if (it) null
-            else null
-        }
-    }
+//    LaunchedEffect(Unit) {
+//        HttpClient().checkForUpdate { info ->
+//            Log.e(TAG, "CheckUpdate: ${info.toString()}")
+//            if (info != null && shouldUpdate(info.versionCode)) {
+//                updateInfo = info
+//            }
+//        }
+//    }
+//    updateInfo?.let {
+//        UpdateDialog(it) {
+//            updateInfo = if (it) null
+//            else null
+//        }
+//    }
 }
 
 

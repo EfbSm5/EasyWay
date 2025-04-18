@@ -15,8 +15,6 @@ import kotlinx.coroutines.Job
 import java.util.concurrent.TimeUnit
 
 class DataUpdateService : Service() {
-    private val job = Job()
-    private val scope = CoroutineScope(Dispatchers.IO + job)
     override fun onBind(intent: Intent): IBinder? {
         return null
     }
@@ -32,7 +30,6 @@ class DataUpdateService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        job.cancel()
     }
 
     private fun setupPeriodicSync() {

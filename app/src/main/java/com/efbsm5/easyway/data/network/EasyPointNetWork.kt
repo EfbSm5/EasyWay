@@ -1,14 +1,12 @@
 package com.efbsm5.easyway.data.network
 
-import android.util.Log
 import com.efbsm5.easyway.data.models.Comment
 import com.efbsm5.easyway.data.models.DynamicPost
 import com.efbsm5.easyway.data.models.EasyPoint
 import com.efbsm5.easyway.data.models.ModelNames
 import com.efbsm5.easyway.data.models.User
 import com.efbsm5.easyway.data.models.assistModel.EasyPointSimplify
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
+import com.efbsm5.easyway.data.models.assistModel.UpdateInfo
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -18,8 +16,8 @@ import kotlin.coroutines.suspendCoroutine
 
 object EasyPointNetWork {
     private val network = ServiceCreator.create<HttpInterface>()
-    private suspend fun sendRequest(modelNames: ModelNames): List<Any> {
-        val data = when (modelNames) {
+    suspend fun <T> sendRequest(modelNames: ModelNames): List<T> {
+        return when (modelNames) {
             ModelNames.DynamicPosts -> network.getData<DynamicPost>(modelNames.replacePath())
                 .await()
 
@@ -29,11 +27,16 @@ object EasyPointNetWork {
 
             ModelNames.EasyPointSimplify -> network.getData<EasyPointSimplify>(modelNames.replacePath())
                 .await()
-        }
-        return data
+        } as List<T>
     }
 
-    private suspend fun <T> Call<T>.await(): T {
+    suspend fun getUpdate(): UpdateInfo? {
+        return network.getUpdate().await()
+    }
+
+    private
+
+    suspend fun <T> Call<T>.await(): T {
         return suspendCoroutine { continuation ->
             enqueue(object : Callback<T> {
                 override fun onResponse(call: Call<T>, response: Response<T>) {
@@ -51,17 +54,11 @@ object EasyPointNetWork {
         }
     }
 
-    private fun start(block: suspend CoroutineScope.() -> Unit) {
+    fun go(block: () -> Unit) {
         try {
             block
         } catch (e: Exception) {
-            Log.e("httpclient", ": $e.message")
-        }
-    }
-
-    fun getData(modelNames: ModelNames) {
-        start {
-            launch { sendRequest(modelNames) }
+            e.printStackTrace()
         }
     }
 

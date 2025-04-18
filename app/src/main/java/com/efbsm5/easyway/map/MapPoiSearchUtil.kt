@@ -14,10 +14,9 @@ private const val TAG = "MapPoiSearchUtil"
 fun searchForPoi(
     keyword: String, context: Context, onPoiSearched: (ArrayList<PoiItemV2>) -> Unit
 ) {
-    val locationSaver = LocationSaver(context)
     ServiceSettings.updatePrivacyShow(context, true, true)
     ServiceSettings.updatePrivacyAgree(context, true)
-    val query: PoiSearchV2.Query = PoiSearchV2.Query(keyword, "", locationSaver.cityCode)
+    val query: PoiSearchV2.Query = PoiSearchV2.Query(keyword, "", LocationSaver.cityCode)
     query.pageSize = 5
     query.pageNum = 1
     try {

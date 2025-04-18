@@ -22,6 +22,7 @@ import com.amap.api.maps.AMap
 import com.amap.api.maps.LocationSource
 import com.efbsm5.easyway.Myapplication
 import com.efbsm5.easyway.R
+import com.efbsm5.easyway.RequestPermission
 import com.efbsm5.easyway.map.GDMap
 import com.efbsm5.easyway.map.LocationController
 import com.efbsm5.easyway.map.MapState
@@ -50,7 +51,7 @@ fun MapPage(viewModel: MapPageViewModel) {
         })
     BackHandler(
         enabled = state != Screen.Function, onBack = { viewModel.changeScreen(Screen.Function) })
-
+    RequestPermission()
     MapScreen(
         onChangeScreen = viewModel::changeScreen,
         sheetState = sheetState,

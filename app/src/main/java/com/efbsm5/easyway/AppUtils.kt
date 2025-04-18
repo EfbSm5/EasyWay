@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.os.PersistableBundle
 import androidx.compose.runtime.Composable
@@ -38,6 +39,7 @@ class Myapplication : Activity() {
         setUser()
         context = this.applicationContext
         handlePrivacy()
+        startService(Intent(this, DataUpdateService::class.java))
     }
 
     private fun setUser() {

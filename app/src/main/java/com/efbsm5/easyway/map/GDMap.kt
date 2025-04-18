@@ -35,6 +35,7 @@ import com.efbsm5.easyway.data.models.assistModel.EasyPointSimplify
 import com.efbsm5.easyway.ui.theme.isDarkTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 private const val TAG = "GDMap"
@@ -89,7 +90,7 @@ fun GDMap(
                     isLoading = false
                     Log.e(TAG, "GDMap: $mapState")
                     mapView.map.apply {
-                        mapType = if (isDarkTheme(context)) MAP_TYPE_NIGHT else MAP_TYPE_NORMAL
+                        mapType = if (isDarkTheme()) MAP_TYPE_NIGHT else MAP_TYPE_NORMAL
                     }
                     drawPoints(mapView, mapState.points)
                 }
@@ -98,12 +99,14 @@ fun GDMap(
             is MapState.Route -> {
                 isLoading = true
                 mapView.map.apply {
-                    mapType = if (isDarkTheme(context)) MAP_TYPE_NAVI_NIGHT else MAP_TYPE_NAVI
+                    mapType = if (isDarkTheme()) MAP_TYPE_NAVI_NIGHT else MAP_TYPE_NAVI
                 }
                 startRouteSearch(
-                    mapState.endPoint, mapView, context, locationSaver = LocationSaver, callBack = {
+                    mapState.endPoint, mapView, locationSaver = LocationSaver,
+                    callBack = {
                         isLoading = false
-                    })
+                    },
+                )
             }
         }
     }
@@ -111,7 +114,7 @@ fun GDMap(
 
 fun executeAfterDelay(delayMillis: Long, action: () -> Unit) {
     CoroutineScope(Dispatchers.IO).launch {
-        kotlinx.coroutines.delay(delayMillis)
+        delay(delayMillis)
         action()
     }
 }
@@ -135,7 +138,7 @@ private fun MapView.setMap(
     location: LatLng
 ) {
     this.map.apply {
-        mapType = if (isDarkTheme(context)) MAP_TYPE_NIGHT else MAP_TYPE_NORMAL
+        mapType = if (isDarkTheme()) MAP_TYPE_NIGHT else MAP_TYPE_NORMAL
         isMyLocationEnabled = true
         myLocationStyle = MyLocationStyle().interval(2000)
             .myLocationType(MyLocationStyle.LOCATION_TYPE_LOCATION_ROTATE)

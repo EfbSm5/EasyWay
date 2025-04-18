@@ -16,7 +16,7 @@ import com.efbsm5.easyway.map.MapUtil.getInitPoint
 import com.efbsm5.easyway.map.MapUtil.getInitUser
 import kotlinx.coroutines.flow.Flow
 
-class DataRepository() {
+class DataRepository {
     val context = Myapplication.getContext()
     private val database = AppDataBase.getDatabase(context)
 
@@ -74,14 +74,14 @@ class DataRepository() {
         val commentId = database.commentDao().getMaxCommentId() + 1
         val photo = emptyList<Uri>().toMutableList()
         photos.forEach { uri ->
-            httpClient.uploadImage(
-                context, uri,
-                callback = {
-                    if (it != null) {
-                        photo.add(it)
-                    }
-                },
-            )
+//            httpClient.uploadImage(
+//                context, uri,
+//                callback = {
+//                    if (it != null) {
+//                        photo.add(it)
+//                    }
+//                },
+//            )
         }
         val post = DynamicPost(
             id = id,
@@ -111,14 +111,14 @@ class DataRepository() {
 
     fun uploadPoint(easyPoint: EasyPoint) {
         var photoUri: Uri? = null
-        easyPoint.photo?.let { uri ->
-            httpClient.uploadImage(
-                context, uri,
-                callback = {
-                    photoUri = it
-                },
-            )
-        }
+//        easyPoint.photo?.let { uri ->
+//            httpClient.uploadImage(
+//                context, uri,
+//                callback = {
+//                    photoUri = it
+//                },
+//            )
+//        }
         EasyPoint(
             pointId = database.pointsDao().getCount() + 1,
             name = easyPoint.name,
