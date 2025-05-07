@@ -5,7 +5,7 @@ import com.amap.api.location.AMapLocationClientOption
 import com.amap.api.maps.LocationSource
 import com.amap.api.maps.LocationSource.OnLocationChangedListener
 import com.amap.api.maps.model.LatLng
-import com.efbsm5.easyway.Myapplication
+import com.efbsm5.easyway.AppUtils
 
 
 class LocationController {
@@ -45,7 +45,7 @@ class LocationController {
     }
 
     private fun initClient() {
-        mLocationClient = AMapLocationClient(Myapplication.getContext()).apply {
+        mLocationClient = AMapLocationClient(AppUtils.getContext()).apply {
             setLocationOption(
                 AMapLocationClientOption().setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy)
                     .setOnceLocation(true).setOnceLocationLatest(true).setNeedAddress(true)

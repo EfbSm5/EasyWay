@@ -2,11 +2,7 @@ package com.efbsm5.easyway
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Context
-import android.content.Intent
-import android.os.Bundle
-import android.os.PersistableBundle
 import androidx.compose.runtime.Composable
 import com.amap.api.maps.MapsInitializer
 import com.amap.apis.utils.core.api.AMapUtilCoreApi
@@ -20,26 +16,22 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.GlobalContext.startKoin
 
 
-class Myapplication : Activity() {
-    companion object {
-        @SuppressLint("StaticFieldLeak")
-        private lateinit var context: Context
-        fun getContext(): Context {
-            return context
-        }
+@SuppressLint("StaticFieldLeak")
+object AppUtils {
+    private lateinit var context: Context
+
+    fun getContext(): Context {
+        return context
     }
 
-    @Override
-    override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
-        super.onCreate(savedInstanceState, persistentState)
+    fun init(context: Context) {
+        this.context = context
         startKoin {
-            androidContext(this@Myapplication)
+            androidContext(context)
             modules(appModule)
         }
         setUser()
-        context = this.applicationContext
         handlePrivacy()
-        startService(Intent(this, DataUpdateService::class.java))
     }
 
     private fun setUser() {
@@ -56,15 +48,10 @@ class Myapplication : Activity() {
 
 @Composable
 @OptIn(ExperimentalPermissionsApi::class)
-fun RequestPermission() {
+fun RequestPermission(noGranted: (state: PermissionState) -> Unit) {
     val state = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
     if (!state.status.isGranted) {
-        requirePermission(state)
+        noGranted
     }
-}
-
-@OptIn(ExperimentalPermissionsApi::class)
-private fun requirePermission(state: PermissionState) {
-    state.launchPermissionRequest()
 }
 

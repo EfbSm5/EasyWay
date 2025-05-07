@@ -10,7 +10,7 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
-import com.efbsm5.easyway.Myapplication
+import com.efbsm5.easyway.AppUtils
 
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
@@ -59,5 +59,5 @@ fun EasyWayTheme(
 }
 
 fun isDarkTheme(): Boolean {
-    return (Myapplication.getContext().resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+    return (AppUtils.getContext().resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
 }

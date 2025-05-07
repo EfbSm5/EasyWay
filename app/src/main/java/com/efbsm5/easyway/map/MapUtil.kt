@@ -14,7 +14,7 @@ import com.amap.api.maps.model.LatLng
 import com.amap.api.maps.model.Poi
 import com.amap.api.services.core.LatLonPoint
 import com.amap.api.services.core.PoiItemV2
-import com.efbsm5.easyway.Myapplication
+import com.efbsm5.easyway.AppUtils
 import com.efbsm5.easyway.data.models.DynamicPost
 import com.efbsm5.easyway.data.models.EasyPoint
 import com.efbsm5.easyway.data.models.User
@@ -38,7 +38,7 @@ object MapUtil {
 
     fun showMsg(text: String) {
         Toast.makeText(
-            Myapplication.getContext(), text, Toast.LENGTH_SHORT
+            AppUtils.getContext(), text, Toast.LENGTH_SHORT
         ).show()
     }
 

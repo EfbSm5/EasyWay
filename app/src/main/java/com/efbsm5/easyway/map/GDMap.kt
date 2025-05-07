@@ -30,7 +30,7 @@ import com.amap.api.maps.model.BitmapDescriptorFactory
 import com.amap.api.maps.model.LatLng
 import com.amap.api.maps.model.MarkerOptions
 import com.amap.api.maps.model.MyLocationStyle
-import com.efbsm5.easyway.Myapplication
+import com.efbsm5.easyway.AppUtils
 import com.efbsm5.easyway.data.models.assistModel.EasyPointSimplify
 import com.efbsm5.easyway.ui.theme.isDarkTheme
 import kotlinx.coroutines.CoroutineScope
@@ -53,7 +53,7 @@ fun GDMap(
         return
     }
     val mapView =
-        remember { MapView(Myapplication.getContext(), AMapOptions().compassEnabled(true)) }
+        remember { MapView(AppUtils.getContext(), AMapOptions().compassEnabled(true)) }
     var isLoading by remember { mutableStateOf(false) }
     Box(
         modifier = modifier, contentAlignment = Alignment.Center

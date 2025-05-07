@@ -3,7 +3,7 @@ package com.efbsm5.easyway.data.repository
 
 import android.net.Uri
 import com.amap.api.maps.model.LatLng
-import com.efbsm5.easyway.Myapplication
+import com.efbsm5.easyway.AppUtils
 import com.efbsm5.easyway.data.UserManager
 import com.efbsm5.easyway.data.database.AppDataBase
 import com.efbsm5.easyway.data.models.Comment
@@ -17,7 +17,7 @@ import com.efbsm5.easyway.map.MapUtil.getInitUser
 import kotlinx.coroutines.flow.Flow
 
 class DataRepository {
-    val context = Myapplication.getContext()
+    val context = AppUtils.getContext()
     private val database = AppDataBase.getDatabase(context)
 
     fun getAllPoints(): Flow<List<EasyPointSimplify>> {

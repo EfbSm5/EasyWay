@@ -11,7 +11,7 @@ import com.amap.api.services.route.DriveRouteResult
 import com.amap.api.services.route.RideRouteResult
 import com.amap.api.services.route.RouteSearch
 import com.amap.api.services.route.WalkRouteResult
-import com.efbsm5.easyway.Myapplication
+import com.efbsm5.easyway.AppUtils
 import com.efbsm5.easyway.R
 import com.efbsm5.easyway.map.MapUtil.showMsg
 import com.efbsm5.easyway.map.overlay.AMapServicesUtil.convertToLatLonPoint
@@ -30,7 +30,7 @@ fun startRouteSearch(
 ) {
     CoroutineScope(Dispatchers.IO).launch {
         try {
-            val routeSearch = RouteSearch(Myapplication.getContext())
+            val routeSearch = RouteSearch(AppUtils.getContext())
             routeSearch.setRouteSearchListener(object : RouteSearch.OnRouteSearchListener {
                 override fun onBusRouteSearched(p0: BusRouteResult?, p1: Int) {}
                 override fun onDriveRouteSearched(p0: DriveRouteResult?, p1: Int) {}
@@ -53,7 +53,7 @@ fun startRouteSearch(
                     }
                     val walkPath = walkRouteResult.paths[0] ?: return
                     val walkRouteOverlay = WalkRouteOverlay(
-                        Myapplication.getContext(),
+                        AppUtils.getContext(),
                         mapView.map,
                         walkPath,
                         walkRouteResult.startPos,

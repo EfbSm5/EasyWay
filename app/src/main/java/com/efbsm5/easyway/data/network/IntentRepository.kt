@@ -1,6 +1,6 @@
 package com.efbsm5.easyway.data.network
 
-import com.efbsm5.easyway.Myapplication
+import com.efbsm5.easyway.AppUtils
 import com.efbsm5.easyway.data.database.AppDataBase
 import com.efbsm5.easyway.data.models.Comment
 import com.efbsm5.easyway.data.models.DynamicPost
@@ -9,7 +9,7 @@ import com.efbsm5.easyway.data.models.ModelNames
 import com.efbsm5.easyway.data.models.User
 
 object IntentRepository {
-    private val db = AppDataBase.getDatabase(Myapplication.getContext())
+    private val db = AppDataBase.getDatabase(AppUtils.getContext())
     private val commentDao = db.commentDao()
     private val userDao = db.userDao()
     private val dynamicPostDao = db.dynamicPostDao()

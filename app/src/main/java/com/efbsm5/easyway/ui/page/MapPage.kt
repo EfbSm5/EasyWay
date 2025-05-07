@@ -20,7 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.amap.api.maps.AMap
 import com.amap.api.maps.LocationSource
-import com.efbsm5.easyway.Myapplication
+import com.efbsm5.easyway.AppUtils
 import com.efbsm5.easyway.R
 import com.efbsm5.easyway.RequestPermission
 import com.efbsm5.easyway.map.GDMap
@@ -29,10 +29,11 @@ import com.efbsm5.easyway.map.MapState
 import com.efbsm5.easyway.ui.components.mapcards.MapPageCard
 import com.efbsm5.easyway.ui.components.mapcards.Screen
 import com.efbsm5.easyway.viewmodel.pageViewmodel.MapPageViewModel
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
 fun MapPage(viewModel: MapPageViewModel) {
     val state by viewModel.state.collectAsState()
@@ -51,7 +52,7 @@ fun MapPage(viewModel: MapPageViewModel) {
         })
     BackHandler(
         enabled = state != Screen.Function, onBack = { viewModel.changeScreen(Screen.Function) })
-    RequestPermission()
+    RequestPermission { it.launchPermissionRequest() }
     MapScreen(
         onChangeScreen = viewModel::changeScreen,
         sheetState = sheetState,
@@ -66,7 +67,7 @@ fun MapPage(viewModel: MapPageViewModel) {
         onAdd = {
             viewModel.changeScreen(
                 Screen.NewPoint(
-                    label = Myapplication.getContext().getString(R.string.newPoint)
+                    label = AppUtils.getContext().getString(R.string.newPoint)
                 )
             )
         })

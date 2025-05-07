@@ -1,12 +1,10 @@
 package com.efbsm5.easyway.data.network
 
 import android.content.Intent
-import android.util.Log
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -20,8 +18,7 @@ private const val TAG = "Update"
 
 @Composable
 fun CheckUpdate() {
-    var updateInfo by remember { mutableStateOf<UpdateInfo?>(null) }
-//    LaunchedEffect(Unit) {
+    //    LaunchedEffect(Unit) {
 //        HttpClient().checkForUpdate { info ->
 //            Log.e(TAG, "CheckUpdate: ${info.toString()}")
 //            if (info != null && shouldUpdate(info.versionCode)) {
