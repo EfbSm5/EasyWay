@@ -13,10 +13,12 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.efbsm5.easyway.ui.page.MapPage
 import com.efbsm5.easyway.ui.page.communityPage.CommunityPage
@@ -29,12 +31,13 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun EasyWay() {
     val navController = rememberNavController()
+    var navBackStackEntry = navController.currentBackStackEntryAsState().value
     Scaffold(
         bottomBar = {
             AppBar(
                 modifier = Modifier.fillMaxWidth(),
                 onNavigate = { navController.navigate(it) },
-                currentDestination = navController.currentDestination?.route ?: "MapPage"
+                currentDestination = navBackStackEntry?.id ?: "MapPage"
             )
         }, modifier = Modifier
             .fillMaxSize()

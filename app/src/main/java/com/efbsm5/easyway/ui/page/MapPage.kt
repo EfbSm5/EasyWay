@@ -52,7 +52,7 @@ fun MapPage(viewModel: MapPageViewModel) {
         })
     BackHandler(
         enabled = state != Screen.Function, onBack = { viewModel.changeScreen(Screen.Function) })
-    RequestPermission { it.launchPermissionRequest() }
+    RequestPermission()
     MapScreen(
         onChangeScreen = viewModel::changeScreen,
         sheetState = sheetState,
